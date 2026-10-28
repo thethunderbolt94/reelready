@@ -1,0 +1,17 @@
+{
+  "brand": {
+    "name": "ReelReady",
+    "by": "Thrive Labs",
+    "url": "https://thrivelabs.ai",
+    "tagline": "Drop a clip. Get a reel."
+  },
+  "defaults": {
+    "aspect": "9:16",
+    "resolution": "1080x1920",
+    "transcription": "whisper-local",
+    "fps": 30
+  },
+  "styleguide": {
+    "port": 4810
+  }
+}

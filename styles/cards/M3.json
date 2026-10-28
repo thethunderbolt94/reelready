@@ -1,0 +1,22 @@
+{
+  "id": "M3",
+  "category": "motion",
+  "name": "Speed-ramp intro",
+  "oneliner": "The first second whips in fast, then lands at normal speed.",
+  "description": "A quick speed ramp from a shot of your business straight into you talking. 'Here we go' energy.",
+  "prompt": "Open with a 1.5-3s b-roll clip of the business (doors opening, coffee pouring, tools coming out, a walk-in): play it at 3x for the first 60%, ease down (cubic) to 1x over 400ms, and cut to the speaker exactly on the first word of the hook. Add a short riser or whoosh SFX into the cut at about -18 LUFS. The intro must take at most 1.2s of screen time so the hook still lands in the first 2s. If there's no b-roll, skip the card and say so. Do NOT slow-mo the speaker while they talk and do NOT add motion blur above 20%.",
+  "engine": "motion",
+  "needs": [
+    "broll"
+  ],
+  "pairs_with": [
+    "H2",
+    "C3",
+    "O1"
+  ],
+  "avoid_with": [
+    "H5"
+  ],
+  "sketch": "sketches/M3.svg",
+  "duration_hint": "first 1.2s"
+}

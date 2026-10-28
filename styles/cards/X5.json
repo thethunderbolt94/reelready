@@ -1,0 +1,27 @@
+{
+  "id": "X5",
+  "category": "signature",
+  "name": "UI world",
+  "oneliner": "Your background becomes your own website or booking page.",
+  "description": "You're standing inside your site, menu or booking page. Perfect for 'book online' and 'order ahead'.",
+  "prompt": "Needs subject matting. For one 4-8s section about booking, ordering or the website, replace the background with a clean, slightly enlarged (1.3x) screenshot of the business's OWN site, booking page or online menu (from assets/ or a screenshot the user provides; ask, and never use another company's UI). Blur it 6px except one sharp highlighted element (the 'Book now' or 'Order' button, or the price) with a 6px {{brand.accent}} ring that pulses once. Scroll the page slowly upward (40px/s). The subject stays in front with a soft shadow. Enter with a 300ms ease-out crossfade from the real background; exit over 200ms. Keep it inside the safe zone (nothing in the top 220px or bottom 320px of 1080x1920). Do NOT fake UI that isn't on their site, blur any customer names, emails or phone numbers in the screenshot, and do NOT combine with another X card.",
+  "engine": "composite",
+  "needs": [
+    "matting"
+  ],
+  "pairs_with": [
+    "C4",
+    "P1",
+    "O3"
+  ],
+  "avoid_with": [
+    "L4",
+    "X1",
+    "X2",
+    "X3",
+    "X4",
+    "X6"
+  ],
+  "sketch": "sketches/X5.svg",
+  "duration_hint": "4-8s section"
+}

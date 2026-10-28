@@ -1,0 +1,26 @@
+{
+  "id": "H3",
+  "category": "hook",
+  "name": "Handwritten arrow note",
+  "oneliner": "A scribbled arrow and note point at what you're talking about.",
+  "description": "A marker-style arrow draws itself toward you or your product with a short note. Personal, not corporate.",
+  "prompt": "In the first 3s (or the first time the speaker names a product, dish or result), draw ONE hand-drawn arrow that writes itself on over 400ms (stroke-dashoffset, ease-out), pointing at the product in their hands or at the speaker from the side. Stroke 10-12px, round caps, {{brand.accent}}, with a slight wobble so it looks hand-made. At the arrow's tail, a 2-4 word note in a handwritten/marker font (fallback: {{font.display}} italic) at 72-88px, white with a 4px dark shadow, rotated between -6 and 6 degrees. Prefer the speaker's own words; anything generated is flagged for approval. Place the note between y=300 and y=700, never over the face. Hold 1.8-2.5s, fade out over 200ms. Keep it inside the safe zone (nothing in the top 220px or bottom 320px of 1080x1920). Do NOT use emojis, cartoon stickers, or more than one arrow.",
+  "engine": "overlay",
+  "needs": [
+    "transcript"
+  ],
+  "pairs_with": [
+    "C2",
+    "B3",
+    "L1"
+  ],
+  "avoid_with": [
+    "H1",
+    "H2",
+    "H4",
+    "H5",
+    "H6"
+  ],
+  "sketch": "sketches/H3.svg",
+  "duration_hint": "first 3s"
+}

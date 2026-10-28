@@ -1,0 +1,19 @@
+# Local environments
+.venv/
+node_modules/
+__pycache__/
+*.pyc
+
+# Per-machine state (main-folder pointer, keys, work files)
+.reelready/
+.env
+.env.*
+
+# Private client work never ships
+clients/
+
+# Smoke-test renders
+tests/smoke/out/*.mp4
+
+# OS noise
+.DS_Store

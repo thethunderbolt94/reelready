@@ -1,0 +1,58 @@
+[
+  {
+    "name": "Cafe story",
+    "who": "Cafe or bakery owner telling a story",
+    "ids": [
+      "H1",
+      "C1",
+      "L1",
+      "B1",
+      "O1"
+    ]
+  },
+  {
+    "name": "What to order",
+    "who": "Restaurant menu or new-item drop",
+    "ids": [
+      "H2",
+      "C2",
+      "B4",
+      "M2",
+      "O3"
+    ]
+  },
+  {
+    "name": "Salon glow-up",
+    "who": "Salon, barber or beauty before/after",
+    "ids": [
+      "H5",
+      "C6",
+      "P2",
+      "M1",
+      "O1"
+    ]
+  },
+  {
+    "name": "Job walk",
+    "who": "Contractor or trades showing the work",
+    "ids": [
+      "H4",
+      "C4",
+      "L3",
+      "B1",
+      "O3"
+    ]
+  },
+  {
+    "name": "Listing tour",
+    "who": "Realtor showing a home",
+    "ids": [
+      "H6",
+      "C6",
+      "L1",
+      "P4",
+      "X4",
+      "O1"
+    ]
+  }
+]

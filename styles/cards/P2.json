@@ -1,0 +1,20 @@
+{
+  "id": "P2",
+  "category": "proof",
+  "name": "Review card stack",
+  "oneliner": "Star-review cards deal in one by one next to you.",
+  "description": "A fanned stack of real customer reviews. Social proof without ever saying 'we're the best'.",
+  "prompt": "Use 2-3 real reviews from the user (ask if none; never fabricate). Each card: 820x300px, white, radius 28px, shadow 0 16px 40px rgba(0,0,0,.25); the real star rating in {{brand.accent}} (show 5 stars only if the review gave 5); the reviewer's first name, plus 'Google review' only if it truly came from Google; a 1-2 line excerpt VERBATIM in {{font.body}} 600 64px. Cards deal in from the right one at a time, 450ms apart, each easing (300ms ease-out) to a resting angle of -4, 2 and -1 degrees, stacking with a 40px offset, centered at x=540, y=520, above the face. Hold 3s after the last card, then all exit together over 200ms. Keep it inside the safe zone (nothing in the top 220px or bottom 320px of 1080x1920). Do NOT use platform logos unless the review came from that platform and never cover the face.",
+  "engine": "overlay",
+  "needs": [],
+  "pairs_with": [
+    "H5",
+    "C6",
+    "O1"
+  ],
+  "avoid_with": [
+    "P1"
+  ],
+  "sketch": "sketches/P2.svg",
+  "duration_hint": "about 5s"
+}

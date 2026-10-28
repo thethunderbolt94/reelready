@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "result": [
+    {"update_id": 1001,
+     "message": {"message_id": 1, "chat": {"id": 111111, "first_name": "Owner"},
+                 "video": {"file_id": "VIDEO_FILE_1", "file_size": 3000000, "duration": 18}}},
+    {"update_id": 1002,
+     "message": {"message_id": 2, "chat": {"id": 999999, "first_name": "Stranger"},
+                 "video": {"file_id": "STRANGER_FILE", "file_size": 1000000}}},
+    {"update_id": 1003,
+     "message": {"message_id": 3, "chat": {"id": 999999, "first_name": "Stranger"},
+                 "text": "use styles H1+C2"}},
+    {"update_id": 1004,
+     "message": {"message_id": 4, "chat": {"id": 111111, "first_name": "Owner"},
+                 "text": "use styles H1+C2"}},
+    {"update_id": 1005,
+     "message": {"message_id": 5, "chat": {"id": 111111, "first_name": "Owner"},
+                 "document": {"file_id": "DOC_FILE_1", "file_name": "clip.MOV",
+                              "mime_type": "video/quicktime", "file_size": 5000000}}},
+    {"update_id": 1006,
+     "message": {"message_id": 6, "chat": {"id": 111111, "first_name": "Owner"},
+                 "video": {"file_id": "HUGE_FILE", "file_size": 90000000}}}
+  ]
+}

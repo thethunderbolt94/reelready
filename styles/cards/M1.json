@@ -1,0 +1,20 @@
+{
+  "id": "M1",
+  "category": "motion",
+  "name": "Punch-in on new sentences",
+  "oneliner": "A subtle zoom-in at the start of each new sentence.",
+  "description": "Fakes a second camera angle, so one long take feels edited and alive.",
+  "prompt": "At each sentence start (from transcript punctuation, at least 3s apart), alternate the framing between wide (1.00x) and punched in (1.12-1.18x, centered so the eyes sit near y=700). Use hard cuts for crisp jump-cut energy, or a 200ms ease-out zoom if the profile prefers 'smooth'. Never punch in so far that more than 5% of the top of the head is cropped, and never drop below 1080 wide (on a 1080p source, cap at 1.12x). No punch-ins during b-roll. Do NOT add camera shake and do NOT zoom out past wide.",
+  "engine": "cut",
+  "needs": [
+    "transcript"
+  ],
+  "pairs_with": [
+    "C1",
+    "H1",
+    "B1"
+  ],
+  "avoid_with": [],
+  "sketch": "sketches/M1.svg",
+  "duration_hint": "whole video"
+}

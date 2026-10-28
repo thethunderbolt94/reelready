@@ -1,0 +1,18 @@
+{
+  "id": "P4",
+  "category": "proof",
+  "name": "Map pin + address",
+  "oneliner": "A pin drops on a clean little map, with your address.",
+  "description": "Tells locals exactly where to find you. A stylized map, a pin drop and your street address.",
+  "prompt": "When the speaker mentions the location (otherwise in the last third), show a stylized map card: 900x620px, radius 32px, centered, top at y=300, drawn from simple vector street shapes on a pale {{brand.primary}}-tinted background. Do NOT screenshot Google Maps or any map provider, and do NOT label the drawn streets with real street names. A {{brand.accent}} pin drops from 120px above with a small bounce (ease-out 300ms) to the center. Under the card: the street address in {{font.body}} 700 64px, white with a shadow, and the neighborhood or city in {{font.body}} 500 64px at 80%. The address comes from the profile only; if missing, ask. Hold 3s, 200ms out. Keep it inside the safe zone (nothing in the top 220px or bottom 320px of 1080x1920).",
+  "engine": "overlay",
+  "needs": [],
+  "pairs_with": [
+    "L1",
+    "O1",
+    "B1"
+  ],
+  "avoid_with": [],
+  "sketch": "sketches/P4.svg",
+  "duration_hint": "3s"
+}

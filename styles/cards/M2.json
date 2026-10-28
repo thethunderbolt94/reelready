@@ -1,0 +1,18 @@
+{
+  "id": "M2",
+  "category": "motion",
+  "name": "Soft crossfade + whoosh",
+  "oneliner": "8-frame crossfades with a soft whoosh on every scene change.",
+  "description": "Turns hard jumps into gentle transitions with a matching sound. Polished, never flashy.",
+  "prompt": "At every cut between non-continuous shots (b-roll in and out, section changes), use an 8-frame crossfade at 30fps (about 267ms) with a subtle 4% scale dip-and-return; keep jump cuts inside the talking head as hard cuts. Lay a soft whoosh SFX centered on each transition, peaking around -20 LUFS and ducked under speech; rotate between 2-3 whoosh samples so it never sounds repetitive. At most one transition every 2s. Do NOT use spin, glitch or page-curl transitions and do NOT land a whoosh on top of a speech peak.",
+  "engine": "motion",
+  "needs": [],
+  "pairs_with": [
+    "B1",
+    "B2",
+    "L3"
+  ],
+  "avoid_with": [],
+  "sketch": "sketches/M2.svg",
+  "duration_hint": "every scene change"
+}

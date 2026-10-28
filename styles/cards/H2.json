@@ -1,0 +1,27 @@
+{
+  "id": "H2",
+  "category": "hook",
+  "name": "Sticker hook with logo",
+  "oneliner": "Your logo and a punchy line slap on like a sticker in second one.",
+  "description": "A die-cut sticker with your logo and a 3-5 word hook pops on with a little bounce, then peels away.",
+  "prompt": "At 0.2s, pop one die-cut sticker centered at x=540, y=470, 620-760px wide, rotated -4 degrees. Sticker: white rounded shape with a 14px white border and a soft shadow (0 12px 30px rgba(0,0,0,.25)); inside, the business logo from assets/ (max 180px tall) next to a 3-5 word hook in {{font.display}} 80-96px, color {{brand.primary}}, with ONE word on a {{brand.accent}} swatch. Hook copy: lift it from the first spoken sentence where possible; anything newly written is flagged for approval in the plan. Animate: scale 0.6 to 1.06 to 1.0 overshoot, ease-out, 300ms total, with a soft pop SFX around -18 LUFS. Hold until 2.6s, then slide up 40px and fade out over 200ms. Keep it above the face, never over eyes or mouth. Keep it inside the safe zone (nothing in the top 220px or bottom 320px of 1080x1920). If there is no logo in assets/, set the business name in {{font.display}} instead and say so in the plan. Do NOT use more than one sticker and do NOT animate or recolor the logo itself.",
+  "engine": "overlay",
+  "needs": [
+    "assets:logo",
+    "transcript"
+  ],
+  "pairs_with": [
+    "C3",
+    "B3",
+    "O1"
+  ],
+  "avoid_with": [
+    "H1",
+    "H3",
+    "H4",
+    "H5",
+    "H6"
+  ],
+  "sketch": "sketches/H2.svg",
+  "duration_hint": "first 3s"
+}

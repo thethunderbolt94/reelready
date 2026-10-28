@@ -1,0 +1,24 @@
+{
+  "id": "O1",
+  "category": "outro",
+  "name": "End card",
+  "oneliner": "Logo, address and one clear call to action to finish.",
+  "description": "The last few seconds: your logo, where to find you and what to do next, like 'Come say hi'.",
+  "prompt": "Last 3.5-4s. Background: {{brand.primary}} full frame (or a blurred, darkened last frame), crossfading in over 300ms. Centered stack starting at y=520: the logo from assets/ (max 320px tall; if none, the business name in {{font.display}} 700 96px), the address in {{font.body}} 500 64px, hours or website in {{font.body}} 500 64px at 80%, then a CTA pill: {{brand.accent}} background, near-black text, {{font.body}} 800 72px, fully rounded, padding 28px 56px, with a gentle 1.5s pulse (scale 1.0 to 1.03). CTA copy: use the speaker's own closing line if there is one; otherwise propose 2 options in the plan, marked for approval. Elements stagger in 120ms apart, ease-out 300ms. Music lifts 3dB over the end card and fades out over the last 800ms. Keep it inside the safe zone (nothing in the top 220px or bottom 320px of 1080x1920). Do NOT add icons for social platforms the profile doesn't list.",
+  "engine": "overlay",
+  "needs": [
+    "assets:logo",
+    "assets:music"
+  ],
+  "pairs_with": [
+    "H1",
+    "L1",
+    "P4"
+  ],
+  "avoid_with": [
+    "O2",
+    "O3"
+  ],
+  "sketch": "sketches/O1.svg",
+  "duration_hint": "last 4s"
+}

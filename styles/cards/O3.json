@@ -1,0 +1,21 @@
+{
+  "id": "O3",
+  "category": "outro",
+  "name": "QR + website outro",
+  "oneliner": "Your website and a scannable QR code to close.",
+  "description": "A big, clean URL plus a QR code for people watching on another screen. Great for menus and listings.",
+  "prompt": "Last 3-4s. A white card, 760x1000, radius 40px, centered at y=900, on a {{brand.primary}} background. Inside: a QR code generated locally from the profile's website or booking URL (never a third-party shortener), 520x520 with a 24px quiet zone; the URL below in {{font.body}} 700 64-72px (drop the https://); and a one-line label above in {{font.display}} italic 72px, like 'Scan for the menu' (generated copy, flag it for approval). {{brand.accent}} corner brackets animate in around the QR (300ms ease-out). Hold a full 3s so it can be scanned. If the profile has no URL, skip the card and ask. Keep it inside the safe zone (nothing in the top 220px or bottom 320px of 1080x1920). Do NOT shrink the QR below 440px.",
+  "engine": "overlay",
+  "needs": [],
+  "pairs_with": [
+    "P3",
+    "B4",
+    "H6"
+  ],
+  "avoid_with": [
+    "O1",
+    "O2"
+  ],
+  "sketch": "sketches/O3.svg",
+  "duration_hint": "last 3-4s"
+}

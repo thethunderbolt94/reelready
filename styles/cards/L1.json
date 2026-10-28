@@ -1,0 +1,20 @@
+{
+  "id": "L1",
+  "category": "layout",
+  "name": "Name + business lower-third",
+  "oneliner": "Your name and business slide in when you introduce yourself.",
+  "description": "Two clean lines (your name, then role and business) so new viewers know who's talking.",
+  "prompt": "When the speaker first says their name or business (or at 1.5s if they never do), slide in a two-line lower-third on the left. Line 1: the person's name in {{font.display}} 700, 72px, white. Line 2: role and business in {{font.body}} 500, 64px, white at 85%. Background: a {{brand.primary}} block with an 8px {{brand.accent}} bar on its left edge, padding 28px 40px, radius 18px, left edge at x=72, top at y=1180. If the captions also sit near y=1380, raise the lower-third to y=1100 so they never overlap. Animate: the accent bar wipes down first (200ms), then the text slides 40px in from the left with a fade, ease-out 300ms; hold 3.5s; slide out left over 200ms. Names and titles come from the profile; if missing, ask. Never guess a name or title. Keep it inside the safe zone (nothing in the top 220px or bottom 320px of 1080x1920). Do NOT cover the face.",
+  "engine": "overlay",
+  "needs": [
+    "transcript"
+  ],
+  "pairs_with": [
+    "H1",
+    "C1",
+    "O1"
+  ],
+  "avoid_with": [],
+  "sketch": "sketches/L1.svg",
+  "duration_hint": "3.5s at your intro"
+}

@@ -1,0 +1,20 @@
+{
+  "id": "B4",
+  "category": "broll",
+  "name": "Menu moment",
+  "oneliner": "Item and price land on a little menu card as you say them.",
+  "description": "Made for cafes and restaurants: perfect for 'what to order' videos and new-item drops.",
+  "prompt": "When the speaker says an item and its price together ('the oat latte, six fifty'), show a menu card: 760x380, cream #FBF6EC paper, a thin double-rule border in {{brand.primary}}, radius 20px, centered on x=540, top at y=300. Item name in {{font.display}} italic 600 84px, a dotted leader, then the price in {{font.display}} 700 84px in {{brand.primary}}. Add a small {{brand.accent}} 'house favorite' tab only if the speaker says it's a favorite. Use the name and price EXACTLY as spoken (formatting 'six fifty' as '$6.50' is fine; changing the amount is not). The card slides up 40px with a fade, ease-out 300ms, on the item word; holds until 1s after the price; 200ms out. A b-roll shot of the item behind the card is welcome if one exists. Keep it inside the safe zone (nothing in the top 220px or bottom 320px of 1080x1920). Do NOT add items or prices the speaker didn't say.",
+  "engine": "overlay",
+  "needs": [
+    "transcript"
+  ],
+  "pairs_with": [
+    "C2",
+    "B1",
+    "O3"
+  ],
+  "avoid_with": [],
+  "sketch": "sketches/B4.svg",
+  "duration_hint": "while you say it"
+}

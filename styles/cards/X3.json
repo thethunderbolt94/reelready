@@ -1,0 +1,28 @@
+{
+  "id": "X3",
+  "category": "signature",
+  "name": "Headline behind you",
+  "oneliner": "Huge words swap behind your head as each point lands.",
+  "description": "Giant words sit behind you and change with every point you make. Magazine-cover energy.",
+  "prompt": "Needs subject matting. For one 6-12s section where the speaker makes 2-4 points, place one giant word per point BEHIND the subject: the key word of that point, VERBATIM from the transcript, in {{font.display}} 900, uppercase, 340-420px, drawn as a 6px white outline at 70% with the current word filled {{brand.accent}}, centered at y=620 so the head overlaps it. Swap words exactly on each point's first word: the old word slides up 60px and fades over 200ms; the new one rises from 60px below, ease-out 300ms. Composite order: background, word, subject, captions. Keep it inside the safe zone (nothing in the top 220px or bottom 320px of 1080x1920). Do NOT use it in the first 3s when H1 is in the mix, do NOT use more than 4 words, and never put the word in front of the face.",
+  "engine": "composite",
+  "needs": [
+    "matting",
+    "transcript"
+  ],
+  "pairs_with": [
+    "C1",
+    "M1",
+    "B1"
+  ],
+  "avoid_with": [
+    "H1",
+    "X1",
+    "X2",
+    "X4",
+    "X5",
+    "X6"
+  ],
+  "sketch": "sketches/X3.svg",
+  "duration_hint": "6-12s section"
+}

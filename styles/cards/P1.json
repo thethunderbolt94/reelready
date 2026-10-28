@@ -1,0 +1,20 @@
+{
+  "id": "P1",
+  "category": "proof",
+  "name": "Pinned review banner",
+  "oneliner": "A real customer review pinned at the top like a top comment.",
+  "description": "Looks like a pinned comment from a happy customer, sitting above you while you talk.",
+  "prompt": "Use ONE real review (from references/, assets/, or pasted by the user). Never write a fake review; if none is provided, ask. Render it as a pinned-comment banner: 940px wide, centered, top at y=240, white at 96% (or #1C1C1E if the footage is dark), radius 28px, padding 28px 32px. Row 1: a small pin icon in {{brand.accent}}, the word 'Pinned' and the reviewer's first name or initials, {{font.body}} 600 64px at 70%. Row 2: the review text VERBATIM in {{font.body}} 500 64px, max 3 lines (trim with an ellipsis only, never reword); the star rating in {{brand.accent}} if it has one. Slide down from y=180 with a fade, ease-out 300ms, when the speaker mentions customers or reviews (otherwise at 4s); hold 4-5s; 200ms out. Keep it inside the safe zone (nothing in the top 220px or bottom 320px of 1080x1920). Do NOT invent usernames, avatars, like counts or a platform logo the review didn't come from.",
+  "engine": "overlay",
+  "needs": [],
+  "pairs_with": [
+    "C1",
+    "L1",
+    "O1"
+  ],
+  "avoid_with": [
+    "P2"
+  ],
+  "sketch": "sketches/P1.svg",
+  "duration_hint": "4-5s"
+}

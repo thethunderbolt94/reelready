@@ -1,0 +1,21 @@
+{
+  "id": "O2",
+  "category": "outro",
+  "name": "Follow for part 2",
+  "oneliner": "A 'Part 2' teaser card that gives people a reason to follow.",
+  "description": "Ends on a cliffhanger card with the next topic and a follow nudge. Great for series.",
+  "prompt": "Only use this if the speaker sets up a sequel or the user asks for a series. In the last 2.5-3s, freeze the final frame, darken it 40%, and slide up a card centered on x=540 with its top at y=620: 'Part 2' in {{font.display}} italic 700 140px in {{brand.accent}}; the next topic in {{font.body}} 700 72px white (from the speaker's words or the user; anything generated is flagged for approval); and 'Follow so you don't miss it' in {{font.body}} 500 64px at 80%. Rise 40px plus fade, ease-out 300ms. A small {{brand.accent}} arrow toward the follow button area on the right rail (around x=980, y=1200) is allowed. Keep it inside the safe zone (nothing in the top 220px or bottom 320px of 1080x1920). Do NOT promise a part 2 the user hasn't confirmed they'll make.",
+  "engine": "overlay",
+  "needs": [],
+  "pairs_with": [
+    "X4",
+    "C1",
+    "M1"
+  ],
+  "avoid_with": [
+    "O1",
+    "O3"
+  ],
+  "sketch": "sketches/O2.svg",
+  "duration_hint": "last 3s"
+}

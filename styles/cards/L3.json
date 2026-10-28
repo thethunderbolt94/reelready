@@ -1,0 +1,23 @@
+{
+  "id": "L3",
+  "category": "layout",
+  "name": "Split screen",
+  "oneliner": "You on top, the footage on the bottom, at the same time.",
+  "description": "Show the work while you explain it: the dish being plated, the room being shown, the cut happening.",
+  "prompt": "For segments where the speaker walks through a process and matching b-roll exists, switch to a vertical split. Top half (1080x960): the speaker, reframed so the eyes sit at y=380. Bottom half (1080x960): the b-roll, cropped to fill. Divider: a 6px {{brand.accent}} line at y=960. Captions move onto the divider (centered on y=960 inside a dark pill) so they stay out of the bottom 320px. Enter with the bottom panel sliding up from below, ease-out 300ms; exit over 200ms. Hold each split 3-8s. Do NOT letterbox, do NOT shrink the speaker so far the eyes are hard to see, and keep the speaker's audio throughout.",
+  "engine": "composite",
+  "needs": [
+    "broll"
+  ],
+  "pairs_with": [
+    "C4",
+    "B1",
+    "M2"
+  ],
+  "avoid_with": [
+    "L2",
+    "L4"
+  ],
+  "sketch": "sketches/L3.svg",
+  "duration_hint": "3-8s segments"
+}

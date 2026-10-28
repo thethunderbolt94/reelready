@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  ReelReady Telegram bridge as a background service (starts at login, restarts if it stops).
+  Fill in the four __PLACEHOLDERS__, save as ~/Library/LaunchAgents/com.reelready.telegram.plist,
+  then load it. Claude can do all of this for you. See README.md.
+    __PYTHON__       output of: which python3
+    __BRIDGE__       full path to addons/telegram/bridge.py
+    __MAIN_FOLDER__  full path to your "AI Video Editor" folder
+    __HOME__         your home folder (so claude and ffmpeg are found)
+  The bot token is NOT in this file. It stays in <main folder>/.reelready/.env.
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.reelready.telegram</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>__PYTHON__</string>
+    <string>__BRIDGE__</string>
+    <string>--main-folder</string>
+    <string>__MAIN_FOLDER__</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>__MAIN_FOLDER__</string>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>__HOME__/.local/bin:__HOME__/.claude/local:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+  </dict>
+
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>ThrottleInterval</key>
+  <integer>15</integer>
+
+  <key>StandardOutPath</key>
+  <string>__MAIN_FOLDER__/.reelready/work/telegram.log</string>
+  <key>StandardErrorPath</key>
+  <string>__MAIN_FOLDER__/.reelready/work/telegram.log</string>
+</dict>
+</plist>

@@ -1,0 +1,27 @@
+{
+  "id": "H5",
+  "category": "hook",
+  "name": "Before / after split",
+  "oneliner": "A wipe reveals the before and after in the first two seconds.",
+  "description": "Made for salons, contractors, cleaners and makeovers. The result is the hook; you explain it after.",
+  "prompt": "Open on a before/after. Needs two shots from raw footage (before and after); ask which ones if it's unclear. 0.0-0.4s: full-frame BEFORE. At 0.4s a vertical wipe line in {{brand.accent}} (8px, with a small round handle) sweeps from x=1080 to x=540 over 500ms (ease-in-out), revealing AFTER on the right half. Hold the split 1.2s, then the line continues to x=0 revealing full AFTER, and cut to the talking head at 2.4s. Labels 'BEFORE' and 'AFTER' in {{font.body}} 700, 64px, letter-spacing 8%, white on a 70% black pill, at y=300 in each half. Roughly match exposure between the two shots. The spoken hook can start under the split; the hook must land in the first 2s. Keep it inside the safe zone (nothing in the top 220px or bottom 320px of 1080x1920). Do NOT add filters that exaggerate the after (it reads as dishonest) and do NOT use stock images.",
+  "engine": "composite",
+  "needs": [
+    "broll"
+  ],
+  "pairs_with": [
+    "C6",
+    "P2",
+    "O1"
+  ],
+  "avoid_with": [
+    "H1",
+    "H2",
+    "H3",
+    "H4",
+    "H6",
+    "M3"
+  ],
+  "sketch": "sketches/H5.svg",
+  "duration_hint": "first 2.5s"
+}

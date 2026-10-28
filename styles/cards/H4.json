@@ -1,0 +1,26 @@
+{
+  "id": "H4",
+  "category": "hook",
+  "name": "The number",
+  "oneliner": "A big stat counts up over your first line as you say it.",
+  "description": "Say a number up top (years open, homes sold, price) and it rolls up huge on screen, landing on the word.",
+  "prompt": "Find the first number spoken in the first 6s of the transcript (e.g. '12 years', '$40', '300 homes'). If no number is spoken, skip this card and say so in the plan; never invent a stat. Show it as a count-up from 0 that lands exactly on the end timestamp of the spoken number (count 600-900ms, ease-out cubic). Type: {{font.display}}, 300-380px, tabular figures, white, with the prefix or unit ($, %, +) in {{brand.accent}}, centered at y=520. Under it, a 2-4 word label in {{font.body}} 64-72px using the speaker's own words ('years in this shop'). On landing, a 6% scale settle and a soft tick SFX. Hold until the sentence ends, then fade out over 200ms. Keep it inside the safe zone (nothing in the top 220px or bottom 320px of 1080x1920). Do NOT round, change or 'improve' the number and do NOT add a currency or unit the speaker didn't say.",
+  "engine": "overlay",
+  "needs": [
+    "transcript"
+  ],
+  "pairs_with": [
+    "C5",
+    "P3",
+    "O3"
+  ],
+  "avoid_with": [
+    "H1",
+    "H2",
+    "H3",
+    "H5",
+    "H6"
+  ],
+  "sketch": "sketches/H4.svg",
+  "duration_hint": "first 2-4s"
+}

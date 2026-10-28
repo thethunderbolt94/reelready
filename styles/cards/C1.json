@@ -1,0 +1,26 @@
+{
+  "id": "C1",
+  "category": "captions",
+  "name": "Bold white + accent word",
+  "oneliner": "Chunky white captions with one word in an italic accent serif.",
+  "description": "The signature look: bold white words, and the one that matters flips to italic serif in your accent color.",
+  "prompt": "Burn in word-level captions from the transcript, VERBATIM. Never paraphrase; only fix obvious transcription errors and list each fix in the plan. Group 2-4 words per line, max 2 lines, breaking on natural pauses. Type: {{font.body}} 800, 76-88px, white, tracking -1%, soft shadow 0 4px 18px rgba(0,0,0,.45) instead of a hard stroke. In each group pick ONE emphasis word (the noun or number carrying the meaning) and set it in {{font.display}} italic 500 at 110% size in {{brand.accent}}. Position: centered, baseline at y=1380, clear of the bottom 320px and the right 140px button rail. Each group pops in on its first word's start time: 120ms, scale 0.92 to 1.0, ease-out; groups swap instantly with no fades. Do NOT highlight more than one word per group, do NOT add emojis and do NOT uppercase everything.",
+  "engine": "captions",
+  "needs": [
+    "transcript"
+  ],
+  "pairs_with": [
+    "H1",
+    "M1",
+    "X6"
+  ],
+  "avoid_with": [
+    "C2",
+    "C3",
+    "C4",
+    "C5",
+    "C6"
+  ],
+  "sketch": "sketches/C1.svg",
+  "duration_hint": "whole video"
+}

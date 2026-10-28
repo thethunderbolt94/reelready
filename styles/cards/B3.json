@@ -1,0 +1,21 @@
+{
+  "id": "B3",
+  "category": "broll",
+  "name": "Product pop card",
+  "oneliner": "A photo of the product pops up beside you when you name it.",
+  "description": "Your best dish, product or tool appears as a floating card with its name, then floats away.",
+  "prompt": "When the speaker names a specific product, dish or service that has a photo in assets/, show a floating card: the photo cropped square at 560x560 (or a background-removed cut-out if matting is available), radius 36px, 12px white border, shadow 0 24px 50px rgba(0,0,0,.3), rotated 3 degrees, centered at x=700, y=560 (mirror to the left if the face is on the right). Below it, the name exactly as spoken in {{font.display}} 700 72px on a {{brand.accent}} pill. Animate: scale 0.7 to 1.05 to 1.0 with a soft pop SFX, ease-out 300ms; a gentle 4px bob during a 2.5s hold; 200ms out. At most one card every 6s. Keep it inside the safe zone (nothing in the top 220px or bottom 320px of 1080x1920). Do NOT cover the face and do NOT add a price unless it's spoken (that's B4).",
+  "engine": "overlay",
+  "needs": [
+    "broll",
+    "transcript"
+  ],
+  "pairs_with": [
+    "H2",
+    "C3",
+    "B4"
+  ],
+  "avoid_with": [],
+  "sketch": "sketches/B3.svg",
+  "duration_hint": "2.5s per mention"
+}

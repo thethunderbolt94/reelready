@@ -1,0 +1,23 @@
+{
+  "id": "L2",
+  "category": "layout",
+  "name": "Picture-in-picture corner",
+  "oneliner": "B-roll plays in a rounded corner window while you keep talking.",
+  "description": "You stay full screen; a small window shows the product, shop or job the moment you mention it.",
+  "prompt": "When the speaker mentions something visual that exists in the footage folder, show it as a picture-in-picture window: 420x560px (3:4), radius 32px, 6px white border, shadow 0 20px 40px rgba(0,0,0,.3). Position top-right, top edge at y=260, right edge at x=1020; switch to top-left if the face is on the right. Clip length 2.5-4s, muted (speaker audio continues). Animate in with scale 0.85 to 1.0 plus fade, ease-out 300ms, a slow 2% push-in while it holds, and 200ms out. Only one window on screen at a time, at least 5s apart. Keep it inside the safe zone (nothing in the top 220px or bottom 320px of 1080x1920). Do NOT cover the face and do NOT use stock footage unless the user approved it in the plan.",
+  "engine": "composite",
+  "needs": [
+    "broll",
+    "transcript"
+  ],
+  "pairs_with": [
+    "C1",
+    "B1",
+    "M1"
+  ],
+  "avoid_with": [
+    "L3"
+  ],
+  "sketch": "sketches/L2.svg",
+  "duration_hint": "2.5-4s per mention"
+}

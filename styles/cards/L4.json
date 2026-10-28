@@ -1,0 +1,24 @@
+{
+  "id": "L4",
+  "category": "layout",
+  "name": "Framed on brand paper",
+  "oneliner": "Your video sits in a soft frame on a brand-color paper backdrop.",
+  "description": "Turns a plain phone video into something that looks designed. Calm, warm, a little editorial.",
+  "prompt": "Place the whole talking-head video inside a frame on a background plate. Background: {{brand.primary}} (or a light paper tone if the primary is very dark) with a subtle paper grain (noise at 4-6% opacity); no stock textures. Frame: 900x1350, centered on x=540, top at y=250, corner radius 36px, 10px off-white border, shadow 0 24px 60px rgba(0,0,0,.25); scale the 9:16 video to fill it and crop the overflow. The logo goes as a 72px round badge overlapping the frame's top-left corner, only if one is in assets/. Captions sit inside the lower part of the frame. The frame floats gently (6px up and down on a 6s sine). Keep it inside the safe zone (nothing in the top 220px or bottom 320px of 1080x1920). Do NOT add tape, doodles or extra stickers here; this layout is meant to feel calm.",
+  "engine": "composite",
+  "needs": [],
+  "pairs_with": [
+    "C2",
+    "C6",
+    "O1"
+  ],
+  "avoid_with": [
+    "L3",
+    "X1",
+    "X2",
+    "X4",
+    "X5"
+  ],
+  "sketch": "sketches/L4.svg",
+  "duration_hint": "whole video"
+}

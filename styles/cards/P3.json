@@ -1,0 +1,20 @@
+{
+  "id": "P3",
+  "category": "proof",
+  "name": "Results / price grid",
+  "oneliner": "A tidy grid of your prices, packages or results.",
+  "description": "A 2x2 grid like 'Cut $45 / Color $120' or 'Sold in 6 days'. Clear, scannable, trustworthy.",
+  "prompt": "When the speaker lists prices, packages or results, show a grid of 2-4 tiles (2x2 or 1x3) with the EXACT values they say (or from the profile's price list; never invent prices). Tile: 440x300, radius 28px, white at 94% or {{brand.primary}}; the value in {{font.display}} 800 120px; the label in {{font.body}} 600 64px. Grid centered on x=540, top at y=280, 24px gaps. Tiles appear one at a time, synced to each spoken item's timestamp: rise 30px plus fade, ease-out 300ms. The tile currently being spoken gets a 6px {{brand.accent}} outline. Hold 1.5s after the last item, 200ms out. Keep it inside the safe zone (nothing in the top 220px or bottom 320px of 1080x1920). Do NOT show prices or results the speaker didn't mention unless the user approved them in the plan.",
+  "engine": "overlay",
+  "needs": [
+    "transcript"
+  ],
+  "pairs_with": [
+    "H4",
+    "C5",
+    "O3"
+  ],
+  "avoid_with": [],
+  "sketch": "sketches/P3.svg",
+  "duration_hint": "while you list them"
+}

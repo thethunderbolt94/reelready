@@ -1,0 +1,28 @@
+{
+  "id": "X2",
+  "category": "signature",
+  "name": "Wall collage",
+  "oneliner": "A wall of your own photos fills the background behind you.",
+  "description": "Your shop, team, customers and products pinned up behind you like a wall of memories.",
+  "prompt": "Needs subject matting. For one 4-8s section, replace the background behind the matted subject with a collage wall: 12-20 real photos from assets/ or stills from the footage, each printed with a 10px white border, a slight random rotation (-6 to 6 degrees) and a soft shadow, overlapping on a {{brand.primary}}-tinted wall. Build it in: prints drop on in a quick stagger (40ms apart, each 250ms ease-out, scale 1.1 to 1.0) over the first 900ms, then the whole wall drifts slowly (2% scale across the section). The subject stays fully in front with a soft 30px shadow so they sit on the wall. Return to the real background with a 200ms crossfade. Keep it inside the safe zone (nothing in the top 220px or bottom 320px of 1080x1920). Do NOT use stock photos or other businesses' images, and do NOT combine with another X card in the same section.",
+  "engine": "composite",
+  "needs": [
+    "matting",
+    "broll"
+  ],
+  "pairs_with": [
+    "C2",
+    "L1",
+    "O1"
+  ],
+  "avoid_with": [
+    "L4",
+    "X1",
+    "X3",
+    "X4",
+    "X5",
+    "X6"
+  ],
+  "sketch": "sketches/X2.svg",
+  "duration_hint": "4-8s section"
+}

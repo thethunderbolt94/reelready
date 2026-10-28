@@ -1,0 +1,27 @@
+{
+  "id": "X6",
+  "category": "signature",
+  "name": "Spotlight",
+  "oneliner": "Everything dims except you, like a stage light.",
+  "description": "For your most important sentence: the room fades dark and a soft spotlight stays on you.",
+  "prompt": "Needs subject matting. On the single most important sentence (named in the plan), darken and desaturate the background to 25% brightness over 300ms ease-out while the matted subject stays at full exposure; add a soft radial glow (warm white, 15% opacity) behind the head, optionally tinting the darkness 10% toward {{brand.primary}}. Captions for that sentence stay VERBATIM and keep their normal style. Restore over 200ms when the sentence ends. Use it once per video. Keep it inside the safe zone (nothing in the top 220px or bottom 320px of 1080x1920). Do NOT add lens flares or a vignette over the subject, and do NOT combine with another X card.",
+  "engine": "composite",
+  "needs": [
+    "matting",
+    "transcript"
+  ],
+  "pairs_with": [
+    "C1",
+    "M1",
+    "O1"
+  ],
+  "avoid_with": [
+    "X1",
+    "X2",
+    "X3",
+    "X4",
+    "X5"
+  ],
+  "sketch": "sketches/X6.svg",
+  "duration_hint": "one sentence"
+}

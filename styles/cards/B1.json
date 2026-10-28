@@ -1,0 +1,21 @@
+{
+  "id": "B1",
+  "category": "broll",
+  "name": "Cutaway on every noun",
+  "oneliner": "Every 6-8 seconds, cut to footage of what you're talking about.",
+  "description": "Say 'our croissants' and viewers see the croissants. Shows instead of tells, keeps people watching.",
+  "prompt": "Scan the transcript for concrete nouns (products, dishes, tools, rooms, places, hands at work). For each one, find a matching clip in raw footage by filename or by looking at frames. Place cutaways every 6-8s, never inside the first 2s hook, each 1.5-3.0s long, starting 3 frames before the noun's word timestamp. The speaker's audio and the captions continue underneath. Use hard cuts (or the M2 crossfade if it's in the mix) and a slight 3% push-in during each cutaway. If no footage matches a noun, skip it. Do NOT use unrelated or stock footage without asking, and do NOT let b-roll cover more than 40% of the runtime. List every cutaway (time, noun, file) in the plan.",
+  "engine": "cut",
+  "needs": [
+    "broll",
+    "transcript"
+  ],
+  "pairs_with": [
+    "C1",
+    "M2",
+    "L1"
+  ],
+  "avoid_with": [],
+  "sketch": "sketches/B1.svg",
+  "duration_hint": "every 6-8s"
+}

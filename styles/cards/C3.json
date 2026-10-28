@@ -1,0 +1,26 @@
+{
+  "id": "C3",
+  "category": "captions",
+  "name": "Karaoke fill",
+  "oneliner": "Each word lights up the moment you say it.",
+  "description": "The whole line sits on screen and fills word by word. Easy to follow with the sound off.",
+  "prompt": "Word-level captions, VERBATIM. Show each phrase (3-6 words, max 2 lines) all at once in white at 55% opacity. Each word fills to 100% white with a {{brand.accent}} rounded highlight block behind it (radius 14px, 8px padding) exactly at its start time, 90ms ease-out; the highlight then moves to the next word. Type: {{font.body}} 800, 76-84px, centered, baseline at y=1360. The next phrase replaces the last with a cut, no crossfade. Keep it inside the safe zone (nothing in the top 220px or bottom 320px of 1080x1920). Also keep clear of the right 140px button rail. Do NOT change any wording and do NOT show more than 2 lines.",
+  "engine": "captions",
+  "needs": [
+    "transcript"
+  ],
+  "pairs_with": [
+    "H2",
+    "M2",
+    "B1"
+  ],
+  "avoid_with": [
+    "C1",
+    "C2",
+    "C4",
+    "C5",
+    "C6"
+  ],
+  "sketch": "sketches/C3.svg",
+  "duration_hint": "whole video"
+}

@@ -1,0 +1,26 @@
+{
+  "id": "C6",
+  "category": "captions",
+  "name": "Minimal clean",
+  "oneliner": "Quiet, elegant captions. No effects, just great type.",
+  "description": "For calm, premium brands like salons, realtors and clinics. Sentence case, soft shadow, tight timing.",
+  "prompt": "VERBATIM captions in sentence case with the speaker's punctuation. {{font.body}} 600, 64-70px, white, line-height 1.15, soft shadow 0 2px 10px rgba(0,0,0,.4). Max 2 lines of up to 28 characters, centered, baseline at y=1420. Fade in over 120ms on the first word of each phrase and out over 120ms at its end; no word-by-word animation and no highlight colors. Keep timing within 40ms of the word timestamps. Keep it inside the safe zone (nothing in the top 220px or bottom 320px of 1080x1920). Do NOT add emojis, do NOT uppercase and do NOT add color.",
+  "engine": "captions",
+  "needs": [
+    "transcript"
+  ],
+  "pairs_with": [
+    "H5",
+    "L4",
+    "X4"
+  ],
+  "avoid_with": [
+    "C1",
+    "C2",
+    "C3",
+    "C4",
+    "C5"
+  ],
+  "sketch": "sketches/C6.svg",
+  "duration_hint": "whole video"
+}

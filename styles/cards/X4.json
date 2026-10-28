@@ -1,0 +1,27 @@
+{
+  "id": "X4",
+  "category": "signature",
+  "name": "Frame break",
+  "oneliner": "The shot shrinks into a phone and you pop out of the frame.",
+  "description": "Mid-sentence your video shrinks into a phone screen, but your head and shoulders break out over the edge.",
+  "prompt": "Needs subject matting. At one strong moment (the punchline or the reveal), over 500ms ease-in-out, scale the full shot down into a phone frame: 760x1350, radius 64px, 18px near-black bezel, centered at y=960 on a {{brand.primary}} background with a soft shadow. Composite the matted subject ON TOP of the bezel so the head and shoulders extend 60-140px past the frame's top edge (the 'break') while the rest of the body stays inside. Hold 2-4s, then expand back to full frame over 400ms. Keep the head below y=220 and move captions inside the phone area during the hold. Keep it inside the safe zone (nothing in the top 220px or bottom 320px of 1080x1920). Do NOT stack with any other X card.",
+  "engine": "composite",
+  "needs": [
+    "matting"
+  ],
+  "pairs_with": [
+    "C6",
+    "M2",
+    "O2"
+  ],
+  "avoid_with": [
+    "L4",
+    "X1",
+    "X2",
+    "X3",
+    "X5",
+    "X6"
+  ],
+  "sketch": "sketches/X4.svg",
+  "duration_hint": "2-4s moment"
+}

@@ -1,0 +1,26 @@
+{
+  "id": "C2",
+  "category": "captions",
+  "name": "Warm typewriter",
+  "oneliner": "Words type on in a warm serif as you speak them.",
+  "description": "Cozy and personal, like a handwritten note. Great for cafes, bakeries and founder stories.",
+  "prompt": "Word-level captions, VERBATIM. Typewriter reveal: each word appears at its exact start time, letters revealed left to right across the word's duration (at least 40ms per letter, at most 180ms per word). Type: {{font.display}}, mostly roman with italic for the one emphasis word per line, 72-84px, warm cream #FFF4E0 with a soft warm shadow 0 2px 12px rgba(60,30,0,.35); a 4px {{brand.accent}} underline under the emphasis word. Lines up to 22 characters, max 2 lines, left-aligned block starting at x=120, baseline at y=1360. Clear each line 150ms after its phrase ends. A soft key-click SFX at -30 LUFS is allowed only when there's no music. Keep it inside the safe zone (nothing in the top 220px or bottom 320px of 1080x1920). Do NOT use a monospace code font and do NOT show a blinking cursor after the first phrase.",
+  "engine": "captions",
+  "needs": [
+    "transcript"
+  ],
+  "pairs_with": [
+    "H3",
+    "B4",
+    "L4"
+  ],
+  "avoid_with": [
+    "C1",
+    "C3",
+    "C4",
+    "C5",
+    "C6"
+  ],
+  "sketch": "sketches/C2.svg",
+  "duration_hint": "whole video"
+}

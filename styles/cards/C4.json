@@ -1,0 +1,26 @@
+{
+  "id": "C4",
+  "category": "captions",
+  "name": "Subtitle bar",
+  "oneliner": "Clean captions in a solid bar, like TV subtitles.",
+  "description": "Readable over busy backgrounds: job sites, kitchens, street corners.",
+  "prompt": "VERBATIM captions grouped by phrase (up to 32 characters per line, max 2 lines). Each phrase sits in a bar: {{brand.primary}} at 88% opacity (fallback #111 at 80%), corner radius 20px, padding 22px 34px, width hugging the text, centered on x=540, bottom edge at y=1580. Text: {{font.body}} 700, 68-76px, white; numbers and names in {{brand.accent}}. The bar resizes between phrases with a 150ms ease-out, no bounce. Do NOT put the bar below y=1600 (platform UI lives there) and do NOT use a full-width black strip.",
+  "engine": "captions",
+  "needs": [
+    "transcript"
+  ],
+  "pairs_with": [
+    "L3",
+    "H6",
+    "B1"
+  ],
+  "avoid_with": [
+    "C1",
+    "C2",
+    "C3",
+    "C5",
+    "C6"
+  ],
+  "sketch": "sketches/C4.svg",
+  "duration_hint": "whole video"
+}

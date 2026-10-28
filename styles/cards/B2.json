@@ -1,0 +1,20 @@
+{
+  "id": "B2",
+  "category": "broll",
+  "name": "Slow push-in on photos",
+  "oneliner": "Your still photos slowly push in, documentary style.",
+  "description": "No video of it? Photos work. A slow, smooth zoom makes still images feel alive.",
+  "prompt": "For still photos used as b-roll (from assets/ or raw footage), animate a slow push-in: scale 1.00 to 1.08 across the shot (2.5-4s), linear or a very gentle ease-in-out, drifting 1-2% toward the photo's subject (face, dish, doorway). Crop stills to fill 1080x1920 without letterboxing; for a landscape photo, use a blurred, darkened copy of itself as the background and center the photo at 1080 wide. Captions stay on top. Never zoom past 1.12, never zoom out and back in within one shot, no rotation. Do NOT upscale tiny images past 150%; skip them and say so in the plan.",
+  "engine": "motion",
+  "needs": [
+    "broll"
+  ],
+  "pairs_with": [
+    "M2",
+    "C6",
+    "O1"
+  ],
+  "avoid_with": [],
+  "sketch": "sketches/B2.svg",
+  "duration_hint": "2.5-4s per photo"
+}

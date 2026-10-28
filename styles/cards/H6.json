@@ -1,0 +1,26 @@
+{
+  "id": "H6",
+  "category": "hook",
+  "name": "Question card",
+  "oneliner": "Your opening question appears as a clean card on screen.",
+  "description": "Start with a question customers actually ask. The card tells viewers exactly why to keep watching.",
+  "prompt": "If the first sentence is a question (or the speaker reads a customer's question), show it on a card for the length of that sentence. Card: 900px wide, centered on x=540, top at y=300, corner radius 36px, padding 48px, white or {{brand.primary}} at 94% opacity. Top row: a small label such as 'You asked' in {{font.body}} 600 64px at 60% opacity (generated copy, flag it for approval). Below: the question VERBATIM in {{font.display}} 72-84px, max 3 lines, one key word in {{brand.accent}}. Animate in: rise 40px plus fade, ease-out 300ms; fade out over 200ms when the question ends. Keep it above the face. Keep it inside the safe zone (nothing in the top 220px or bottom 320px of 1080x1920). If the first sentence is not a question, do NOT rewrite it into one; skip the card and tell the user.",
+  "engine": "overlay",
+  "needs": [
+    "transcript"
+  ],
+  "pairs_with": [
+    "C4",
+    "P1",
+    "O3"
+  ],
+  "avoid_with": [
+    "H1",
+    "H2",
+    "H3",
+    "H4",
+    "H5"
+  ],
+  "sketch": "sketches/H6.svg",
+  "duration_hint": "first sentence"
+}

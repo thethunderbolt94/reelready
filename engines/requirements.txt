@@ -1,0 +1,10 @@
+# ReelReady engines — Python deps (install into a venv: uv venv && uv pip install -r engines/requirements.txt)
+# Transcription (default, local, no key): faster-whisper on CPU int8.
+faster-whisper>=1.1.0
+# Cloud transcription backends (AssemblyAI / ElevenLabs Scribe) + video-use helpers
+requests>=2.31
+# video-use helpers (timeline_view.py, grade.py, pack_transcripts.py)
+numpy>=1.26
+pillow>=10.0
+librosa>=0.10
+matplotlib>=3.8

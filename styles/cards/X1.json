@@ -1,0 +1,29 @@
+{
+  "id": "X1",
+  "category": "signature",
+  "name": "Orbit",
+  "oneliner": "Phone-screen cards orbit around you, passing behind and in front.",
+  "description": "Your photos, posts or reviews circle you in 3D. The big 'how did they edit that' moment.",
+  "prompt": "Needs subject matting. For ONE 3-5s section (the strongest idea, named in the plan), put 4-6 cards on an elliptical orbit centered on the subject's chest: rx 520px, ry 140px, tilted -8 degrees. Cards are rounded 9:16 'phone screens' (300x530, radius 28px, 8px white border, soft shadow) showing only real assets: the business's photos, posts or reviews. The orbit turns at about one revolution per 6s. Composite: cards on the back half of the ellipse render BEHIND the matted subject (scale 0.8, 85% brightness); cards on the front half render IN FRONT (scale 1.0). Ease the orbit speed in over 400ms and out over 300ms. Front cards must pass below the chin, keeping the face clear; captions stay on top. Keep it inside the safe zone (nothing in the top 220px or bottom 320px of 1080x1920). One signature effect per idea: do NOT combine with any other X card or H1 in the same section.",
+  "engine": "composite",
+  "needs": [
+    "matting",
+    "broll"
+  ],
+  "pairs_with": [
+    "C1",
+    "H4",
+    "O1"
+  ],
+  "avoid_with": [
+    "H1",
+    "L4",
+    "X2",
+    "X3",
+    "X4",
+    "X5",
+    "X6"
+  ],
+  "sketch": "sketches/X1.svg",
+  "duration_hint": "one 3-5s moment"
+}

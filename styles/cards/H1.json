@@ -1,0 +1,29 @@
+{
+  "id": "H1",
+  "category": "hook",
+  "name": "Chunky title behind head",
+  "oneliner": "A big bold title sits behind you; you stay cut out in front.",
+  "description": "Your opening line becomes a giant headline tucked behind your head. Instantly reads as a real production.",
+  "prompt": "For the first 3.0s, put a 2-4 word title BEHIND the subject. Matte the subject locally and composite in this order: background plate, title, subject, captions. Title copy: the key phrase of the spoken hook, lifted from the transcript; any words you write yourself are flagged for approval in the plan. Type: {{font.display}}, weight 800-900, uppercase, 230-300px cap height, tracking -2%, white or {{brand.primary}} with a 6px {{brand.accent}} offset shadow, centered on x=540, top of the letters at y=360 so the head overlaps the lower third of the second line (it must still read with up to 25% hidden). Max 2 lines. Animate in: scale 1.08 to 1.0 plus opacity 0 to 1, ease-out 300ms. Hold, then fade out over 200ms at 3.0s or when the hook sentence ends. Keep it inside the safe zone (nothing in the top 220px or bottom 320px of 1080x1920). Do NOT put the title in front of the face, do NOT outline the matte edge, and do NOT stack it with X3 or any other signature effect in the same moment.",
+  "engine": "composite",
+  "needs": [
+    "matting",
+    "transcript"
+  ],
+  "pairs_with": [
+    "C1",
+    "M1",
+    "O1"
+  ],
+  "avoid_with": [
+    "H2",
+    "H3",
+    "H4",
+    "H5",
+    "H6",
+    "X1",
+    "X3"
+  ],
+  "sketch": "sketches/H1.svg",
+  "duration_hint": "first 3s"
+}

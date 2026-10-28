@@ -1,0 +1,26 @@
+{
+  "id": "C5",
+  "category": "captions",
+  "name": "Keyword pop",
+  "oneliner": "Quiet captions, then one key word punches up huge.",
+  "description": "Captions run small, and every few seconds the word that matters slams up big for impact.",
+  "prompt": "Run VERBATIM captions small: {{font.body}} 700, 64px, white, centered at y=1400. Every 4-7 seconds, pick one keyword from the spoken line (price, number, result, product name; never filler). For that word only: hide the small caption and pop the word in {{font.display}} 900, 200-260px, {{brand.accent}}, centered at y=1150; scale 1.4 to 1.0 overshoot over 260ms with a soft thump SFX; hold for the word's duration plus 250ms, then 200ms out. Never more than one pop per 4s. Keep the pop below the chin; if the face sits low, move it to y=520. Keep it inside the safe zone (nothing in the top 220px or bottom 320px of 1080x1920). Do NOT pop words the speaker didn't say.",
+  "engine": "captions",
+  "needs": [
+    "transcript"
+  ],
+  "pairs_with": [
+    "H4",
+    "P3",
+    "M1"
+  ],
+  "avoid_with": [
+    "C1",
+    "C2",
+    "C3",
+    "C4",
+    "C6"
+  ],
+  "sketch": "sketches/C5.svg",
+  "duration_hint": "whole video"
+}
