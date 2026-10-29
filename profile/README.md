@@ -20,6 +20,9 @@ Your brand, written once during setup, read by every edit.
 | `references` | links/files the user admires |
 | `reference_style` | what the study found: caption style, pacing, color, hooks, music, effects, do-not-copy, summary |
 | `post_caption.draft` | write `caption.txt` (always marked DRAFT) |
+| `copy.auto` | optional; true = write `post.md` (hooks, caption, CTA, hashtags) after every edit via `reelready-copy`; false = only when asked ("write the post for this") |
+| `copy.cta` | your usual call to action ("Visit us", "Book via link in bio", "DM us"); shaped to each reel, never adds offers or hours |
+| `copy.hashtags_extra` | tags you always want (e.g. your own branded tag); counted in the 5-8 |
 | `transcription` | `backend` (whisper-local, assemblyai, elevenlabs) and whether a key is stored. Never the key itself |
 | `default_mix` | favourite style card IDs; empty = editor picks hook + captions + lower-third + end card |
 | `rules` | verbatim captions, generated copy needs approval, one signature effect (always true) |

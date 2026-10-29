@@ -36,7 +36,7 @@ drives the HyperFrames-based skills for everything visual; skills tie it togethe
 
 ## Skills
 
-Everything in `.claude/skills/` (21 folders + `ATTRIBUTION.md` with origins and licenses):
+Everything in `.claude/skills/` (22 folders + `ATTRIBUTION.md` with origins and licenses):
 
 | Skill | Role | Triggers / called by |
 |---|---|---|
@@ -44,6 +44,7 @@ Everything in `.claude/skills/` (21 folders + `ATTRIBUTION.md` with origins and 
 | `reelready-study` | references -> `watch` (yt-dlp + frames + captions/local Whisper) -> `reference_style` | after setup, "study my references" |
 | `reelready-edit` | the pipeline above | "edit this", "edit the newest clip", "use styles H1+C2", pasted style-guide prompt |
 | `reelready-styles` | style guide page (`styleguide/serve.py`, port from config), mixes, hands off to reelready-edit | "show me the styles" |
+| `reelready-copy` | post copy for a finished reel: `post.md` (3 hooks, caption, CTA, hashtags, all DRAFT) from `draft.words.json` + profile; never posts | "write the post for this", end of reelready-edit when `profile.copy.auto` |
 | `embedded-captions` | designed word captions, behind-subject words | reelready-edit (captions cards other than the fast path) |
 | `talking-head-recut` | lower-thirds, callouts, punch-ins over a talking head | reelready-edit (`overlay`, `cut` cards) |
 | `motion-graphics` | hook titles, end cards, kinetic type, transitions | reelready-edit (`motion` cards) |

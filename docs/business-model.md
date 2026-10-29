@@ -1,6 +1,6 @@
 # ReelReady business model: give away the secret, sell the implementation
 
-The kit is free and good enough to stand on its own. People pay Thrive Labs to skip the setup, get the taste right, and never think about it again.
+The kit is free and good enough to stand on its own. It comes from Suhaas Builds, the channel where Suhaas builds tools like this in public and gives them away. People pay Thrive Labs, the agency behind the paid service, to skip the setup, get the taste right, and never think about it again.
 
 ## The ladder
 
@@ -66,4 +66,4 @@ If those hold, the Done-For-You conversation is easy.
 
 ## Why free (README footer)
 
-Thrive Labs is an AI and web agency. We built ReelReady for our own clients and decided to share it, because the tool is not the hard part. The hard part is knowing which style fits your business, setting it up properly, and keeping it running week after week. So the kit is free, and you can run it yourself. If you would rather have it set up for you, tuned to your brand, and looked after, that is what we offer. Either way, you get the kit.
+Suhaas Builds is the channel where Suhaas builds tools like ReelReady in public and gives them away, because the tool is not the hard part. That is the "give away the secret" half. The hard part is knowing which style fits your business, setting it up properly, and keeping it running week after week. That is the other half, and it is what Thrive Labs, an AI and web agency, sells: setup, taste, and upkeep. So the kit is free, and you can run it yourself. If you would rather have it set up for you, tuned to your brand, and looked after, that is what Thrive Labs offers. Either way, you get the kit.

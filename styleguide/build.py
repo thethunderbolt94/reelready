@@ -29,14 +29,15 @@ CATEGORIES = [
     ("signature", "Signature", "The “how did they edit that” moment. One per idea."),
     ("motion", "Motion + pace", "Energy between the words."),
     ("outro", "Outro", "How it ends, and what people do next."),
+    ("sound", "Sound", "How it sounds: voice polish, hits on the cuts, music under you. Pick one."),
 ]
 CAT_KEYS = [c[0] for c in CATEGORIES]
-ENGINES = {"captions", "overlay", "cut", "motion", "composite"}
+ENGINES = {"captions", "overlay", "cut", "motion", "composite", "sound"}
 NEEDS = {"matting", "transcript", "assets:logo", "assets:music", "broll"}
 FIELDS = ["id", "category", "name", "oneliner", "description", "prompt", "engine",
           "needs", "pairs_with", "avoid_with", "sketch", "duration_hint"]
 
-FALLBACK_CONFIG = {"brand": {"name": "ReelReady", "by": "Thrive Labs", "url": ""},
+FALLBACK_CONFIG = {"brand": {"name": "ReelReady", "by": "Suhaas Builds", "url": ""},
                    "styleguide": {"port": 4810}}
 
 
@@ -177,6 +178,7 @@ def build(check_only=False, quiet=False):
                 .replace("__BRAND_BY__", esc(brand["by"]))
                 .replace("__BRAND_URL__", esc(brand["url"] or "#"))
                 .replace("__COUNT__", str(len(cards)))
+                .replace("__CATS__", str(len(CATEGORIES)))
                 .replace("__HERO_FAN__", hero)
                 .replace("__DATA__", blob))
     OUT.write_text(html, encoding="utf-8")

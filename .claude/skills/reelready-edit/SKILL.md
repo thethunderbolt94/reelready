@@ -82,6 +82,21 @@ python3 scripts/rr.py run -- python3 engines/render_cut.py --edl "$W/edl.json" -
 the subject is off-center in the frames, say so in the plan and offer a "fit with blurred
 background" alternative (`split[a][b];[a]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=30[bg];[b]scale=1080:-2[fg];[bg][fg]overlay=(W-w)/2:(H-h)/2`).
 
+## 2.5 Story pass (talking-to-camera clips over ~12 s; skip for single takes under ~10 s)
+
+The owner's order is rarely the order that holds a stranger. Fix ORDER and SELECTION only; never
+write a line. Full rules and the four structures: `references/story.md`.
+
+```bash
+python3 scripts/rr.py run -- python3 engines/story.py --edl "$W/edl.json" --transcript "$W/transcript.json" --list
+python3 scripts/rr.py run -- python3 engines/story.py --edl "$W/edl.json" --transcript "$W/transcript.json" --order 3,0,1,2 --drop 4 --out "$W/edl.story.json"
+python3 scripts/rr.py run -- python3 engines/render_cut.py --edl "$W/edl.story.json" --transcript "$W/transcript.json" --out "$W/draft.mp4" --aspect <aspect> --fps 30
+```
+- Hook sentence first: the most specific line (a number, a name, a surprise), never the greeting.
+- Reorder across sentence boundaries only; max 2 moves under 30 s; one structure per reel.
+- The plan shows the new order as the owner's own sentences and names what was dropped and why.
+- "keep it as I said it" -> skip this step and render from `edl.json`.
+
 ## 3. Plan and show
 
 **Pick the mix.** The result is always a list of card IDs; every ID is loaded from
@@ -165,26 +180,37 @@ of an overlay card layout on a talking head, `talking-head-recut`. Exits 1 with 
 when HyperFrames has under 1 GB: handle as in step 0.
 
 Order: draft -> composite (b-roll) -> overlay/motion (`graphics.mp4`) -> captions on top
-(`captioned.mp4`) -> music -> final.
+(`captioned.mp4`) -> sound (`sound.mp4`) -> final.
 Prefer ONE HyperFrames composition with `draft.mp4` as the base layer and each card as a layer
 (designed captions from `embedded-captions` go in it too; then name its output `captioned.mp4`);
 if chaining separate renders, intermediates at CRF 16 in `work_dir`. captions.py is its own short pass
-(one extra encode at CRF 19, fine). The music step always takes the last video, `captioned.mp4`.
+(one extra encode at CRF 19, fine). The sound step always takes the last video, `captioned.mp4`.
 Keep text inside the 9:16 safe zone (same as `styles/README.md`): top 220 px and bottom 320 px clear,
 right 140 px clear in the lower half (platform buttons); a card prompt's exact positions win.
 Fonts: profile fonts (files in assets/fonts) else defaults; tight tracking on titles, eased motion
 (no linear moves), brand palette only.
 
-**Music** (skip if `profile.music.preference` is none). Normalize the track to the voice level,
+**Sound** (always; triggers: "make it punchy", "add sound design"). Preset = the S card in the mix, else
+the S card in `profile.default_mix`, else S1: S1 `clean`, S2 `punchy`, S3 `cinematic`, S4 `calm`,
+S5 `clean` + `--music`. "make it punchy" -> S2 for this edit; a re-edit reruns only this step.
+```bash
+python3 scripts/rr.py run -- python3 engines/sound.py "$W/captioned.mp4" --out "$W/sound.mp4" \
+  --edl "$W/edl.json" --captions "$W/draft.words.json" --preset <preset> [--music "<assets/music/track>"]
+```
+Voice polish, whooshes on the EDL cuts, hook riser/hit, caption pops (punchy), room-tone bed, ducked
+music; re-normalised to -16 LUFS, video stream copied. Multi-clip joins: omit `--edl` (scene detection).
+Ran with `--music` -> skip the Music step and copy `sound.mp4` to `final.mp4`.
+
+**Music** (skip if `profile.music.preference` is none, or the sound step already mixed it). Normalize the track to the voice level,
 then automate: -18 dB under speech, -8 dB in gaps, 0.25 s ramps, 0.5 s fade in, 1.5 s fade out:
 ```bash
 F=$(python3 scripts/rr.py duck-filter "$W/draft.words.json" --duration <video seconds>)
-ffmpeg -v error -y -i "$W/captioned.mp4" -stream_loop -1 -i "<assets/music/track>" -filter_complex \
+ffmpeg -v error -y -i "$W/sound.mp4" -stream_loop -1 -i "<assets/music/track>" -filter_complex \
  "[1:a]atrim=0:<video seconds>,asetpts=N/SR/TB,loudnorm=I=-16:TP=-2,aresample=48000,${F}[m];[0:a][m]amix=inputs=2:duration=first:normalize=0,loudnorm=I=-16:TP=-1.5:LRA=11,aresample=48000[a]" \
  -map 0:v -map "[a]" -c:v copy -c:a aac -b:a 192k -ar 48000 -movflags +faststart "$W/final.mp4"
 ```
-No music -> copy `captioned.mp4` to `final.mp4` (no re-encode).
-Transition SFX (whoosh/pop from assets/sfx) sit at -20 dB relative to voice, one per transition max.
+No music -> copy `sound.mp4` to `final.mp4` (no re-encode).
+Transition SFX come only from the sound step (one per cut); it replaces M2's whoosh, never doubles it.
 
 **Deliverables** into `export_dir`: `final.mp4`, `draft.mp4`, `edl.json` (multi-clip: `edl_01.json`,
 `edl_02.json`, ...), `plan.md` (approved
@@ -217,6 +243,12 @@ Cut <src> -> <new>; styles <IDs>; music <file|none>
 Check before posting: <generated copy to approve | caption corrections | nothing>
 ```
 Then clean `work_dir` proxies (keep transcript + words for re-edits).
+
+## 6. Write the post copy (optional)
+When the user says "write the post for this" (or "post copy", "hashtags for this"), or automatically
+after delivery when `profile.copy.auto` is true: invoke **reelready-copy** on this job. It writes
+`<export_dir>/post.md` (3 hooks, caption, CTA, hashtags, all marked DRAFT) from `draft.words.json` +
+the profile. Otherwise offer it as the one next step. Never post it.
 
 ## Re-edits
 "make the captions bigger", "swap the hook", "no music": reuse `work_dir` (transcript, EDL,

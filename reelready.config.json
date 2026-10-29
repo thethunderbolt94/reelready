@@ -1,9 +1,14 @@
 {
   "brand": {
     "name": "ReelReady",
-    "by": "Thrive Labs",
-    "url": "https://thrivelabs.ai",
-    "tagline": "Drop a clip. Get a reel."
+    "by": "Suhaas Builds",
+    "url": "https://www.youtube.com/@suhaasbuilds",
+    "tagline": "Drop a clip. Get a reel.",
+    "service": {
+      "name": "Thrive Labs",
+      "url": "https://thrivelabs.ai",
+      "pitch": "Want it set up for you, tuned to your brand, and looked after? That is what Thrive Labs does."
+    }
   },
   "defaults": {
     "aspect": "9:16",

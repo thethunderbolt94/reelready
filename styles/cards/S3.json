@@ -1,0 +1,24 @@
+{
+  "id": "S3",
+  "category": "sound",
+  "name": "Cinematic",
+  "oneliner": "Sweeping whooshes, a riser into a deep hit, and long tails that breathe.",
+  "description": "Bigger, slower sound for tours and reveals. Each cut swells; the hook lands with weight.",
+  "prompt": "Sound pass, preset cinematic. Run it on the finished picture (after captions, before QA): python3 scripts/rr.py run -- python3 engines/sound.py \"$W/captioned.mp4\" --out \"$W/sound.mp4\" --edl \"$W/edl.json\" --captions \"$W/draft.words.json\" --preset cinematic. Voice polish + room-tone bed as in S1, plus: a riser that crests at the end of the hook with an impact-bass hit there; a cinematic whoosh on each internal cut with its swell peaking on the cut (-14 dB under the voice); sound tails kept twice as long and a light echo on the effects bus so they decay naturally. No caption pops. Ends at -16 LUFS / -1.5 dBTP, video stream copied. Best with few cuts (one every 3 s or more). Do NOT use on a fast jump-cut talking head, and do NOT run a second S card.",
+  "engine": "sound",
+  "needs": [],
+  "pairs_with": [
+    "H6",
+    "B2",
+    "X4",
+    "O1"
+  ],
+  "avoid_with": [
+    "S1",
+    "S2",
+    "S4",
+    "S5"
+  ],
+  "sketch": "sketches/S3.svg",
+  "duration_hint": "whole video"
+}

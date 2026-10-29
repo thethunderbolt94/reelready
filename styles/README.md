@@ -1,10 +1,10 @@
 # Styles
 
 The style catalog for ReelReady. Each **style card** is one editing recipe: a hook, a caption look,
-a layout, a bit of proof, a b-roll move, a signature effect, a pacing rule or an outro. You pick a few
+a layout, a bit of proof, a b-roll move, a signature effect, a pacing rule, an outro or a sound pass. You pick a few
 cards, they become one prompt, and Claude renders them onto your clip.
 
-36 cards: Hook 6, Captions 6, Layout 4, Proof 4, B-roll 4, Signature 6, Motion + pace 3, Outro 3.
+41 cards: Hook 6, Captions 6, Layout 4, Proof 4, B-roll 4, Signature 6, Motion + pace 3, Outro 3, Sound 5.
 
 Browse them visually with the style guide page:
 
@@ -54,6 +54,10 @@ UI world, spotlight. **One signature effect per idea, never stacked.** If a mix 
 different sections of the video. The style guide page warns you when you add a second one, and the
 combined prompt tells Claude to keep them apart.
 
+Sound cards (`S1`-`S5`) do not count against this rule: they shape the audio under the whole video, not
+one moment. But only **one S card per edit** (they all `avoid_with` each other), and the sound pass never
+stacks two hits on one moment (caption pops are skipped near a whoosh or the hook hit).
+
 Some other cards also exclude each other (two hooks, two caption styles, two outros, or effects that
 fight for the same spot). Those pairs are listed in each card's `avoid_with`.
 
@@ -64,12 +68,12 @@ One JSON file per card in `styles/cards/<id>.json`:
 ```json
 {
   "id": "H1",
-  "category": "hook|captions|layout|proof|broll|signature|motion|outro",
+  "category": "hook|captions|layout|proof|broll|signature|motion|outro|sound",
   "name": "Chunky title behind head",
   "oneliner": "One sentence, shown on hover and in lists.",
   "description": "Two lines max, plain English, for the card face.",
   "prompt": "The full instruction Claude follows when rendering.",
-  "engine": "captions|overlay|cut|motion|composite",
+  "engine": "captions|overlay|cut|motion|composite|sound",
   "needs": ["matting", "transcript", "assets:logo", "assets:music", "broll"],
   "pairs_with": ["C1"],
   "avoid_with": ["X3"],
@@ -80,8 +84,8 @@ One JSON file per card in `styles/cards/<id>.json`:
 
 | Field | Notes |
 |---|---|
-| `id` | Category letter + number: H hook, C captions, L layout, P proof, B b-roll, X signature, M motion, O outro. File name must match. |
-| `engine` | Which part of the pipeline renders it: `captions` (caption burner), `overlay` (HyperFrames graphics), `cut` (EDL / ffmpeg), `motion` (transitions, zooms, ramps), `composite` (matting + layering). |
+| `id` | Category letter + number: H hook, C captions, L layout, P proof, B b-roll, X signature, M motion, O outro, S sound. File name must match. |
+| `engine` | Which part of the pipeline renders it: `captions` (caption burner), `overlay` (HyperFrames graphics), `cut` (EDL / ffmpeg), `motion` (transitions, zooms, ramps), `composite` (matting + layering), `sound` (`engines/sound.py`: voice polish, SFX, bed, music). |
 | `needs` | What must exist first. `matting` = subject cut-out, `transcript` = word timestamps, `assets:logo` / `assets:music` = files in `assets/`, `broll` = extra footage or photos. |
 | `pairs_with` / `avoid_with` | Card ids. Keep `avoid_with` symmetric (if A avoids B, B avoids A). |
 | `sketch` | Path relative to `styles/`. |
@@ -113,11 +117,11 @@ Defined in `styles/mixes.json` and shown on the page.
 
 | Mix | For | Cards |
 |---|---|---|
-| Cafe story | Cafe or bakery owner telling a story | H1 + C1 + L1 + B1 + O1 |
-| What to order | Restaurant menu or new-item drop | H2 + C2 + B4 + M2 + O3 |
-| Salon glow-up | Salon, barber or beauty before/after | H5 + C6 + P2 + M1 + O1 |
-| Job walk | Contractor or trades showing the work | H4 + C4 + L3 + B1 + O3 |
-| Listing tour | Realtor showing a home | H6 + C6 + L1 + P4 + X4 + O1 |
+| Cafe story | Cafe or bakery owner telling a story | H1 + C1 + L1 + B1 + O1 + S4 |
+| What to order | Restaurant menu or new-item drop | H2 + C2 + B4 + M2 + O3 + S2 |
+| Salon glow-up | Salon, barber or beauty before/after | H5 + C6 + P2 + M1 + O1 + S2 |
+| Job walk | Contractor or trades showing the work | H4 + C4 + L3 + B1 + O3 + S1 |
+| Listing tour | Realtor showing a home | H6 + C6 + L1 + P4 + X4 + O1 + S3 |
 
 ## All cards
 
@@ -159,3 +163,8 @@ Defined in `styles/mixes.json` and shown on the page.
 | O1 | End card | Outro | Logo, address and one clear call to action to finish. |
 | O2 | Follow for part 2 | Outro | A 'Part 2' teaser card that gives people a reason to follow. |
 | O3 | QR + website outro | Outro | Your website and a scannable QR code to close. |
+| S1 | Clean | Sound | Polished voice and a quiet room-tone bed. Nothing you'd notice, just better. |
+| S2 | Punchy | Sound | Whoosh on every cut, a pop on every caption, and a riser that hits at the end of the hook. |
+| S3 | Cinematic | Sound | Sweeping whooshes, a riser into a deep hit, and long tails that breathe. |
+| S4 | Calm | Sound | Warm, quiet polish for cafes and wellness. Bed and voice only, no hits. |
+| S5 | Music under | Sound | Your own track from assets/music, ducked under your voice. |

@@ -42,13 +42,14 @@ AI Video Editor/
 | "show me the styles", "what styles are there", "style guide" | **reelready-styles** (local style guide page) |
 | "set up", "change my colors/fonts/logo", "redo setup" | **reelready-setup** (only the changed answers) |
 | "study my references", new reference links | **reelready-study** |
+| "write the post for this", "post copy", "hashtags for this" | **reelready-copy** (`post.md`: hooks, caption, CTA, hashtags; auto when `profile.copy.auto`) |
 | "make the captions bigger", "swap the hook", "no music", "make it 16:9 for YouTube" | **reelready-edit**, re-edit section |
 | Telegram questions | `addons/telegram/README.md` (off by default) |
 
 Engine skills you drive from reelready-edit, by style-card `engine`:
 captions -> `engines/captions.py` (fast default: plain verbatim word captions) or `embedded-captions`
 (designed looks, words behind the subject); overlay -> `talking-head-recut`; motion -> `motion-graphics`;
-composite -> `general-video`; cut -> `engines/cut.py` + `engines/render_cut.py`
+composite -> `general-video`; sound -> `engines/sound.py`; cut -> `engines/cut.py` + `engines/render_cut.py`
 (+ `talking-head-recut` for punch-ins). Assets fallback: `media-use`. HyperFrames family underpins
 captions/overlays/motion. Reference watching: `watch`.
 
@@ -57,13 +58,19 @@ captions/overlays/motion. Reference watching: `watch`.
    (`engines/transcribe.py`, backend from profile; `whisper-local` default, free, no key).
 2. **Cut**: `engines/cut.py` -> EDL (dead air, fillers, retakes). Keep the hook in the first 2 s.
    `engines/render_cut.py` -> reframed, loudness-normalised draft + re-timed words.
+   **Story pass** (clips over ~12 s): `engines/story.py` reorders/drops whole sentences, verbatim,
+   hook first (`reelready-edit/references/story.md`). Never writes a line.
 3. **Plan and show**: pick the mix (user's IDs > `profile.default_mix` > default: hook + captions
    + lower-third + end card). Show the one-screen edit plan. Wait for "go" unless the user said
    "just do it".
 4. **Render**: captions, overlays, motion graphics, transitions via the engine skills; b-roll as
    cutaways over A-roll; music ducked -18 dB under speech with fades.
-5. **QA**: `engines/qa.py` (ffprobe + 6 frames). Look at every frame. Fix one obvious issue once.
+5. **Sound**: `engines/sound.py` on the captioned video, preset from the mix's S card (S1 clean, S2 punchy,
+   S3 cinematic, S4 calm, S5 = clean + `--music`; none -> S1): voice polish, whooshes on the EDL cuts, hook
+   riser/hit, room-tone bed, ducked music, -16 LUFS. "make it punchy" / "add sound design" -> re-run this.
+6. **QA**: `engines/qa.py` (ffprobe + 6 frames). Look at every frame. Fix one obvious issue once.
    Then deliver `final.mp4` + a 3-line summary.
+7. **Copy** (optional): **reelready-copy** writes `post.md` from the reel's words + profile, all DRAFT.
 
 Always run engines through `python3 scripts/rr.py run -- python3 engines/<x>.py ...` (repo .venv
 + user's private .env). Run from the repo root.
@@ -94,7 +101,7 @@ Always run engines through `python3 scripts/rr.py run -- python3 engines/<x>.py 
 ## Style cards
 `styles/cards/*.json` (named mixes: `styles/mixes.json`, `{name, who, ids}`): `{id, category, name, oneliner, description, prompt, engine, needs,
 pairs_with, avoid_with, sketch}`. Categories: hook, captions, layout, proof, broll, signature,
-motion, outro. Use the card's `prompt` verbatim as the render instruction; honour `avoid_with`
+motion, outro, sound (one S card per edit; it does not count as a signature effect). Use the card's `prompt` verbatim as the render instruction; honour `avoid_with`
 and `needs`. Style guide: `python3 styleguide/serve.py` (port in `reelready.config.json`).
 
 ## Profile

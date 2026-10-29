@@ -8,7 +8,7 @@ Setup once: `uv venv .venv && uv pip install --python .venv/bin/python -r engine
 (or `python3 -m venv .venv && .venv/bin/pip install -r engines/requirements.txt`). Needs `ffmpeg` on PATH;
 captions also need Node (`npx`).
 
-## The five contracts
+## The seven contracts
 
 ```bash
 # 1. Transcribe -> word timestamps
@@ -36,6 +36,24 @@ python3 engines/captions.py <video> --words draft.words.json --out captioned.mp4
 # 2-3 word groups, each word pops in on its own timestamp; white heavy sans (bundled Inter) with a dark
 # stroke; one accent word (given, else the longest content word). Pure fillers (um, uh) are left off the
 # caption track; every other word is shown as spoken. Exit 1 with "disk is almost full" under 1 GB free.
+
+# 6. Sound -> voice polish + SFX + room-tone bed (+ ducked music), -16 LUFS / -1.5 dBTP, video stream-copied
+python3 engines/sound.py <video> --out sound.mp4 [--edl edl.json] [--captions draft.words.json] \
+    [--preset clean|punchy|cinematic|calm] [--hook-seconds 2] [--music track.mp3] [--no-bed]
+# Voice: highpass 80 Hz, deesser, 3:1 compressor at -18 dB, then two-pass loudnorm on the whole mix.
+# Cuts come from the EDL (render_cut's timeline, crossfades included), else scene detection (scene > 0.4).
+# clean/calm: short whoosh per cut (clean adds one click at the first caption); punchy: whoosh per cut,
+# riser cresting at the end of the hook + impact hit, pop per caption group, sparkle on words marked
+# "emphasis"; cinematic: cinematic whoosh, riser + hit, longer tails with a light echo. SFX sit -14 dB
+# (cuts, hit) / -20 dB (pops, riser) under the voice. Bed: pink noise, lowpass 400 Hz, ~-45 LUFS.
+# --music: looped/trimmed, sidechain-ducked to ~-22 dB under speech, 0.5 s in / 1.5 s out.
+# Also writes <out stem>.sound.json (cut times + every placed sound). SFX files: engines/sfx/ (ATTRIBUTION.md).
+
+# 7. Story -> edl.story.json: the EDL's keep list split at sentence boundaries and reordered/dropped
+python3 engines/story.py --edl edl.json --transcript transcript.json --list            # numbered sentences
+python3 engines/story.py --edl edl.json --transcript transcript.json --order 3,0,1,2 --drop 4 --out edl.story.json
+# Words and audio untouched: it can only choose WHICH sentences play and in WHAT order (render_cut plays
+# keep in list order). Fillers/retakes cut earlier stay cut. Adds "story":{order,sentences} to the EDL.
 ```
 
 Loudness (target -16 LUFS, QA window -20..-12): see "Loudness, stated once" in `docs/engines.md`.
@@ -44,7 +62,7 @@ Multi-clip: render each A-roll clip's EDL to `draft_01.mp4`, `draft_02.mp4`, ...
 `python3 scripts/rr.py join-drafts draft.mp4 draft_01.mp4 draft_02.mp4` (stream copy + merged `draft.words.json`).
 
 Smoke test: `bash tests/smoke/run.sh` (makes a 20 s talking-head stand-in with macOS `say`, runs all of the
-above, asserts the retake and filler are gone and QA passes, then captions + QA; exits 1 on any failure, with
+above, asserts the retake and filler are gone and QA passes, then sound (punchy) + QA, then captions + QA; exits 1 on any failure, with
 `CAPTIONS SKIPPED: <reason>` if the captions step fails).
 
 ## How Claude drives captions and overlays
@@ -58,7 +76,8 @@ above, asserts the retake and filler are gone and QA passes, then captions + QA;
 5. Talking-head with cards beside/over the speaker: `.claude/skills/talking-head-recut/`.
 6. Anything else HTML-to-video: route through `.claude/skills/hyperframes/` -> `hyperframes-core` (composition
    rules), `hyperframes-animation` (motion, transitions), `hyperframes-creative` (palettes, type).
-7. Transition SFX and music: `.claude/skills/media-use/` in no-key mode (bundled SFX, user's `assets/music/`).
+7. Sound pass (SFX on cuts, hook, captions; bed; ducked music): `engines/sound.py` after captions, before QA,
+   preset from the mix's S card. `.claude/skills/media-use/` stays the fallback for other SFX or music.
 8. Render HyperFrames with `HYPERFRAMES_SKIP_SKILLS=1` so it never touches the bundled skills; mux the draft's
    audio back so loudness stays at -16 LUFS.
 9. One signature effect per idea. Run `engines/qa.py` on every export and look at the frames before delivering.

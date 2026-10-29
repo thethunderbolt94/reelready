@@ -96,6 +96,11 @@
     "hashtags": true,
     "note": "Always written to caption.txt marked DRAFT for human approval."
   },
+  "copy": {
+    "auto": false,
+    "cta": "Visit us",
+    "hashtags_extra": []
+  },
   "transcription": {
     "backend": "whisper-local",
     "key_stored": false
@@ -104,7 +109,8 @@
     "H1",
     "C1",
     "L2",
-    "O1"
+    "O1",
+    "S4"
   ],
   "rules": {
     "verbatim_captions": true,

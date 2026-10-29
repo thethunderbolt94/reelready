@@ -1,6 +1,6 @@
 # ReelReady — design spec (2026-10-28)
 
-Working brand: **ReelReady by Thrive Labs**. Rename lives in one place: `reelready.config.json` → `brand.name`, `brand.by`, `brand.url`.
+Working brand: **ReelReady by Suhaas Builds**. Rename lives in one place: `reelready.config.json` → `brand.name`, `brand.by`, `brand.url`.
 
 ## Intent
 A free, installable AI video editor kit for Claude Code. A non-technical small-business owner

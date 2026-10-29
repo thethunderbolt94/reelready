@@ -1,4 +1,4 @@
-# ReelReady by Thrive Labs
+# ReelReady by Suhaas Builds
 
 **Drop a clip. Get a reel.**
 
@@ -106,5 +106,6 @@ MIT licensed. See [LICENSE](LICENSE).
 
 ---
 
-ReelReady is free. Thrive Labs sets it up for you, tunes your style, and runs it for you ->
-[thrivelabs.ai](https://thrivelabs.ai)
+ReelReady is free, and it is built in public on the [Suhaas Builds](https://www.youtube.com/@suhaasbuilds) channel.
+
+Want it set up for you, tuned to your brand, and looked after? That is what [Thrive Labs](https://thrivelabs.ai) does.

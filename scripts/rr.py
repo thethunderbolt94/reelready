@@ -34,7 +34,7 @@ def config():
     try:
         return json.loads((REPO / "reelready.config.json").read_text())
     except Exception:
-        return {"brand": {"name": "ReelReady", "by": "Thrive Labs"}}
+        return {"brand": {"name": "ReelReady", "by": "Suhaas Builds"}}
 
 
 def main_folder():

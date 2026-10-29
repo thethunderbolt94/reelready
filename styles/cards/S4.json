@@ -1,0 +1,25 @@
+{
+  "id": "S4",
+  "category": "sound",
+  "name": "Calm",
+  "oneliner": "Warm, quiet polish for cafes and wellness. Bed and voice only, no hits.",
+  "description": "Your voice, cleaned and evened out over a soft room tone. Gentle short whooshes on cuts, nothing else.",
+  "prompt": "Sound pass, preset calm. Run it on the finished picture (after captions, before QA): python3 scripts/rr.py run -- python3 engines/sound.py \"$W/captioned.mp4\" --out \"$W/sound.mp4\" --edl \"$W/edl.json\" --captions \"$W/draft.words.json\" --preset calm. Voice polish (highpass 80 Hz, de-esser, 3:1 compression at -18 dB) over a pink room-tone bed at about -45 LUFS; a short, soft whoosh at -14 dB under the voice on each internal cut; nothing at the hook and no caption pops. Ends at -16 LUFS / -1.5 dBTP, video stream copied. If M2 is in the mix, these whooshes replace M2's. Do NOT add impacts, risers or pops, and do NOT run a second S card.",
+  "engine": "sound",
+  "needs": [],
+  "pairs_with": [
+    "C1",
+    "C2",
+    "C6",
+    "B1",
+    "B2"
+  ],
+  "avoid_with": [
+    "S1",
+    "S2",
+    "S3",
+    "S5"
+  ],
+  "sketch": "sketches/S4.svg",
+  "duration_hint": "whole video"
+}

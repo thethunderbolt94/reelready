@@ -2,8 +2,10 @@
 # Engine smoke test: make clip -> transcribe (whisper-local) -> cut -> render_cut -> qa.
 #   bash tests/smoke/run.sh
 # Asserts: QA passes, the retake ("We open at seven." said twice) and the standalone "Um." were cut,
-# and re-transcribing the draft hears "open at seven" exactly once; then captions.py + QA on the result.
-# Exits non-zero on any failure, including the captions step ("CAPTIONS SKIPPED: <reason>").
+# and re-transcribing the draft hears "open at seven" exactly once; then sound.py (punchy) + QA
+# (-16 +/- 1 LUFS, true peak <= -1 dBTP, one whoosh per cut), then captions.py + QA on the result.
+# Exits non-zero on any failure, including the sound step ("SOUND FAILED: <reason>") and the captions
+# step ("CAPTIONS SKIPPED: <reason>").
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 OUT="$ROOT/tests/smoke/out"
@@ -61,6 +63,39 @@ s = edl["stats"]
 print(f"SMOKE PASS: {s['duration_in']}s -> {s['duration_out']}s, removed {s['count']}")
 PYEOF
 
+echo "== sound (preset punchy: whoosh on the cut, riser + hit on the hook, caption pops, bed)"
+rm -f "$OUT/sound.mp4" "$OUT/sound.sound.json" "$OUT/qa_sound.txt"   # no stale pass
+t=$(stamp)
+if ! "$PY" "$E/sound.py" "$OUT/draft.mp4" --out "$OUT/sound.mp4" --edl "$OUT/edl.json" \
+     --captions "$OUT/draft.words.json" --preset punchy 2> "$OUT/sound_err.txt"; then
+  REASON=$(grep -v '^[[:space:]]*$' "$OUT/sound_err.txt" | tail -1 | sed 's/^error: //')
+  echo "SOUND FAILED: ${REASON:-sound.py failed (see tests/smoke/out/sound_err.txt)}"
+  echo "SMOKE FAIL: cut/render/qa passed, sound did not"
+  exit 1
+fi
+T_SOUND=$(lap "$t")
+"$PY" "$E/qa.py" "$OUT/sound.mp4" --frames 6 --out "$OUT/qa_sound" | tee "$OUT/qa_sound.txt"
+"$PY" - "$OUT" <<'PYEOF'
+import json, sys
+out = sys.argv[1]
+snd = json.load(open(f"{out}/sound.sound.json"))
+a = json.load(open(f"{out}/qa_sound/probe.json"))["audio"]
+kinds = [p["kind"] for p in snd["placed"]]
+fails = []
+if a["integrated_lufs"] is None or abs(a["integrated_lufs"] + 16) > 1:
+    fails.append(f"loudness {a['integrated_lufs']} LUFS, want -16 +/- 1")
+if a["true_peak_dbfs"] is None or a["true_peak_dbfs"] > -1:
+    fails.append(f"true peak {a['true_peak_dbfs']} dBTP, want <= -1")
+if not snd["cuts"] or kinds.count("cut-whoosh") != len(snd["cuts"]):
+    fails.append(f"want one whoosh per EDL cut: cuts {snd['cuts']}, placed {kinds}")
+if "hook-riser" not in kinds or "hook-hit" not in kinds:
+    fails.append(f"no hook riser + hit: {kinds}")
+if fails:
+    print("SOUND FAILED:\n  " + "\n  ".join(fails)); sys.exit(1)
+print(f"SOUND PASS: cuts at {snd['cuts']}s, {len(kinds)} sounds placed, "
+      f"I={a['integrated_lufs']} LUFS, TP={a['true_peak_dbfs']} dBTP")
+PYEOF
+
 echo "== captions (HyperFrames burn-in: white bold sans, one yellow accent word)"
 rm -f "$OUT/captioned.mp4" "$OUT/qa_captioned.txt"   # never let a stale file from an earlier run pass QA
 t=$(stamp)
@@ -74,5 +109,5 @@ fi
 T_CAP=$(lap "$t")
 "$PY" "$E/qa.py" "$OUT/captioned.mp4" --frames 6 --out "$OUT/qa_captioned" | tee "$OUT/qa_captioned.txt"
 
-echo "timings: transcribe ${T_TR}s, cut ${T_CUT}s, render ${T_RENDER}s, captions ${T_CAP}s" | tee "$OUT/timings.txt"
+echo "timings: transcribe ${T_TR}s, cut ${T_CUT}s, render ${T_RENDER}s, sound ${T_SOUND}s, captions ${T_CAP}s" | tee "$OUT/timings.txt"
 echo "SMOKE OK"
