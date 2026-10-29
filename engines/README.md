@@ -8,7 +8,7 @@ Setup once: `uv venv .venv && uv pip install --python .venv/bin/python -r engine
 (or `python3 -m venv .venv && .venv/bin/pip install -r engines/requirements.txt`). Needs `ffmpeg` on PATH;
 captions also need Node (`npx`).
 
-## The seven contracts
+## The eight contracts
 
 ```bash
 # 1. Transcribe -> word timestamps
@@ -32,10 +32,16 @@ python3 engines/qa.py <mp4> --frames 6 --out <dir> [--expect 1080x1920] [--min-d
 
 # 5. Captions (fast default) -> verbatim word-timed burn-in with HyperFrames, input audio copied bit-exact
 python3 engines/captions.py <video> --words draft.words.json --out captioned.mp4 \
-    [--accent <word>] [--accent-color "#FFD60A"] [--max-words 3] [--keep-project <dir>]
+    [--accent <word>] [--accent-color "#FFD60A"] [--max-words 3] [--keep-project <dir>] \
+    [--font <brand.ttf|otf|woff|woff2>] [--font-family "<CSS name>"] [--font-weight 800]
 # 2-3 word groups, each word pops in on its own timestamp; white heavy sans (bundled Inter) with a dark
 # stroke; one accent word (given, else the longest content word). Pure fillers (um, uh) are left off the
 # caption track; every other word is shown as spoken. Exit 1 with "disk is almost full" under 1 GB free.
+# --font (absolute, or relative to the main folder / its assets/) puts the brand font first, Inter as the
+# fallback; --font-family defaults to the file stem; weight stays 800 (regular files get synthesized bold)
+# unless --font-weight pins it. Missing/unsupported file (.ttc too): one "warning: font not found" line, Inter.
+# Also writes <out stem>.captions.json: {font_family, font_source: brand|bundled-inter|system-fallback,
+# font_path, accent_color, accent_word, max_words, groups, words} (the taste gate reads it).
 
 # 6. Sound -> voice polish + SFX + room-tone bed (+ ducked music), -16 LUFS / -1.5 dBTP, video stream-copied
 python3 engines/sound.py <video> --out sound.mp4 [--edl edl.json] [--captions draft.words.json] \
@@ -54,6 +60,17 @@ python3 engines/story.py --edl edl.json --transcript transcript.json --list     
 python3 engines/story.py --edl edl.json --transcript transcript.json --order 3,0,1,2 --drop 4 --out edl.story.json
 # Words and audio untouched: it can only choose WHICH sentences play and in WHAT order (render_cut plays
 # keep in list order). Fillers/retakes cut earlier stay cut. Adds "story":{order,sentences} to the EDL.
+
+# 8. Taste gate -> one "TASTE ok|FAIL|note <rule>: <reason>" line per rule, then "TASTE PASS (n rules)" or
+#    "TASTE FAIL: generic edit, <k> rule(s): a, b" (exit 0 / 1). Stdlib only; runs after qa.py, before "done".
+python3 engines/taste.py --profile <main>/.reelready/style-profile.json --plan <export_dir>/plan.md \
+    [--captions captioned.captions.json] [--sound sound.sound.json] [--mix H1,C1,L2,O1,S2] [--strict]
+# Rules: brand-choices (plan.md "## Brand choices" has >= 3 bullets, each naming a brand hex, brand font,
+# "logo" or a 3-word reference_style phrase), palette-in-plan (>= 2 brand colors named there), accent-color
+# (captions accent = brand.colors.accent, never the #FFD60A default), brand-font (brand files on file ->
+# font_source "brand"), signature (exactly one house_style.signature card in the mix), sound-preset (S card
+# -> preset: S1 clean, S2 punchy, S3 cinematic, S4 calm, S5 clean + music). No --mix -> profile.default_mix.
+# "note" = could not check (optional file missing, or profile has nothing to compare); --strict makes notes FAIL.
 ```
 
 Loudness (target -16 LUFS, QA window -20..-12): see "Loudness, stated once" in `docs/engines.md`.
@@ -62,8 +79,9 @@ Multi-clip: render each A-roll clip's EDL to `draft_01.mp4`, `draft_02.mp4`, ...
 `python3 scripts/rr.py join-drafts draft.mp4 draft_01.mp4 draft_02.mp4` (stream copy + merged `draft.words.json`).
 
 Smoke test: `bash tests/smoke/run.sh` (makes a 20 s talking-head stand-in with macOS `say`, runs all of the
-above, asserts the retake and filler are gone and QA passes, then sound (punchy) + QA, then captions + QA; exits 1 on any failure, with
-`CAPTIONS SKIPPED: <reason>` if the captions step fails).
+above, asserts the retake and filler are gone and QA passes, then sound (punchy) + QA, then captions + QA, then brand-font captions + QA, then the taste gate on
+`tests/smoke/fixtures/` (on-brand must PASS, generic must FAIL); exits 1 on any failure, with
+`CAPTIONS SKIPPED: <reason>` if the captions step fails, `TASTE GATE DID NOT CATCH GENERIC` if the gate passes a generic edit).
 
 ## How Claude drives captions and overlays
 

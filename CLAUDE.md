@@ -69,7 +69,9 @@ captions/overlays/motion. Reference watching: `watch`.
    S3 cinematic, S4 calm, S5 = clean + `--music`; none -> S1): voice polish, whooshes on the EDL cuts, hook
    riser/hit, room-tone bed, ducked music, -16 LUFS. "make it punchy" / "add sound design" -> re-run this.
 6. **QA**: `engines/qa.py` (ffprobe + 6 frames). Look at every frame. Fix one obvious issue once.
-   Then deliver `final.mp4` + a 3-line summary.
+   Then `engines/taste.py` (brand gate: Brand choices in the plan, brand accent + font in captions, exactly
+   one house signature card, sound preset matches the S card) must print `TASTE PASS`; on FAIL fix the
+   named rule once, re-render only that layer, re-run. Then deliver `final.mp4` + a 3-line summary.
 7. **Copy** (optional): **reelready-copy** writes `post.md` from the reel's words + profile, all DRAFT.
 
 Always run engines through `python3 scripts/rr.py run -- python3 engines/<x>.py ...` (repo .venv
@@ -90,7 +92,9 @@ Always run engines through `python3 scripts/rr.py run -- python3 engines/<x>.py 
 4. **Designed, not generic.** Brand palette only; profile fonts or the designed defaults; tight,
    kerned titles; eased motion (no linear moves); text inside safe zones; music ducked under speech;
    loudness -16 LUFS, true peak <= -1 dBTP (render_cut + music mix hit this; qa.py accepts -20..-12).
-   No stock-template look, no rainbow text, no emoji spam.
+   No stock-template look, no rainbow text, no emoji spam. Brand font in captions when the profile has one;
+   one signature move per reel, rotated across reels (`rr.py next-signature`). Enforced by `engines/taste.py`:
+   no "done" until it prints TASTE PASS.
 5. **Never claim done without QA.** No "done" until qa.py ran and you looked at the frames.
 6. **Secrets.** API keys live only in `<main folder>/.reelready/.env`, written by
    `scripts/rr.py set-key` from stdin. Never echo, log, or copy a key into the repo, profile,

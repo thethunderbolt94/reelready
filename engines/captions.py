@@ -3,15 +3,19 @@
 
     python3 engines/captions.py <draft.mp4> --words <draft.words.json> --out captioned.mp4
         [--accent seven] [--accent-color #FFD60A] [--max-words 3] [--keep-project <dir>]
+        [--font <brand.ttf|otf|woff|woff2>] [--font-family "Brand Name"] [--font-weight 800]
 
 * Words come straight from the transcript (re-timed onto the draft by render_cut.py). Nothing is
   rewritten. Pure fillers (um, uh, er...) are dropped from the caption track only, as in the
   embedded-captions skill's "drop" class; the audio is untouched.
-* Style: white heavy sans (bundled Inter 700), dark stroke for legibility on any background,
+* Style: white heavy sans (bundled Inter 700, or the owner's brand font via --font, Inter as the
+  fallback), dark stroke for legibility on any background,
   2-3 word groups in the lower-middle safe zone, each word pops in on its own timestamp.
   Exactly one accent word (first match of --accent, else the longest content word) is yellow.
 * Rendering: builds a tiny HyperFrames project and runs the pinned CLI via npx (Chrome headless,
   local, no key). The draft's audio is muxed back untouched, so loudness stays at -16 LUFS.
+* Writes <out stem>.captions.json (font_family, font_source, font_path, accent_color, accent_word,
+  max_words, groups, words): the contract the taste gate reads.
 For richer looks (behind-the-subject hero words, 35 identities) use .claude/skills/embedded-captions.
 """
 from __future__ import annotations
@@ -36,6 +40,9 @@ from _media import need, run, video_info  # noqa: E402
 ROOT = Path(__file__).resolve().parent.parent
 HF_VERSION = os.environ.get("REELREADY_HYPERFRAMES_VERSION", "0.8.143")
 FILLERS = {"um", "umm", "uh", "uhh", "uhm", "er", "erm", "ah", "hmm", "mm"}
+# Font file magic -> (CSS format(), extension). Detected from the bytes, not trusted from the name.
+FONT_MAGIC = [(b"wOF2", "woff2", ".woff2"), (b"wOFF", "woff", ".woff"), (b"OTTO", "opentype", ".otf"),
+              (b"\x00\x01\x00\x00", "truetype", ".ttf"), (b"true", "truetype", ".ttf")]
 STOP = {"the", "a", "an", "and", "or", "but", "so", "of", "to", "in", "on", "at", "is", "are", "we",
         "i", "i'm", "you", "it", "our", "my", "your", "this", "that", "with", "for", "be", "say"}
 
@@ -57,8 +64,40 @@ def group(words: list[dict], max_words: int) -> list[list[dict]]:
     return groups
 
 
+def main_folder() -> Path | None:
+    env = os.environ.get("REELREADY_HOME")
+    if env:
+        return Path(env).expanduser()
+    try:
+        return Path(json.loads((ROOT / ".reelready/home.json").read_text())["main_folder"]).expanduser()
+    except Exception:
+        return None
+
+
+def resolve_font(arg: str, family: str | None) -> dict | None:
+    """Find and sniff a brand font. Returns {path, family, fmt, ext} or None (after one warning line)."""
+    p = Path(arg).expanduser()
+    cands = [p]
+    home = main_folder()
+    if not p.is_absolute() and home:
+        cands += [home / p, home / "assets" / p]
+    for c in cands:
+        try:
+            with open(c, "rb") as f:
+                head = f.read(4)
+        except OSError:
+            head = b""
+        for magic, fmt, ext in FONT_MAGIC:
+            if head == magic:
+                fam = re.sub(r'[\x00-\x1f"\\<>;{}]', "", family or c.stem).strip() or "BrandFont"
+                return {"path": c.resolve(), "family": fam, "fmt": fmt, "ext": ext}
+    print(f"warning: font not found: {arg}; using Inter", file=sys.stderr)
+    return None
+
+
 def build_html(words: list[dict], dur: float, w: int, h: int, accent_idx: int, accent_color: str,
-               max_words: int, font_ok: bool, gsap_src: str) -> str:
+               max_words: int, font_ok: bool, gsap_src: str, brand: dict | None = None,
+               weight: int = 800) -> str:
     groups = group(words, max_words)
     blocks, tweens, idx = [], [], 0
     for gi, g in enumerate(groups):
@@ -79,6 +118,11 @@ def build_html(words: list[dict], dur: float, w: int, h: int, accent_idx: int, a
                       f'data-track-index="1">{" ".join(spans)}</div>')
     font_face = ('@font-face{font-family:"CapSans";src:url("Inter-700-latin.woff2") format("woff2");'
                  'font-weight:700 900;}') if font_ok else ""
+    family = '"CapSans","Inter","Helvetica Neue",Arial,sans-serif'
+    if brand:   # no weight range on purpose: a regular-only file gets synthesized bold at weight 800
+        font_face = (f'@font-face{{font-family:"{brand["family"]}";src:url("brand-font{brand["ext"]}") '
+                     f'format("{brand["fmt"]}");}}\n' + font_face)
+        family = f'"{brand["family"]}",' + family
     fs = round(w * 0.083)              # ~90 px on a 1080-wide frame
     return f"""<!doctype html>
 <html lang="en">
@@ -93,7 +137,7 @@ body {{ margin:0; background:#000; }}
 #root {{ position:relative; width:{w}px; height:{h}px; overflow:hidden; }}
 #a-roll {{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }}
 .cap {{ position:absolute; left:6%; right:6%; top:{int(h * 0.60)}px; text-align:center;
-  font-family:"CapSans","Inter","Helvetica Neue",Arial,sans-serif; font-weight:800; font-size:{fs}px;
+  font-family:{family}; font-weight:{weight}; font-size:{fs}px;
   line-height:1.08; letter-spacing:-0.01em; color:#fff; }}
 .w {{ display:inline-block; opacity:0; -webkit-text-stroke:{max(6, fs // 9)}px #121212; paint-order:stroke fill;
   text-shadow:0 6px 18px rgba(0,0,0,.45); }}
@@ -125,6 +169,10 @@ def main() -> None:
     ap.add_argument("--accent-color", default="#FFD60A")
     ap.add_argument("--max-words", type=int, default=3)
     ap.add_argument("--keep-project", default=None, help="keep the HyperFrames project in this dir")
+    ap.add_argument("--font", default=None,
+                    help="brand font file (ttf/otf/woff/woff2), absolute or relative to the main folder or its assets/")
+    ap.add_argument("--font-family", default=None, help="CSS family name for --font (default: the file stem)")
+    ap.add_argument("--font-weight", type=int, default=800, help="caption font-weight (default 800)")
     a = ap.parse_args()
     need("ffmpeg"); need("npx")
 
@@ -150,12 +198,19 @@ def main() -> None:
     font_ok = (assets / "fonts/Inter-700-latin.woff2").exists()
     if font_ok:
         shutil.copyfile(assets / "fonts/Inter-700-latin.woff2", proj / "Inter-700-latin.woff2")
+    brand = resolve_font(a.font, a.font_family) if a.font else None
+    if brand:
+        try:
+            shutil.copyfile(brand["path"], proj / f"brand-font{brand['ext']}")
+        except OSError:
+            print(f"warning: font not found: {a.font}; using Inter", file=sys.stderr)
+            brand = None
     gsap_src = "https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"
     if (assets / "vendor/gsap.min.js").exists():
         shutil.copyfile(assets / "vendor/gsap.min.js", proj / "gsap.min.js")
         gsap_src = "gsap.min.js"
     (proj / "index.html").write_text(build_html(words, dur, w, h, accent_idx, a.accent_color, a.max_words,
-                                                font_ok, gsap_src))
+                                                font_ok, gsap_src, brand, a.font_weight))
 
     env = {**os.environ, "HYPERFRAMES_SKIP_SKILLS": "1", "HYPERFRAMES_NO_TELEMETRY": "1", "DO_NOT_TRACK": "1"}
     silent = proj / "captioned_silent.mp4"
@@ -176,7 +231,18 @@ def main() -> None:
     run(cmd + ["-c:v", "libx264", "-profile:v", "high", "-crf", "19", "-preset", "medium", "-pix_fmt", "yuv420p",
                "-t", f"{dur:.3f}", "-movflags", "+faststart", a.out])
     acc = words[accent_idx]["w"] if accent_idx >= 0 else "none"
-    print(f"captioned {a.out}: {len(words)} words, accent '{acc}', {w}x{h}, via hyperframes@{HF_VERSION} "
+    if brand:
+        src, fam, fpath = "brand", brand["family"], str(brand["path"])
+    elif font_ok:
+        src, fam, fpath = "bundled-inter", "Inter", str(assets / "fonts/Inter-700-latin.woff2")
+    else:
+        src, fam, fpath = "system-fallback", "sans-serif", None
+    Path(a.out).with_suffix(".captions.json").write_text(json.dumps({
+        "font_family": fam, "font_source": src, "font_path": fpath, "accent_color": a.accent_color,
+        "accent_word": words[accent_idx]["w"] if accent_idx >= 0 else None, "max_words": a.max_words,
+        "groups": len(group(words, a.max_words)), "words": len(words)}, indent=2) + "\n")
+    print(f"captioned {a.out}: {len(words)} words, accent '{acc}', font {fam} ({src}), {w}x{h}, "
+          f"via hyperframes@{HF_VERSION} "
           f"in {time.time() - t0:.1f}s")
 
 

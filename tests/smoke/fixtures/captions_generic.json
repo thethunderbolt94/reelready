@@ -1,0 +1,10 @@
+{
+ "font_family": "Inter",
+ "font_source": "bundled-inter",
+ "font_path": "engines/fonts/Inter-Black.ttf",
+ "accent_color": "#FFD60A",
+ "accent_word": "seven",
+ "max_words": 3,
+ "groups": 4,
+ "words": 9
+}

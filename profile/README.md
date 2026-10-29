@@ -24,7 +24,12 @@ Your brand, written once during setup, read by every edit.
 | `copy.cta` | your usual call to action ("Visit us", "Book via link in bio", "DM us"); shaped to each reel, never adds offers or hours |
 | `copy.hashtags_extra` | tags you always want (e.g. your own branded tag); counted in the 5-8 |
 | `transcription` | `backend` (whisper-local, assemblyai, elevenlabs) and whether a key is stored. Never the key itself |
-| `default_mix` | favourite style card IDs; empty = editor picks hook + captions + lower-third + end card |
+| `default_mix` | the owner's 5-6 card house mix (one H, one C, one S + L/B/O/M/P); set at setup by `rr.py house-style --apply`, never left empty |
+| `house_style.preset` | business type from `styles/presets.json` (e.g. `cafe`, `trades`) the mix started from |
+| `house_style.signature` | 3 big-move cards (X/M/P/B); each reel gets ONE of them, rotating, so consecutive reels never repeat the same move |
+| `house_style.rotate` | true = rotate the signature across reels; false = always the first one |
+| `house_style.last_signature` | the move the last reel got; written by `rr.py next-signature --commit` after "go" |
+| `house_style.chosen_at` | when the preset was applied (ISO time) |
 | `rules` | verbatim captions, generated copy needs approval, one signature effect (always true) |
 
 API keys never go in the profile. They live in `<main folder>/.reelready/.env`.

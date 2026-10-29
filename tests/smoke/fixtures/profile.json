@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "created": "2026-10-28T10:00:00",
+  "updated": "2026-10-28T10:20:00",
+  "business": {
+    "name": "Corner Bean Coffee",
+    "handle": "@cornerbean",
+    "what_we_do": "Neighbourhood cafe, house-roasted beans, weekend pastries",
+    "location": "Anytown"
+  },
+  "platforms": [
+    "instagram-reels",
+    "tiktok"
+  ],
+  "aspect": "9:16",
+  "resolution": "1080x1920",
+  "brand": {
+    "colors": {
+      "primary": "#2F4B3A",
+      "secondary": "#F3E9DC",
+      "accent": "#E07A3F",
+      "text": "#FFFFFF",
+      "background": "#1C1C1C"
+    },
+    "colors_source": "logo",
+    "logo": "assets/logo.png",
+    "fonts": {
+      "heading": "Archivo Black",
+      "body": "Inter",
+      "source": "default",
+      "files": [
+        "assets/fonts/Brand-Bold.ttf"
+      ]
+    }
+  },
+  "captions": {
+    "look": "bold-pop",
+    "card": "C1",
+    "position": "lower-third",
+    "max_words_per_line": 4,
+    "verbatim": true
+  },
+  "music": {
+    "preference": "calm",
+    "file": null,
+    "duck_db_under_speech": -18,
+    "note": "Trending sounds are best added in the app at posting time."
+  },
+  "tone": [
+    "warm",
+    "unhurried",
+    "local"
+  ],
+  "references": [
+    {
+      "url": "https://www.instagram.com/reel/EXAMPLE1/",
+      "note": "love the captions"
+    },
+    {
+      "url": "https://www.tiktok.com/@example/video/0000000000",
+      "note": "pacing"
+    },
+    {
+      "url": "references/my-favourite.mp4",
+      "note": "local file"
+    }
+  ],
+  "reference_style": {
+    "studied_at": "2026-10-28T10:30:00",
+    "caption_style": "2-3 word chunks, bold sans, white with soft shadow, lower third, key word in accent colour",
+    "pacing": "cut every 1.5-2.5 s; hook spoken in first second; no pauses over 0.4 s",
+    "color_notes": "warm, slightly lifted blacks, cream highlights; no heavy LUTs",
+    "hook_patterns": [
+      "question to camera",
+      "finished product first, then how it's made"
+    ],
+    "music_use": "soft acoustic bed, very low under speech, swells on product shots",
+    "effects_seen": [
+      "punch-in zoom on key line",
+      "title behind subject",
+      "simple end card with logo"
+    ],
+    "do_not_copy": [
+      "their catchphrase",
+      "their logo animation",
+      "their exact song"
+    ],
+    "summary": "Ten short lines a human can read: what these references have in common and how we'll borrow the feel.",
+    "skipped": [
+      {
+        "url": "https://www.instagram.com/reel/PRIVATE/",
+        "reason": "private account / login wall"
+      }
+    ]
+  },
+  "post_caption": {
+    "draft": true,
+    "hashtags": true,
+    "note": "Always written to caption.txt marked DRAFT for human approval."
+  },
+  "copy": {
+    "auto": false,
+    "cta": "Visit us",
+    "hashtags_extra": []
+  },
+  "transcription": {
+    "backend": "whisper-local",
+    "key_stored": false
+  },
+  "default_mix": [
+    "H1",
+    "C1",
+    "L2",
+    "O1",
+    "S2"
+  ],
+  "rules": {
+    "verbatim_captions": true,
+    "generated_copy_needs_approval": true,
+    "one_signature_effect": true
+  },
+  "house_style": {
+    "preset": "warm-local",
+    "signature": [
+      "H1",
+      "X3",
+      "X6"
+    ],
+    "rotate": true,
+    "last_signature": "X3"
+  }
+}

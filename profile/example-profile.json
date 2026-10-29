@@ -106,12 +106,24 @@
     "key_stored": false
   },
   "default_mix": [
-    "H1",
+    "H6",
     "C1",
-    "L2",
+    "L1",
+    "B3",
     "O1",
     "S4"
   ],
+  "house_style": {
+    "preset": "cafe",
+    "signature": [
+      "X1",
+      "M1",
+      "P2"
+    ],
+    "rotate": true,
+    "last_signature": null,
+    "chosen_at": "2026-10-28T10:35:00"
+  },
   "rules": {
     "verbatim_captions": true,
     "generated_copy_needs_approval": true,

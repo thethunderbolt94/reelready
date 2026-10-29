@@ -109,10 +109,18 @@ python3 scripts/rr.py run -- python3 engines/render_cut.py --edl "$W/edl.story.j
 2. User named a ready-made mix ("use the Cafe story mix", "Listing tour"): match `name` in
    `styles/mixes.json` (case-insensitive), take its `ids`.
 3. Else `profile.default_mix` if non-empty.
-4. Else default: one **hook** card + the **captions** card (`profile.captions.card`, else the first
-   captions card) + one **lower-third** (card whose name/oneliner mentions "lower third") + one
+4. Else the house style: `python3 scripts/rr.py house-style --profile <profile> --apply`, use its
+   `default_mix`, and say in one line "No house style yet, so I picked the <label> one."
+5. Else (no presets.json) default: one **hook** card + the **captions** card (`profile.captions.card`,
+   else the first captions card) + one **lower-third** (card whose name/oneliner mentions "lower third") + one
    **end card** (first `outro` card). If styles/cards is missing: built-in equivalents (big hook
    title 0-2 s, word-chunk captions, name lower-third, logo end card).
+
+**Rotate the signature** (steps 3-4 only; user-named IDs or mixes stay as given):
+`python3 scripts/rr.py next-signature` -> this reel's big move (prints nothing = skip). If the mix
+holds a card from `house_style.signature`, swap it for this one; else add it. If it clashes with the
+mix (`avoid_with`), skip it this reel and say why. After "go": `next-signature --commit` (re-edits
+of this reel keep its signature; don't call it again).
 
 **Fill the brand tokens** in each card prompt from the profile: `{{brand.primary}}` ->
 `brand.colors.primary`, `{{brand.accent}}` -> `brand.colors.accent`, `{{font.display}}` ->
@@ -139,9 +147,15 @@ Captions   <ID> <name>: verbatim, <font>, <colors>, max <n> words/line
 Lower 3rd  <ID> 0:02-0:06 "<Business> · <descriptor>"      [GENERATED - approve?]
 End card   <ID> logo + "<CTA>"                             [GENERATED - approve?]
 Music      <file | none>: -18 dB under speech, 0.5 s in / 1.5 s out
-Signature  <ID> (the one big effect)
+Signature  <ID> <name> (this reel's one big move; last reel: <last_signature name | none>)
 Post copy  caption.txt draft                               [GENERATED - approve?]   (only if profile asks)
 Output     exports/<slug>/final.mp4
+
+## Brand choices   (3+ bullets; each names a brand hex, a brand font, "logo" or a reference_style phrase; 2+ hexes overall)
+- Hook <H card> title in <brand.fonts.heading>, <secondary hex> on <primary hex>, behind the subject
+- Captions <C card> in the brand font, key word in accent <accent hex>, 2-3 word chunks, lower third
+- Pacing from the references: <reference_style.pacing, quoted>
+- End card <O card>: logo on <primary hex>, CTA in <brand.fonts.body>
 Reply "go", or tell me what to change.
 ```
 Every line of words you wrote (not spoken) carries `[GENERATED - approve?]`. Wait for "go"
@@ -164,20 +178,25 @@ exact timings from the plan, output path in `work_dir`, target size and fps.
 | (assets) | `media-use` | music/SFX/images only when assets/ has none; keys optional, skip if missing |
 
 **Captions, fast path.** `engines/captions.py` is deterministic and verbatim: 2-3 word groups, each word
-popping in on its own timestamp, white heavy sans (bundled Inter) with a dark stroke, one accent word.
-Use it when the caption card is C1 or there is no caption card, and run it on the video that already
-has the graphics (captions go on top):
+popping in on its own timestamp, white heavy text with a dark stroke, one accent word. The font is the owner's
+brand font when the profile has one (`brand.fonts.files` not empty), else bundled Inter. Use it when the caption
+card is C1 or there is no caption card, and run it on the video that already has the graphics (captions go on top):
 ```bash
 python3 scripts/rr.py run -- python3 engines/captions.py "$W/graphics.mp4" --words "$W/draft.words.json" \
   --out "$W/captioned.mp4" --accent-color "<brand.colors.accent>" --max-words <profile.captions.max_words_per_line, default 3> \
+  [--font "<main folder>/<profile.brand.fonts.files[0]>" --font-family "<profile.brand.fonts.heading>"] \
   [--accent <the one emphasis word, as spoken>]
 ```
-No graphics layer -> pass `$W/draft.mp4`. It keeps the input's audio bit-exact and leaves pure fillers
-(um, uh) off the caption track; every other word is shown exactly as spoken. It only does this one
-look (no brand fonts, no box, no karaoke fill): for any other caption card, behind-subject words, or a
-user who asks for their brand font in captions, use `embedded-captions`; for captions that are part
-of an overlay card layout on a talking head, `talking-head-recut`. Exits 1 with "disk is almost full"
-when HyperFrames has under 1 GB: handle as in step 0.
+Pass `--font`/`--font-family` only when `brand.fonts.files` has an entry (ttf, otf, woff or woff2). If the file is
+missing or unsupported it prints one `warning: font not found` line and falls back to Inter: tell the user in one
+line. Weight stays 800 (a regular-only file gets synthesized bold); add `--font-weight 400` if the brand font is
+already black/heavy. No graphics layer -> pass `$W/draft.mp4`. It keeps the input's audio bit-exact and leaves pure
+fillers (um, uh) off the caption track; every other word is shown exactly as spoken. It also writes
+`$W/captioned.captions.json` (font_family, font_source brand|bundled-inter|system-fallback, font_path, accent_color,
+accent_word, max_words, groups, words); the taste gate reads it, so leave it next to the video. It only does this
+one look (no box, no karaoke fill): for any other caption card or behind-subject words, use `embedded-captions`;
+for captions that are part of an overlay card layout on a talking head, `talking-head-recut`. Exits 1 with "disk
+is almost full" when HyperFrames has under 1 GB: handle as in step 0.
 
 Order: draft -> composite (b-roll) -> overlay/motion (`graphics.mp4`) -> captions on top
 (`captioned.mp4`) -> sound (`sound.mp4`) -> final.
@@ -235,6 +254,17 @@ Read `probe.json` and ALL 6 frames. Checklist:
 - [ ] music audible in gaps, clearly under speech (if music)
 
 One obvious issue -> fix once, re-run QA. Still failing -> deliver with an honest note.
+
+**Taste gate** (never say "done" before it passes):
+```bash
+python3 scripts/rr.py run -- python3 engines/taste.py --profile "<main folder>/.reelready/style-profile.json" \
+  --plan "<export_dir>/plan.md" --captions "$W/captioned.captions.json" --sound "$W/sound.sound.json" --mix <IDs used>
+```
+Must end `TASTE PASS`. On `TASTE FAIL`, fix each named rule once: brand-choices / palette-in-plan -> rewrite the
+Brand choices bullets; accent-color / brand-font -> re-run captions.py with `--accent-color` / `--font`;
+signature -> swap the mix to exactly one house signature card; sound-preset -> re-run sound.py with the S card's
+preset. Re-render only the affected layer, then re-run qa.py and taste.py. If the profile genuinely has nothing
+to give (no colors, fonts, logo or references), say so to the user in one line and run taste.py with `--profile` only.
 
 **Deliver** in 3 lines:
 ```

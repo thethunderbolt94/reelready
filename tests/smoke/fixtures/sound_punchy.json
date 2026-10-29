@@ -1,0 +1,47 @@
+{
+ "source": "captioned.mp4",
+ "preset": "punchy",
+ "hook_seconds": 2.0,
+ "cuts": [
+  3.72
+ ],
+ "cut_source": "edl",
+ "voice_lufs_pre": -17.21,
+ "placed": [
+  {
+   "sound": "riser",
+   "kind": "hook-riser",
+   "at": 2.0,
+   "starts": 0.0,
+   "gain_db": -32.21
+  },
+  {
+   "sound": "impact-bass-1",
+   "kind": "hook-hit",
+   "at": 2.0,
+   "starts": 1.86,
+   "gain_db": -27.21
+  },
+  {
+   "sound": "whoosh",
+   "kind": "cut-whoosh",
+   "at": 3.72,
+   "starts": 3.56,
+   "gain_db": -16.01
+  },
+  {
+   "sound": "pop",
+   "kind": "caption-pop",
+   "at": 0.12,
+   "starts": 0.12,
+   "gain_db": -37.21
+  }
+ ],
+ "bed": true,
+ "music": null,
+ "loudness": {
+  "integrated_lufs": -16.0,
+  "lra_lu": 4.1,
+  "true_peak_dbfs": -1.6
+ }
+}

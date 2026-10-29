@@ -1,0 +1,641 @@
+{
+  "about": "Business type -> starting house style. Read by scripts/rr.py house-style; validated by styleguide/build.py --check.",
+  "fallback": "professional services",
+  "sound_scale": [
+    "S2",
+    "S3",
+    "S1",
+    "S4"
+  ],
+  "hook_scale": [
+    "H6",
+    "H3",
+    "H5",
+    "H4",
+    "H2",
+    "H1"
+  ],
+  "scales_note": "sound_scale runs punchiest -> calmest (S5 is opt-in: owner's own music). hook_scale runs quietest -> boldest.",
+  "presets": [
+    {
+      "type": "cafe",
+      "label": "Cafe / restaurant",
+      "match": [
+        "cafe",
+        "café",
+        "coffee",
+        "espresso",
+        "roastery",
+        "roasted",
+        "restaurant",
+        "bistro",
+        "diner",
+        "brunch",
+        "eatery",
+        "pizza",
+        "pizzeria",
+        "taco",
+        "burger",
+        "ramen",
+        "sushi",
+        "food truck",
+        "wine bar",
+        "cocktail",
+        "tea room",
+        "tea house",
+        "menu"
+      ],
+      "default_mix": [
+        "H6",
+        "C1",
+        "L1",
+        "B3",
+        "O1",
+        "S4"
+      ],
+      "signature": [
+        "X1",
+        "M1",
+        "P2"
+      ],
+      "pacing": "medium",
+      "sound": "S4",
+      "notes": "Warm and unhurried: a question to camera, the dish pops in beside you, end card with the address.",
+      "near": [
+        "bakery",
+        "retail"
+      ]
+    },
+    {
+      "type": "bakery",
+      "label": "Bakery / dessert",
+      "match": [
+        "bakery",
+        "baker",
+        "baking",
+        "bake",
+        "baked",
+        "pastry",
+        "pastries",
+        "bread",
+        "sourdough",
+        "cake",
+        "cupcake",
+        "patisserie",
+        "donut",
+        "doughnut",
+        "cookie",
+        "croissant",
+        "dessert"
+      ],
+      "default_mix": [
+        "H3",
+        "C2",
+        "L4",
+        "B2",
+        "O2",
+        "S3"
+      ],
+      "signature": [
+        "X3",
+        "M2",
+        "P1"
+      ],
+      "pacing": "calm",
+      "sound": "S3",
+      "notes": "Handmade feel: scribbled arrow on the bake, typewriter serif, brand-paper frame, slow photo push-ins.",
+      "near": [
+        "cafe",
+        "retail"
+      ]
+    },
+    {
+      "type": "salon",
+      "label": "Salon / barber / beauty",
+      "match": [
+        "salon",
+        "barber",
+        "barbershop",
+        "hair",
+        "haircut",
+        "stylist",
+        "blowout",
+        "nail",
+        "manicure",
+        "pedicure",
+        "lash",
+        "eyebrow",
+        "brows",
+        "beauty",
+        "makeup",
+        "braids",
+        "colorist",
+        "colourist"
+      ],
+      "default_mix": [
+        "H5",
+        "C5",
+        "L1",
+        "P1",
+        "O1",
+        "S2"
+      ],
+      "signature": [
+        "X4",
+        "P3",
+        "M1"
+      ],
+      "pacing": "fast",
+      "sound": "S2",
+      "notes": "Glow-up energy: before/after wipe up front, one keyword punches huge, a real review pinned on top.",
+      "near": [
+        "spa",
+        "retail"
+      ]
+    },
+    {
+      "type": "spa",
+      "label": "Spa / wellness",
+      "match": [
+        "spa",
+        "day spa",
+        "massage",
+        "wellness",
+        "facial",
+        "skincare",
+        "skin care",
+        "yoga",
+        "pilates",
+        "meditation",
+        "reiki",
+        "acupuncture",
+        "sauna",
+        "esthetician",
+        "aesthetician",
+        "holistic",
+        "retreat"
+      ],
+      "default_mix": [
+        "H6",
+        "C6",
+        "L4",
+        "B2",
+        "O1",
+        "S4"
+      ],
+      "signature": [
+        "X6",
+        "M2",
+        "P2"
+      ],
+      "pacing": "calm",
+      "sound": "S4",
+      "notes": "Quiet luxury: soft question card, minimal type on brand paper, slow push-ins, no hits in the sound.",
+      "near": [
+        "salon",
+        "medical"
+      ]
+    },
+    {
+      "type": "gym",
+      "label": "Gym / personal trainer",
+      "match": [
+        "gym",
+        "fitness",
+        "personal trainer",
+        "trainer",
+        "workout",
+        "crossfit",
+        "strength",
+        "bootcamp",
+        "boot camp",
+        "boxing",
+        "martial arts",
+        "jiu jitsu",
+        "bjj",
+        "hiit",
+        "weightlifting",
+        "spin class"
+      ],
+      "default_mix": [
+        "H4",
+        "C3",
+        "L3",
+        "M3",
+        "O2",
+        "S2"
+      ],
+      "signature": [
+        "X3",
+        "P3",
+        "B1"
+      ],
+      "pacing": "fast",
+      "sound": "S2",
+      "notes": "High energy: a number counts up, karaoke captions, split screen with the workout, whip-fast intro.",
+      "near": [
+        "coach",
+        "spa"
+      ]
+    },
+    {
+      "type": "trades",
+      "label": "Trades (plumber / electrician / HVAC)",
+      "match": [
+        "plumber",
+        "plumbing",
+        "drain",
+        "sewer",
+        "electrician",
+        "electrical",
+        "wiring",
+        "hvac",
+        "heating",
+        "cooling",
+        "air conditioning",
+        "furnace",
+        "boiler",
+        "water heater",
+        "handyman",
+        "locksmith",
+        "roofer",
+        "roofing",
+        "pest control",
+        "garage door",
+        "appliance repair"
+      ],
+      "default_mix": [
+        "H3",
+        "C4",
+        "B1",
+        "P2",
+        "O3",
+        "S1"
+      ],
+      "signature": [
+        "X5",
+        "M1",
+        "P4"
+      ],
+      "pacing": "medium",
+      "sound": "S1",
+      "notes": "Straight-talking expert: arrow on the problem, TV-style subtitle bar, cutaways of the fix, QR to book.",
+      "near": [
+        "contractor",
+        "auto"
+      ]
+    },
+    {
+      "type": "contractor",
+      "label": "Contractor / renovation",
+      "match": [
+        "contractor",
+        "general contractor",
+        "renovation",
+        "renovations",
+        "remodel",
+        "remodeling",
+        "remodelling",
+        "construction",
+        "builder",
+        "carpentry",
+        "carpenter",
+        "flooring",
+        "tiling",
+        "decking",
+        "landscaping",
+        "landscaper",
+        "painter",
+        "drywall",
+        "cabinetry",
+        "kitchen remodel",
+        "bathroom remodel"
+      ],
+      "default_mix": [
+        "H5",
+        "C1",
+        "L3",
+        "B2",
+        "O1",
+        "S2"
+      ],
+      "signature": [
+        "X2",
+        "M2",
+        "P3"
+      ],
+      "pacing": "medium",
+      "sound": "S2",
+      "notes": "The reveal: before/after wipe, you on top and the job below, photo push-ins of the finished work.",
+      "near": [
+        "trades",
+        "real estate"
+      ]
+    },
+    {
+      "type": "real estate",
+      "label": "Real estate",
+      "match": [
+        "real estate",
+        "realtor",
+        "realty",
+        "listing",
+        "home for sale",
+        "homes for sale",
+        "property",
+        "properties",
+        "broker",
+        "brokerage",
+        "open house",
+        "condo",
+        "apartment",
+        "rental",
+        "leasing",
+        "mortgage"
+      ],
+      "default_mix": [
+        "H1",
+        "C6",
+        "L1",
+        "B1",
+        "O3",
+        "S3"
+      ],
+      "signature": [
+        "X4",
+        "P4",
+        "B2"
+      ],
+      "pacing": "calm",
+      "sound": "S3",
+      "notes": "Cinematic tour: big title behind you, quiet elegant captions, room cutaways, QR to the listing.",
+      "near": [
+        "contractor",
+        "professional services"
+      ]
+    },
+    {
+      "type": "retail",
+      "label": "Retail / boutique",
+      "match": [
+        "boutique",
+        "shop",
+        "store",
+        "clothing",
+        "apparel",
+        "fashion",
+        "jewelry",
+        "jewellery",
+        "gift",
+        "florist",
+        "flowers",
+        "vintage",
+        "thrift",
+        "candle",
+        "home decor",
+        "decor",
+        "bookstore",
+        "sneaker"
+      ],
+      "default_mix": [
+        "H2",
+        "C3",
+        "B3",
+        "P3",
+        "O2",
+        "S2"
+      ],
+      "signature": [
+        "X2",
+        "M3",
+        "P1"
+      ],
+      "pacing": "fast",
+      "sound": "S2",
+      "notes": "New-drop energy: logo sticker hook, karaoke captions, product pop cards and a tidy price grid.",
+      "near": [
+        "bakery",
+        "salon"
+      ]
+    },
+    {
+      "type": "auto",
+      "label": "Auto (detailing / mechanic)",
+      "match": [
+        "auto",
+        "car",
+        "detailing",
+        "detailer",
+        "car wash",
+        "mechanic",
+        "auto repair",
+        "body shop",
+        "collision",
+        "tire",
+        "tyre",
+        "oil change",
+        "ceramic coating",
+        "window tint",
+        "tint",
+        "dealership",
+        "motorcycle",
+        "garage"
+      ],
+      "default_mix": [
+        "H3",
+        "C5",
+        "L2",
+        "M1",
+        "O3",
+        "S3"
+      ],
+      "signature": [
+        "X6",
+        "B1",
+        "P2"
+      ],
+      "pacing": "medium",
+      "sound": "S3",
+      "notes": "Showroom shine: arrow on the swirl marks, keyword pops, the car in a corner window, cinematic sound.",
+      "near": [
+        "trades",
+        "retail"
+      ]
+    },
+    {
+      "type": "professional services",
+      "label": "Professional services (accountant / lawyer / consultant)",
+      "match": [
+        "accountant",
+        "accounting",
+        "bookkeeping",
+        "bookkeeper",
+        "tax",
+        "cpa",
+        "lawyer",
+        "attorney",
+        "law firm",
+        "legal",
+        "consultant",
+        "consulting",
+        "advisor",
+        "adviser",
+        "financial planner",
+        "insurance",
+        "agency",
+        "notary",
+        "architect"
+      ],
+      "default_mix": [
+        "H6",
+        "C4",
+        "L1",
+        "P1",
+        "O1",
+        "S1"
+      ],
+      "signature": [
+        "X3",
+        "M2",
+        "P4"
+      ],
+      "pacing": "medium",
+      "sound": "S1",
+      "notes": "Calm authority: the question your clients ask, clean subtitle bar, name lower-third, one real review.",
+      "near": [
+        "coach",
+        "real estate"
+      ]
+    },
+    {
+      "type": "coach",
+      "label": "Coach / creator",
+      "match": [
+        "coach",
+        "coaching",
+        "life coach",
+        "business coach",
+        "creator",
+        "content creator",
+        "influencer",
+        "podcast",
+        "course",
+        "mentor",
+        "speaker",
+        "author",
+        "youtuber",
+        "newsletter"
+      ],
+      "default_mix": [
+        "H1",
+        "C5",
+        "L2",
+        "M3",
+        "O2",
+        "S2"
+      ],
+      "signature": [
+        "X5",
+        "B3",
+        "P2"
+      ],
+      "pacing": "fast",
+      "sound": "S2",
+      "notes": "Talking-head with punch: title behind your head, keyword pops, picture-in-picture, part-2 teaser.",
+      "near": [
+        "professional services",
+        "gym"
+      ]
+    },
+    {
+      "type": "medical",
+      "label": "Medical / dental",
+      "match": [
+        "dentist",
+        "dental",
+        "orthodontist",
+        "orthodontics",
+        "clinic",
+        "doctor",
+        "physician",
+        "medical",
+        "chiropractor",
+        "chiropractic",
+        "physio",
+        "physiotherapy",
+        "physical therapy",
+        "optometrist",
+        "dermatologist",
+        "dermatology",
+        "pediatric",
+        "paediatric",
+        "veneers",
+        "invisalign"
+      ],
+      "default_mix": [
+        "H4",
+        "C6",
+        "L1",
+        "P4",
+        "O1",
+        "S4"
+      ],
+      "signature": [
+        "X6",
+        "M2",
+        "P1"
+      ],
+      "pacing": "calm",
+      "sound": "S4",
+      "notes": "Reassuring and clean: one real number, minimal captions, map pin for the clinic, no hype in the sound.",
+      "near": [
+        "spa",
+        "professional services"
+      ]
+    },
+    {
+      "type": "pet services",
+      "label": "Pet services (groomer / walker / vet)",
+      "match": [
+        "pet",
+        "dog",
+        "cat",
+        "puppy",
+        "puppies",
+        "groomer",
+        "grooming",
+        "dog grooming",
+        "dog walker",
+        "dog walking",
+        "vet",
+        "veterinary",
+        "veterinarian",
+        "kennel",
+        "boarding",
+        "doggy daycare",
+        "pet sitting",
+        "pet sitter"
+      ],
+      "default_mix": [
+        "H5",
+        "C1",
+        "B1",
+        "P2",
+        "O2",
+        "S2"
+      ],
+      "signature": [
+        "X2",
+        "M1",
+        "P3"
+      ],
+      "pacing": "fast",
+      "sound": "S2",
+      "notes": "Playful glow-up: messy-to-fluffy wipe, bold captions, cutaways of happy pets, follow for part 2.",
+      "near": [
+        "salon",
+        "retail"
+      ]
+    }
+  ]
+}

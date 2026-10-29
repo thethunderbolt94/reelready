@@ -3,9 +3,11 @@
 #   bash tests/smoke/run.sh
 # Asserts: QA passes, the retake ("We open at seven." said twice) and the standalone "Um." were cut,
 # and re-transcribing the draft hears "open at seven" exactly once; then sound.py (punchy) + QA
-# (-16 +/- 1 LUFS, true peak <= -1 dBTP, one whoosh per cut), then captions.py + QA on the result.
-# Exits non-zero on any failure, including the sound step ("SOUND FAILED: <reason>") and the captions
-# step ("CAPTIONS SKIPPED: <reason>").
+# (-16 +/- 1 LUFS, true peak <= -1 dBTP, one whoosh per cut), then captions.py + QA on the result,
+# then captions.py --font (macOS Impact.ttf as a stand-in brand font; skipped if absent) + QA, then the
+# taste gate on tests/smoke/fixtures/ (on-brand plan must PASS, generic plan must FAIL with exit 1).
+# Exits non-zero on any failure, including the sound step ("SOUND FAILED: <reason>"), the captions
+# step ("CAPTIONS SKIPPED: <reason>") and the taste step ("TASTE GATE DID NOT CATCH GENERIC").
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 OUT="$ROOT/tests/smoke/out"
@@ -108,6 +110,46 @@ if ! "$PY" "$E/captions.py" "$OUT/draft.mp4" --words "$OUT/draft.words.json" --o
 fi
 T_CAP=$(lap "$t")
 "$PY" "$E/qa.py" "$OUT/captioned.mp4" --frames 6 --out "$OUT/qa_captioned" | tee "$OUT/qa_captioned.txt"
+
+echo "== captions with a brand font (--font, Impact as a stand-in; captions.json must say font_source brand)"
+TEST_FONT="/System/Library/Fonts/Supplemental/Impact.ttf"   # Apple system font: referenced, never copied into the repo
+rm -f "$OUT/captioned_brandfont.mp4" "$OUT/captioned_brandfont.captions.json" "$OUT/qa_captioned_brandfont.txt"
+if [ -f "$TEST_FONT" ]; then
+  if ! "$PY" "$E/captions.py" "$OUT/draft.mp4" --words "$OUT/draft.words.json" --out "$OUT/captioned_brandfont.mp4" \
+       --accent seven --font "$TEST_FONT" --font-family TestBrand 2> "$OUT/captions_brandfont_err.txt"; then
+    REASON=$(grep -v '^[[:space:]]*$' "$OUT/captions_brandfont_err.txt" | head -1 | sed 's/^error: //')
+    echo "BRAND FONT FAILED: ${REASON:-captions.py --font failed (see tests/smoke/out/captions_brandfont_err.txt)}"
+    echo "SMOKE FAIL: captions passed, brand-font captions did not"
+    exit 1
+  fi
+  "$PY" - "$OUT/captioned_brandfont.captions.json" <<'PYEOF'
+import json, sys
+c = json.load(open(sys.argv[1]))
+if c.get("font_source") != "brand" or c.get("font_family") != "TestBrand":
+    print(f"BRAND FONT FAILED: captions.json says {c.get('font_source')!r} / {c.get('font_family')!r}, "
+          "want 'brand' / 'TestBrand'"); sys.exit(1)
+print(f"BRAND FONT PASS: {c['font_family']} from {c['font_path']}, {c['groups']} groups, {c['words']} words")
+PYEOF
+  "$PY" "$E/qa.py" "$OUT/captioned_brandfont.mp4" --frames 6 --out "$OUT/qa_captioned_brandfont" \
+    | tee "$OUT/qa_captioned_brandfont.txt"
+else
+  echo "brand-font step skipped (no test font)"
+fi
+
+echo "== taste gate (fixtures: on-brand plan must PASS, generic plan must FAIL)"
+FX="$ROOT/tests/smoke/fixtures"
+"$PY" "$E/taste.py" --profile "$FX/profile.json" --plan "$FX/plan_good.md" --captions "$FX/captions_brand.json" \
+  --sound "$FX/sound_punchy.json" --mix H1,C1,L2,O1,S2 | tee "$OUT/taste_good.txt" \
+  || { echo "SMOKE FAIL: taste gate failed the on-brand fixtures"; exit 1; }
+set +e
+"$PY" "$E/taste.py" --profile "$FX/profile.json" --plan "$FX/plan_generic.md" --captions "$FX/captions_generic.json" \
+  --sound "$FX/sound_punchy.json" --mix H2,C1,L1,O1,S4 > "$OUT/taste_generic.txt"
+TASTE_RC=$?
+set -e
+tail -1 "$OUT/taste_generic.txt"
+if [ "$TASTE_RC" -ne 1 ] || ! tail -1 "$OUT/taste_generic.txt" | grep -q '^TASTE FAIL: generic edit'; then
+  echo "TASTE GATE DID NOT CATCH GENERIC"; echo "SMOKE FAIL: taste gate"; exit 1
+fi
 
 echo "timings: transcribe ${T_TR}s, cut ${T_CUT}s, render ${T_RENDER}s, sound ${T_SOUND}s, captions ${T_CAP}s" | tee "$OUT/timings.txt"
 echo "SMOKE OK"

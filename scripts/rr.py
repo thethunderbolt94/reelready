@@ -9,11 +9,19 @@ Stdlib only. Run from anywhere:  python3 scripts/rr.py <command> [...]
   run -- <cmd ...>               run <cmd> from the repo with .venv on PATH and .reelready/.env loaded
   set-key <assemblyai|elevenlabs>  read a key from stdin, save to <main>/.reelready/.env (never printed)
   profile-merge <file.json|->    deep-merge JSON into <main>/.reelready/style-profile.json
+  house-style [--profile P] [--type T] [--apply] [--force]
+                                 match the business to a styles/presets.json house style, print it as JSON;
+                                 --apply merges default_mix + house_style into the profile
+                                 (keeps a non-empty default_mix unless --force)
+  next-signature [--profile P] [--commit]
+                                 this reel's signature card (rotates house_style.signature after
+                                 last_signature); --commit saves it as last_signature
   palette <image> [--n 5]        dominant brand colors of an image (logo) as hex
   duck-filter <transcript.json> [--duration S]  ffmpeg volume filter: music -18 dB under speech
   join-drafts <out.mp4> <draft_01.mp4> <draft_02.mp4> ...  multi-clip: concat render_cut drafts
                                  (stream copy) and merge their .words.json side files with time offsets
 """
+import argparse
 import datetime as _dt
 import json
 import os
@@ -193,7 +201,12 @@ def cmd_profile_merge(args):
     if not args:
         die("usage: rr.py profile-merge <file.json|->")
     extra = json.loads(sys.stdin.read() if args[0] == "-" else Path(args[0]).read_text())
-    prof_path = Path(p["profile"])
+    print(f"Profile updated: {merge_profile(p['profile'], extra)}")
+
+
+def merge_profile(prof_path, extra):
+    """Deep-merge `extra` into the profile at prof_path (created if missing), stamp updated."""
+    prof_path = Path(prof_path)
     prof = json.loads(prof_path.read_text()) if prof_path.exists() else {"schema_version": 1}
     now = _dt.datetime.now().isoformat(timespec="seconds")
     prof.setdefault("created", now)
@@ -201,7 +214,119 @@ def cmd_profile_merge(args):
     prof["updated"] = now
     prof_path.parent.mkdir(parents=True, exist_ok=True)
     prof_path.write_text(json.dumps(prof, indent=2) + "\n")
-    print(f"Profile updated: {prof_path}")
+    return prof_path
+
+
+# ---------------------------------------------------------------- house style
+def _profile_arg(value):
+    if value:
+        return Path(value).expanduser()
+    p = need_home()
+    return Path(p["profile"])
+
+
+def _load_profile(path):
+    if not path.exists():
+        die(f"No style profile at {path}. Run setup first.", 2)
+    return json.loads(path.read_text())
+
+
+def _cards():
+    out = {}
+    for f in (REPO / "styles" / "cards").glob("*.json"):
+        c = json.loads(f.read_text())
+        out[c["id"]] = {k: c[k] for k in ("id", "category", "name", "oneliner")}
+    return out
+
+
+def _hits(preset, text):
+    return [kw for kw in preset["match"]
+            if re.search(r"(?<!\w)" + re.escape(kw.lower()) + r"(e?s)?(?!\w)", text)]
+
+
+def match_preset(doc, text, wanted=None):
+    """Best preset for `text` (most keyword hits, ties -> list order; none -> fallback).
+    `wanted` (--type) picks a preset by type name, else is keyword-matched instead of the profile text.
+    Returns (preset, how, hits, two alternative types: runner-up matches, then the preset's `near` list)."""
+    presets = doc["presets"]
+    by_type = {p["type"]: p for p in presets}
+    text = (wanted or text).lower()
+    ranked = sorted(presets, key=lambda p: -len(_hits(p, text)))  # stable: ties keep list order
+    if wanted and wanted.lower() in by_type:
+        best, how = by_type[wanted.lower()], "--type"
+    elif _hits(ranked[0], text):
+        best, how = ranked[0], "--type keywords" if wanted else "keywords"
+    else:
+        best, how = by_type[doc["fallback"]], "fallback"
+    pool = [p for p in ranked if _hits(p, text)] + [by_type[t] for t in best.get("near", []) if t in by_type]
+    alts = []
+    for p in pool:
+        if p is not best and p["type"] not in alts:
+            alts.append(p["type"])
+    return best, how, (_hits(best, text) if how != "fallback" else []), alts[:2]
+
+
+def cmd_house_style(args):
+    ap = argparse.ArgumentParser(prog="rr.py house-style")
+    ap.add_argument("--profile")
+    ap.add_argument("--type", dest="type_")
+    ap.add_argument("--apply", action="store_true")
+    ap.add_argument("--force", action="store_true")
+    a = ap.parse_args(args)
+    prof_path = _profile_arg(a.profile)
+    prof = _load_profile(prof_path)
+    doc = json.loads((REPO / "styles" / "presets.json").read_text())
+    biz = prof.get("business") or {}
+    text = f"{biz.get('what_we_do') or ''} {biz.get('name') or ''}"
+    preset, how, hits, alts = match_preset(doc, text, a.type_)
+    cards = _cards()
+    mix = list(preset["default_mix"])
+    note = {"keywords": f"Matched '{preset['type']}' from: {', '.join(hits)}.",
+            "--type": f"Using '{preset['type']}' (asked for by type).",
+            "--type keywords": f"Matched '{preset['type']}' from the type you gave: {', '.join(hits)}.",
+            "fallback": f"No business-type words matched, so I used '{preset['type']}' as a neutral start."}[how]
+    own_c = (prof.get("captions") or {}).get("card")
+    if own_c in cards and cards[own_c]["category"] == "captions":
+        old_c = next(i for i in mix if cards[i]["category"] == "captions")
+        if old_c != own_c:
+            mix[mix.index(old_c)] = own_c
+            note += f" Kept your caption card {own_c} instead of {old_c}."
+    out = {**preset, "default_mix": mix, "matched_by": how, "matched_words": hits, "note": note,
+           "alternatives": alts,
+           "cards": [cards[i] for i in mix], "signature_cards": [cards[i] for i in preset["signature"]]}
+    if a.apply:
+        hs_old = prof.get("house_style") or {}
+        extra = {"house_style": {"preset": preset["type"], "signature": preset["signature"], "rotate": True,
+                                 "chosen_at": _dt.datetime.now().isoformat(timespec="seconds")}}
+        if hs_old.get("preset") != preset["type"]:
+            extra["house_style"]["last_signature"] = None
+        if prof.get("default_mix") and not a.force:
+            out["note"] += " Kept your existing default_mix (use --force to replace it)."
+        else:
+            extra["default_mix"] = mix
+        merge_profile(prof_path, extra)
+        out["applied"] = str(prof_path)
+    print(json.dumps(out, indent=2, ensure_ascii=False))
+
+
+def cmd_next_signature(args):
+    ap = argparse.ArgumentParser(prog="rr.py next-signature")
+    ap.add_argument("--profile")
+    ap.add_argument("--commit", action="store_true")
+    a = ap.parse_args(args)
+    prof_path = _profile_arg(a.profile)
+    hs = _load_profile(prof_path).get("house_style") or {}
+    sig = hs.get("signature") or []
+    if not sig:
+        return
+    last = hs.get("last_signature")
+    if not hs.get("rotate") or last not in sig:
+        nxt = sig[0]
+    else:
+        nxt = sig[(sig.index(last) + 1) % len(sig)]
+    if a.commit and hs.get("rotate"):
+        merge_profile(prof_path, {"house_style": {"last_signature": nxt}})
+    print(nxt)
 
 
 def cmd_palette(args):
@@ -295,6 +420,7 @@ COMMANDS = {
     "where": cmd_where, "newest": cmd_newest, "export-dir": cmd_export_dir, "run": cmd_run,
     "set-key": cmd_set_key, "profile-merge": cmd_profile_merge, "palette": cmd_palette,
     "duck-filter": cmd_duck_filter, "join-drafts": cmd_join_drafts,
+    "house-style": cmd_house_style, "next-signature": cmd_next_signature,
 }
 
 if __name__ == "__main__":

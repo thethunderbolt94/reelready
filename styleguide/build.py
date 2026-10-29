@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Build the ReelReady style guide page.
 
-Reads styles/cards/*.json (+ the SVG sketches they point to) and styles/mixes.json,
-validates them, and writes styleguide/index.html: one self-contained file with
+Reads styles/cards/*.json (+ the SVG sketches they point to), styles/mixes.json and
+styles/presets.json (business-type house styles), validates them, and writes styleguide/index.html: one self-contained file with
 inline CSS, JS and SVGs. Standard library only.
 
     python3 styleguide/build.py          # build
@@ -141,6 +141,89 @@ def load_mixes(known):
     return mixes, errors
 
 
+PRESET_FIELDS = ["type", "match", "default_mix", "signature", "pacing", "sound", "notes"]
+MIX_EXTRA_CATS = {"layout", "broll", "outro", "motion", "proof"}
+SIG_CATS = {"signature", "motion", "proof", "broll"}
+
+
+def load_presets(cards):
+    """styles/presets.json: ids exist, mix shape, avoid_with respected, neighbours visibly different."""
+    path = STYLES / "presets.json"
+    if not path.exists():
+        return [], []
+    try:
+        doc = json.loads(path.read_text(encoding="utf-8"))
+    except ValueError as exc:
+        return [], [f"presets.json: invalid JSON ({exc})"]
+    by_id = {c["id"]: c for c in cards}
+    presets = doc.get("presets", [])
+    errors, types = [], [p.get("type") for p in presets]
+
+    def clash(ids):
+        return sorted({f"{a}+{b}" for a in ids for b in ids
+                       if a < b and (b in by_id[a]["avoid_with"] or a in by_id[b]["avoid_with"])})
+
+    for p in presets:
+        t = p.get("type", "?")
+        missing = [k for k in PRESET_FIELDS if k not in p]
+        if missing:
+            errors.append(f"preset {t}: missing fields {missing}")
+            continue
+        mix, sig = p["default_mix"], p["signature"]
+        unknown = [i for i in mix + sig if i not in by_id]
+        if unknown:
+            errors.append(f"preset {t}: unknown ids {unknown}")
+            continue
+        cats = [by_id[i]["category"] for i in mix]
+        if not 5 <= len(mix) <= 6:
+            errors.append(f"preset {t}: default_mix needs 5-6 cards, has {len(mix)}")
+        for one in ("hook", "captions", "sound"):
+            if cats.count(one) != 1:
+                errors.append(f"preset {t}: default_mix needs exactly one {one} card")
+        extra = [i for i, c in zip(mix, cats) if c not in MIX_EXTRA_CATS | {"hook", "captions", "sound"}]
+        if extra:
+            errors.append(f"preset {t}: default_mix may not hold {extra} (signature cards go in signature)")
+        if len(sig) != 3 or len(set(sig)) != 3:
+            errors.append(f"preset {t}: signature needs 3 different cards")
+        bad = [i for i in sig if by_id[i]["category"] not in SIG_CATS]
+        if bad:
+            errors.append(f"preset {t}: signature cards must be X/M/P/B, not {bad}")
+        if set(mix) & set(sig):
+            errors.append(f"preset {t}: {sorted(set(mix) & set(sig))} in both default_mix and signature")
+        if p["sound"] not in mix or by_id[p["sound"]]["category"] != "sound":
+            errors.append(f"preset {t}: sound {p['sound']} must be the S card in default_mix")
+        if p["pacing"] not in ("fast", "medium", "calm"):
+            errors.append(f"preset {t}: pacing must be fast|medium|calm")
+        if not p["match"]:
+            errors.append(f"preset {t}: match keywords empty")
+        for s in [None] + sig:
+            bad = clash(mix + ([s] if s else []))
+            if bad:
+                errors.append(f"preset {t}: avoid_with clash {bad}" + (f" with signature {s}" if s else ""))
+    if len(set(types)) != len(types):
+        errors.append("presets.json: duplicate types")
+    for p in presets:
+        bad = [n for n in p.get("near", []) if n not in types or n == p.get("type")]
+        if bad or len(p.get("near", [])) != 2:
+            errors.append(f"preset {p.get('type')}: near needs 2 other preset types, bad {bad}")
+    if doc.get("fallback") not in types:
+        errors.append(f"presets.json: fallback {doc.get('fallback')!r} is not a preset type")
+    for key, cat in (("sound_scale", "sound"), ("hook_scale", "hook")):
+        bad = [i for i in doc.get(key, []) if i not in by_id or by_id[i]["category"] != cat]
+        if bad:
+            errors.append(f"presets.json: {key} has non-{cat} ids {bad}")
+    if errors:
+        return presets, errors
+    for a, b in zip(presets, presets[1:]):
+        first = lambda p, cat: next(i for i in p["default_mix"] if by_id[i]["category"] == cat)
+        same = [cat for cat in ("hook", "captions", "sound") if first(a, cat) == first(b, cat)]
+        if set(a["signature"]) == set(b["signature"]) or a["signature"][0] == b["signature"][0]:
+            same.append("signature")
+        if same:
+            errors.append(f"presets {a['type']} / {b['type']} are neighbours but share {same}")
+    return presets, errors
+
+
 def esc(s):
     return (s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
              .replace('"', "&quot;"))
@@ -151,13 +234,15 @@ def build(check_only=False, quiet=False):
     cards, errors = load_cards()
     mixes, mix_errors = load_mixes({c["id"] for c in cards})
     errors += mix_errors
+    presets, preset_errors = load_presets(cards) if not errors else ([], [])
+    errors += preset_errors
     if errors:
         for e in errors:
             print("error:", e)
         return False
     if check_only:
         if not quiet:
-            print(f"ok: {len(cards)} cards, {len(mixes)} mixes valid")
+            print(f"ok: {len(cards)} cards, {len(mixes)} mixes, {len(presets)} presets valid")
         return True
 
     data = {

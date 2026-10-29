@@ -1,0 +1,10 @@
+{
+ "font_family": "Archivo Black",
+ "font_source": "brand",
+ "font_path": "assets/fonts/Brand-Bold.ttf",
+ "accent_color": "#E07A3F",
+ "accent_word": "seven",
+ "max_words": 3,
+ "groups": 4,
+ "words": 9
+}

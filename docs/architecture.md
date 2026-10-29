@@ -10,7 +10,7 @@ drives the HyperFrames-based skills for everything visual; skills tie it togethe
  │ references/   (read only) ───┼─┐│                  │ reelready.config.json  brand+deflt│
  │ assets/       (read only) ───┼┐││                  │ scripts/ doctor setup init rr     │
  │ exports/      (WRITE)    ◄───┼┼┼┼─────────┐        │ engines/ transcribe cut render qa │
- │ .reelready/                  │││││        │        │ styles/cards/*.json + styleguide/ │
+ │ .reelready/                  │││││        │        │ styles/ cards presets + styleguide│
  │   style-profile.json ◄───────┼┼┼┼┼──┐     │        │ .claude/skills/...                │
  │   .env (keys, private)       │││││  │     │        └───────────────────────────────────┘
  │   work/<job>/ scratch ◄──────┼┼┼┼┼┐ │     │
@@ -21,7 +21,9 @@ drives the HyperFrames-based skills for everything visual; skills tie it togethe
   2 CUT      cut.py ─► edl.json   render_cut.py ─► draft.mp4 + draft.words.json (re-timed)
              multi-clip: one EDL + draft_NN.mp4 per A-roll clip ─► rr.py join-drafts ─► draft.mp4
   3 PLAN     style mix (user IDs / pasted style-guide prompt / styles/mixes.json name
-             > profile.default_mix > hook+captions+lower3rd+end card) ─► styles/cards/<ID>.json prompts
+             > profile.default_mix > styles/presets.json house style via rr.py house-style
+             > hook+captions+lower3rd+end card) + ONE rotating signature (rr.py next-signature)
+             ─► styles/cards/<ID>.json prompts
              ─► plan.md shown to user, wait for "go"         [GENERATED copy flagged]
   4 RENDER   card.engine ─► skill:
                captions  ─► engines/captions.py (fast default: plain verbatim word captions)
@@ -67,6 +69,8 @@ output schemas: `engines/README.md` and `docs/engines.md`.
 | `engines/captions.py <video> --words draft.words.json --out captioned.mp4 [--accent word] [--accent-color #hex] [--max-words 3] [--keep-project dir]` | video + words on its timeline | captioned MP4, input audio copied bit-exact |
 | `engines/qa.py <mp4> --frames 6 --out dir [--expect WxH] [--min-duration 3]` | export | `probe.json`, `frame_01..06.jpg`, `QA PASS/FAIL` line, exit 0/1 |
 | `scripts/rr.py join-drafts <out.mp4> <draft_01.mp4> ...` | render_cut drafts | joined MP4 + merged `<out stem>.words.json` |
+| `scripts/rr.py house-style [--profile P] [--type T] [--apply] [--force]` | profile `business` + `styles/presets.json` | preset JSON (mix, signature, sound, alternatives); `--apply` merges `default_mix` + `house_style` |
+| `scripts/rr.py next-signature [--profile P] [--commit]` | `profile.house_style` | one card id: the signature after `last_signature`; `--commit` saves it |
 | `scripts/rr.py duck-filter <words.json> [--duration S]` | words | ffmpeg volume filter: music -18 dB under speech |
 | `scripts/rr.py run -- <cmd>` | any engine | runs with repo `.venv` + `<main>/.reelready/.env` |
 | `scripts/doctor.py [--fast] [--json]` | - | dependency + free-disk table; exit 1 on MISS or FAIL (under 1.5 GB free) |

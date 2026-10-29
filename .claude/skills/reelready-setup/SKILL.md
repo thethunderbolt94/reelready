@@ -97,8 +97,8 @@ Schema: `profile/example-profile.json`. Copy its keys; never invent new top-leve
       else (not the profile, not plan files, not the repo). Save `transcription.backend` and
       `transcription.key_stored: true`.
 
-Finish the profile: `rules` block from the example (all true), `default_mix: []` (the editor picks
-a good default each time; they can set favourites later from the style guide), `schema_version: 1`.
+Finish the profile: `rules` block from the example (all true), `schema_version: 1`. `default_mix`
+and `house_style` are filled in F; never finish setup with an empty `default_mix`.
 
 ## D. Confirm
 
@@ -110,7 +110,29 @@ Fix anything they change.
 If `references` is non-empty or references/ has videos: invoke **reelready-study**. It writes
 `reference_style` into the profile and shows a short summary. Failures there never block setup.
 
-## F. Ready message (exactly 5 lines)
+## F. House style
+
+Gives every owner their own starting look instead of one template for everyone.
+```bash
+python3 scripts/rr.py house-style --profile "<profile>" --apply
+```
+It matches `business.what_we_do` + `business.name` to a type in `styles/presets.json` and writes
+`default_mix` + `house_style` (keeps their chosen caption card). Show it in plain words, e.g.:
+"You look like a **<label>**. Your house style: <each card in `cards`: name - oneliner>. Each reel
+also gets one big move, taking turns: <`signature_cards` names>. Sound: <S card name>." If
+`matched_by` is `fallback`, say "I couldn't tell your type, so I started neutral."
+
+Ask ONE question: "Keep this, or want it calmer / punchier / different?"
+- **Keep** -> done.
+- **Calmer** -> S card one step calmer on `sound_scale` in presets.json, hook -> the first (quietest)
+  H on `hook_scale` that clashes with nothing in the mix or the signature list (`avoid_with`).
+- **Punchier** -> S card -> `S2`, hook -> the boldest H on `hook_scale` that clashes with nothing.
+- **Different** -> show the 2 types in `alternatives` the same way (one line each); on a pick:
+  `python3 scripts/rr.py house-style --profile "<profile>" --type "<type>" --apply --force`.
+Calmer/punchier: save the edited list with `echo '{"default_mix": [...]}' | python3 scripts/rr.py profile-merge -`
+and re-show only the changed cards. Never leave `default_mix` empty.
+
+## G. Ready message (exactly 5 lines)
 
 ```
 You're set up. <brand.name> knows your brand now.

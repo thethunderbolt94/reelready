@@ -61,6 +61,13 @@ stacks two hits on one moment (caption pops are skipped near a whoosh or the hoo
 Some other cards also exclude each other (two hooks, two caption styles, two outros, or effects that
 fight for the same spot). Those pairs are listed in each card's `avoid_with`.
 
+## House styles and signature rotation
+
+`styles/presets.json` maps 14 business types (cafe, trades, salon, ...) to a starting house style: a 5-6 card
+`default_mix`, 3 `signature` moves, pacing and a sound card. Setup applies one with `scripts/rr.py house-style --apply`.
+Each reel gets exactly ONE signature card (`scripts/rr.py next-signature`); it rotates across reels, never stacks within one.
+Neighbouring types never share a hook, caption, sound or signature lead; `styleguide/build.py --check` enforces that and `avoid_with`.
+
 ## Card schema
 
 One JSON file per card in `styles/cards/<id>.json`:

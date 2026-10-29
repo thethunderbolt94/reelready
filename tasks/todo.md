@@ -22,3 +22,11 @@
 - [x] Wire story pass into reelready-edit SKILL.md step 2.5 + CLAUDE.md pipeline
 - [x] Verify: styleguide --check (41 cards), smoke end to end, secrets scan, no clients/ tracked
 - [ ] Confirm Suhaas Builds channel URL (placeholder: youtube.com/@suhaasbuilds)
+
+## v0.3 taste layer (2026-10-28, night)
+- [x] engines/captions.py: --font/--font-family/--font-weight, writes captioned.captions.json (verified Inter vs Impact frames)
+- [x] styles/presets.json: 14 business types -> default mix + 3 signature moves + sound + pacing; build.py --check validates them
+- [x] scripts/rr.py house-style / next-signature; profile.house_style; setup step F; edit skill rotates the signature per reel
+- [x] engines/taste.py: 6 rules, TASTE PASS/FAIL; fixtures prove it passes on-brand and fails generic; smoke step
+- [x] Edit skill: Brand choices block in plan.md, taste gate in QA; CLAUDE.md pipeline + hard rule 4
+- [ ] Open: fixture profile uses H1 as a signature id (works, but real presets use X/M/P/B); Pixabay SFX license read; channel URL confirm
