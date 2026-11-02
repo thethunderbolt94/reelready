@@ -30,3 +30,19 @@
 - [x] engines/taste.py: 6 rules, TASTE PASS/FAIL; fixtures prove it passes on-brand and fails generic; smoke step
 - [x] Edit skill: Brand choices block in plan.md, taste gate in QA; CLAUDE.md pipeline + hard rule 4
 - [ ] Open: fixture profile uses H1 as a signature id (works, but real presets use X/M/P/B); Pixabay SFX license read; channel URL confirm
+
+## v0.4 script writer (2026-11-01)
+Design: docs/superpowers/specs/2026-11-01-reelready-script-design.md (the "Settled" section wins).
+- [x] Shared banned list `engines/banned.txt`; copy skill points at it
+- [x] Fixtures in tests/smoke/fixtures/script/: 2 good, 8 bad (invented price, borrowed price, spelled number, banned, fake past-reel quote, fake today quote, unflagged, too long)
+- [x] `engines/script_check.py`: 9 rules; checks past-reel quotes against real transcripts, today's quotes against the owner's notes file (--chat), prices must match sourced prices
+- [x] `reelready-script` skill: ideas mode, fact interview (max 3 questions a round, 2 rounds), voice from last 5 transcripts, draft in work/, check, save on "go"
+- [x] Edit hand-off: offers unfilmed scripts, reuses folder, structure + hook as story hints, captions stay verbatim
+- [x] Wiring: CLAUDE.md, engines/README.md (nine contracts), profile `script` block, architecture, README, smoke step
+- [x] Verify: SMOKE OK twice; 3 dry runs by fresh agents (cafe with past reel, bookshop with empty profile, bookshop re-run after fixes) all PASS and saved where the skill says; style guide check ok; secrets scan clean
+
+## Review (v0.4)
+- Three dry runs found 20+ unclear spots in the first skill draft; all fixed. Biggest: facts from today's chat were taken on trust, now checked against the owner's verbatim notes file.
+- Still judgment-only (not machine-checked): claims in direction beats without numbers ("say it's free"), rule-of-three lists, closing morals. The skill lists them as eye checks.
+- The script's "about n s" estimate is not checked against the length budget; the budget uses profile.script.seconds.
+- Open before public release: tasks/todo.md (this file) names a client in the v0.1 section and is in git history; scrub before pushing. Calm sound preset whooshes on every sentence join (found on a real reel test). Pixabay SFX license read; channel URL confirm.

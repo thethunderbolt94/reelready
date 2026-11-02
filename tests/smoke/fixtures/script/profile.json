@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "business": {"name": "Corner Bean Coffee", "handle": "@cornerbean", "what_we_do": "Neighbourhood cafe that roasts its own beans in the back room", "location": "Anytown"},
+  "tone": ["warm", "unhurried", "local"],
+  "aspect": "9:16",
+  "copy": {"auto": false, "cta": "Visit us", "hashtags_extra": []},
+  "script": {"format": "talking-points", "seconds": 30}
+}

@@ -1,0 +1,166 @@
+{
+ "words": [
+  {
+   "w": "We",
+   "start": 0.0,
+   "end": 0.35
+  },
+  {
+   "w": "roast",
+   "start": 0.4,
+   "end": 0.75
+  },
+  {
+   "w": "our",
+   "start": 0.8,
+   "end": 1.15
+  },
+  {
+   "w": "beans",
+   "start": 1.2,
+   "end": 1.55
+  },
+  {
+   "w": "right",
+   "start": 1.6,
+   "end": 1.95
+  },
+  {
+   "w": "here,",
+   "start": 2.0,
+   "end": 2.35
+  },
+  {
+   "w": "every",
+   "start": 2.4,
+   "end": 2.75
+  },
+  {
+   "w": "Tuesday",
+   "start": 2.8,
+   "end": 3.15
+  },
+  {
+   "w": "morning.",
+   "start": 3.2,
+   "end": 3.55
+  },
+  {
+   "w": "Most",
+   "start": 3.6,
+   "end": 3.95
+  },
+  {
+   "w": "people",
+   "start": 4.0,
+   "end": 4.35
+  },
+  {
+   "w": "don't",
+   "start": 4.4,
+   "end": 4.75
+  },
+  {
+   "w": "know",
+   "start": 4.8,
+   "end": 5.15
+  },
+  {
+   "w": "the",
+   "start": 5.2,
+   "end": 5.55
+  },
+  {
+   "w": "back",
+   "start": 5.6,
+   "end": 5.95
+  },
+  {
+   "w": "room",
+   "start": 6.0,
+   "end": 6.35
+  },
+  {
+   "w": "is",
+   "start": 6.4,
+   "end": 6.75
+  },
+  {
+   "w": "a",
+   "start": 6.8,
+   "end": 7.15
+  },
+  {
+   "w": "roaster.",
+   "start": 7.2,
+   "end": 7.55
+  },
+  {
+   "w": "And",
+   "start": 7.6,
+   "end": 7.95
+  },
+  {
+   "w": "on",
+   "start": 8.0,
+   "end": 8.35
+  },
+  {
+   "w": "Saturdays",
+   "start": 8.4,
+   "end": 8.75
+  },
+  {
+   "w": "the",
+   "start": 8.8,
+   "end": 9.15
+  },
+  {
+   "w": "almond",
+   "start": 9.2,
+   "end": 9.55
+  },
+  {
+   "w": "croissants",
+   "start": 9.6,
+   "end": 9.95
+  },
+  {
+   "w": "come",
+   "start": 10.0,
+   "end": 10.35
+  },
+  {
+   "w": "out",
+   "start": 10.4,
+   "end": 10.75
+  },
+  {
+   "w": "at",
+   "start": 10.8,
+   "end": 11.15
+  },
+  {
+   "w": "eight.",
+   "start": 11.2,
+   "end": 11.55
+  }
+ ],
+ "segments": [
+  {
+   "text": "We roast our beans right here, every Tuesday morning.",
+   "start": 0,
+   "end": 11.600000000000005
+  },
+  {
+   "text": "Most people don't know the back room is a roaster.",
+   "start": 0,
+   "end": 11.600000000000005
+  },
+  {
+   "text": "And on Saturdays the almond croissants come out at eight.",
+   "start": 0,
+   "end": 11.600000000000005
+  }
+ ]
+}

@@ -101,6 +101,10 @@
     "cta": "Visit us",
     "hashtags_extra": []
   },
+  "script": {
+    "format": "talking-points",
+    "seconds": 30
+  },
   "transcription": {
     "backend": "whisper-local",
     "key_stored": false

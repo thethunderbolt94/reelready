@@ -8,7 +8,7 @@ Setup once: `uv venv .venv && uv pip install --python .venv/bin/python -r engine
 (or `python3 -m venv .venv && .venv/bin/pip install -r engines/requirements.txt`). Needs `ffmpeg` on PATH;
 captions also need Node (`npx`).
 
-## The eight contracts
+## The nine contracts
 
 ```bash
 # 1. Transcribe -> word timestamps
@@ -71,6 +71,22 @@ python3 engines/taste.py --profile <main>/.reelready/style-profile.json --plan <
 # font_source "brand"), signature (exactly one house_style.signature card in the mix), sound-preset (S card
 # -> preset: S1 clean, S2 punchy, S3 cinematic, S4 calm, S5 clean + music). No --mix -> profile.default_mix.
 # "note" = could not check (optional file missing, or profile has nothing to compare); --strict makes notes FAIL.
+
+# 9. Script check -> one "SCRIPT ok|FAIL <rule>: <reason>" line per rule, then "SCRIPT PASS (n rules)" or
+#    "SCRIPT FAIL: <k> rule(s): a, b" (exit 0 / 1; also 1 if the script or profile can't be read). Stdlib only.
+#    Runs on the reelready-script draft before it is shown; no video needed, finishes in under a second.
+python3 engines/script_check.py --script <script.md> --profile <main>/.reelready/style-profile.json \
+    [--work-dir <main>/.reelready/work] [--chat <work>/script-<slug>/owner.txt] [--seconds 30]
+# Input: script.md in the fixed shape from .claude/skills/reelready-script/references/formats.md (DRAFT banner,
+# "# Script: <title>", a meta line with structure + format, ## Hook, ## Beats, ## Film this, ## Facts used
+# with rows "- <fact> | <source>", ## Not used). --seconds defaults to profile script.seconds, else 30.
+# Rules: draft-banner, flagged ([GENERATED - approve?] on Hook and Beats), structure (hook, context, payoff |
+# list | before, after | question, answer), length (2.5 spoken words/s, +15 percent), hook-length (< 8 words),
+# banned (engines/banned.txt, shared with reelready-copy), facts-table, numbers-sourced (every number or
+# number word in Hook and Beats is in a Facts row or marked [ASK: ...]; a price must match a sourced
+# price), sources-real (each source is
+# "profile <field>", "your past reel <job>" found in <work-dir>/<job>/transcript.json, or "you told me
+# today" found in the owner's notes file passed with --chat; the last kind is listed in the output so the owner sees what rests only on this chat).
 ```
 
 Loudness (target -16 LUFS, QA window -20..-12): see "Loudness, stated once" in `docs/engines.md`.
@@ -80,8 +96,10 @@ Multi-clip: render each A-roll clip's EDL to `draft_01.mp4`, `draft_02.mp4`, ...
 
 Smoke test: `bash tests/smoke/run.sh` (makes a 20 s talking-head stand-in with macOS `say`, runs all of the
 above, asserts the retake and filler are gone and QA passes, then sound (punchy) + QA, then captions + QA, then brand-font captions + QA, then the taste gate on
-`tests/smoke/fixtures/` (on-brand must PASS, generic must FAIL); exits 1 on any failure, with
-`CAPTIONS SKIPPED: <reason>` if the captions step fails, `TASTE GATE DID NOT CATCH GENERIC` if the gate passes a generic edit).
+`tests/smoke/fixtures/` (on-brand must PASS, generic must FAIL), then the script check on
+`tests/smoke/fixtures/script/` (two good scripts must PASS, eight bad ones must FAIL); exits 1 on any failure, with
+`CAPTIONS SKIPPED: <reason>` if the captions step fails, `TASTE GATE DID NOT CATCH GENERIC` if the gate passes a generic edit,
+`SCRIPT CHECK DID NOT CATCH <fixture>` if a bad script passes).
 
 ## How Claude drives captions and overlays
 

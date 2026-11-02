@@ -23,6 +23,8 @@ Your brand, written once during setup, read by every edit.
 | `copy.auto` | optional; true = write `post.md` (hooks, caption, CTA, hashtags) after every edit via `reelready-copy`; false = only when asked ("write the post for this") |
 | `copy.cta` | your usual call to action ("Visit us", "Book via link in bio", "DM us"); shaped to each reel, never adds offers or hours |
 | `copy.hashtags_extra` | tags you always want (e.g. your own branded tag); counted in the 5-8 |
+| `script.format` | optional; `talking-points` (default: short lines you say in your own words) or `word-for-word` (full sentences); used by `reelready-script` |
+| `script.seconds` | optional; how long the filmed reel should run, default 30; the script check allows about 2.5 spoken words per second |
 | `transcription` | `backend` (whisper-local, assemblyai, elevenlabs) and whether a key is stored. Never the key itself |
 | `default_mix` | the owner's 5-6 card house mix (one H, one C, one S + L/B/O/M/P); set at setup by `rr.py house-style --apply`, never left empty |
 | `house_style.preset` | business type from `styles/presets.json` (e.g. `cafe`, `trades`) the mix started from |

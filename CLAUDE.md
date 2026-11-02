@@ -42,6 +42,7 @@ AI Video Editor/
 | "show me the styles", "what styles are there", "style guide" | **reelready-styles** (local style guide page) |
 | "set up", "change my colors/fonts/logo", "redo setup" | **reelready-setup** (only the changed answers) |
 | "study my references", new reference links | **reelready-study** |
+| "write me a script", "what should I say", "give me reel ideas", "what should I post this week" | **reelready-script** (`script.md`: hook, beats, shot list, facts with sources, all `[GENERATED - approve?]`; checked by `engines/script_check.py`) |
 | "write the post for this", "post copy", "hashtags for this" | **reelready-copy** (`post.md`: hooks, caption, CTA, hashtags; auto when `profile.copy.auto`) |
 | "make the captions bigger", "swap the hook", "no music", "make it 16:9 for YouTube" | **reelready-edit**, re-edit section |
 | Telegram questions | `addons/telegram/README.md` (off by default) |
@@ -51,9 +52,12 @@ captions -> `engines/captions.py` (fast default: plain verbatim word captions) o
 (designed looks, words behind the subject); overlay -> `talking-head-recut`; motion -> `motion-graphics`;
 composite -> `general-video`; sound -> `engines/sound.py`; cut -> `engines/cut.py` + `engines/render_cut.py`
 (+ `talking-head-recut` for punch-ins). Assets fallback: `media-use`. HyperFrames family underpins
-captions/overlays/motion. Reference watching: `watch`.
+captions/overlays/motion. Reference watching: `watch`. Script check: `engines/script_check.py`.
 
 ## Pipeline (reelready-edit has the details)
+0. **Script** (optional, before filming): **reelready-script** asks up to 3 fact questions, then writes
+   `script.md` from the owner's own facts and voice. `engines/script_check.py` must print `SCRIPT PASS`.
+   When the clip arrives, the edit offers that script's folder and uses its structure and hook as hints.
 1. **Ingest**: probe clips, optional 720p proxy, transcribe with word timestamps
    (`engines/transcribe.py`, backend from profile; `whisper-local` default, free, no key).
 2. **Cut**: `engines/cut.py` -> EDL (dead air, fillers, retakes). Keep the hook in the first 2 s.

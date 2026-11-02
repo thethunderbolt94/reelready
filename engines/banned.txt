@@ -1,0 +1,34 @@
+# ReelReady banned words and moves for any words the AI writes (post copy, scripts).
+# One entry per line. Plain lines match as whole words/phrases, case-insensitive.
+# Lines starting with "re:" are Python regular expressions (case-insensitive).
+# Lines starting with "#" are comments. Read by engines/script_check.py and the
+# reelready-copy and reelready-script skills. Judgment-only moves (rule-of-three lists,
+# a closing moral) are listed at the end as comments: the skills check those by eye.
+game-changer
+game changer
+unlock
+elevate
+dive in
+delve
+journey
+curated
+seamless
+next level
+indulge
+treat yourself
+look no further
+nestled
+hidden gem
+must-try
+in today's world
+re:it'?s not just .{1,40}?,? it'?s
+re:^\s*ever wondered
+re:\bever wondered\b
+re:—
+re:–
+re:;
+re:!
+# judgment only (not machine-checked):
+# rule-of-three filler lists ("fresh, local and delicious")
+# a closing moral ("Because quality matters.")
+# chains of 3+ fragments ("Fresh. Local. Ours.")

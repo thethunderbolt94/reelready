@@ -22,10 +22,10 @@ Pasted order in the app: caption, blank line, CTA, blank line, hashtags.
 
 ## Banned words and moves
 
-game-changer, unlock, elevate, dive in, delve, journey, curated, seamless, next level, indulge,
-treat yourself, look no further, nestled, hidden gem, must-try, in today's world, it's not just X
-it's Y, rule-of-three lists ("fresh, local and delicious"), em dashes, semicolons, exclamation marks,
-rhetorical "Ever wondered...?" openers.
+The list lives in `engines/banned.txt` (shared with the script writer and its check). Read it
+before writing. It covers words like "game-changer", "elevate", "hidden gem", em dashes,
+semicolons and exclamation marks. Also never: rule-of-three lists ("fresh, local and delicious"),
+a closing moral, or rhetorical "Ever wondered...?" openers.
 
 ## CTA: one line, one action
 

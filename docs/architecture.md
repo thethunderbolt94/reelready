@@ -38,7 +38,7 @@ drives the HyperFrames-based skills for everything visual; skills tie it togethe
 
 ## Skills
 
-Everything in `.claude/skills/` (22 folders + `ATTRIBUTION.md` with origins and licenses):
+Everything in `.claude/skills/` (23 folders + `ATTRIBUTION.md` with origins and licenses):
 
 | Skill | Role | Triggers / called by |
 |---|---|---|
@@ -47,6 +47,7 @@ Everything in `.claude/skills/` (22 folders + `ATTRIBUTION.md` with origins and 
 | `reelready-edit` | the pipeline above | "edit this", "edit the newest clip", "use styles H1+C2", pasted style-guide prompt |
 | `reelready-styles` | style guide page (`styleguide/serve.py`, port from config), mixes, hands off to reelready-edit | "show me the styles" |
 | `reelready-copy` | post copy for a finished reel: `post.md` (3 hooks, caption, CTA, hashtags, all DRAFT) from `draft.words.json` + profile; never posts | "write the post for this", end of reelready-edit when `profile.copy.auto` |
+| `reelready-script` | script for the next clip: `script.md` (hook, beats, shot list, facts with sources, all DRAFT) from the profile + past transcripts + what the owner says; checked by `engines/script_check.py`; the edit picks it up as a hint | "write me a script", "what should I say", "give me reel ideas" |
 | `embedded-captions` | designed word captions, behind-subject words | reelready-edit (captions cards other than the fast path) |
 | `talking-head-recut` | lower-thirds, callouts, punch-ins over a talking head | reelready-edit (`overlay`, `cut` cards) |
 | `motion-graphics` | hook titles, end cards, kinetic type, transitions | reelready-edit (`motion` cards) |
@@ -68,6 +69,7 @@ output schemas: `engines/README.md` and `docs/engines.md`.
 | `engines/render_cut.py --edl edl.json --out draft.mp4 [--aspect 9:16\|16:9\|4:5] [--fps 30] [--crf 20] [--preset medium] [--transcript t.json]` | EDL | `draft.mp4` (-16 LUFS) + `draft.words.json` (only with `--transcript`; named `<out stem>.words.json`) |
 | `engines/captions.py <video> --words draft.words.json --out captioned.mp4 [--accent word] [--accent-color #hex] [--max-words 3] [--keep-project dir]` | video + words on its timeline | captioned MP4, input audio copied bit-exact |
 | `engines/qa.py <mp4> --frames 6 --out dir [--expect WxH] [--min-duration 3]` | export | `probe.json`, `frame_01..06.jpg`, `QA PASS/FAIL` line, exit 0/1 |
+| `engines/script_check.py --script script.md --profile P [--work-dir W] [--seconds 30]` | script.md + profile + past transcripts | `SCRIPT ok\|FAIL <rule>` lines, `SCRIPT PASS/FAIL`, exit 0/1 |
 | `scripts/rr.py join-drafts <out.mp4> <draft_01.mp4> ...` | render_cut drafts | joined MP4 + merged `<out stem>.words.json` |
 | `scripts/rr.py house-style [--profile P] [--type T] [--apply] [--force]` | profile `business` + `styles/presets.json` | preset JSON (mix, signature, sound, alternatives); `--apply` merges `default_mix` + `house_style` |
 | `scripts/rr.py next-signature [--profile P] [--commit]` | `profile.house_style` | one card id: the signature after `last_signature`; `--commit` saves it |

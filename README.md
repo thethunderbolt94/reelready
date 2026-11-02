@@ -9,6 +9,7 @@ on your own computer. It's a free kit for Claude Code: you talk to Claude, Claud
 - Adds captions that match your words exactly
 - Adds your colors, your logo, titles, lower-thirds, an end card and music
 - Hands back a 9:16 video ready for Instagram, TikTok or YouTube Shorts
+- Writes a short script before you film, using only facts you gave it, if you ask for one
 
 ## Get started (no tech skills needed)
 

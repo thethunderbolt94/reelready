@@ -43,6 +43,13 @@ Say which file(s) you picked in one line. Probe each:
 `ffprobe -v error -show_entries format=duration:stream=codec_type,width,height,r_frame_rate,side_data_list -of json "<clip>"`
 (note rotation side data: phone clips are often stored landscape + rotate 90).
 
+**Script hand-off (check before creating the job).** If an export folder from the last 14 days has
+`script.md` (or `script-v2.md`) and no `final.mp4`, list up to 3, newest first, by script title and ask
+once: "Is this clip for one of your scripts?" with "none" as an option. On a pick: reuse that folder
+(do NOT call `export-dir`; its `work_dir` is `.reelready/work/<same folder name>/`), and read the script.
+The folder keeps the script's date; plan.md notes today as the filming date. On "none", or no match,
+carry on below.
+
 Create the job: `python3 scripts/rr.py export-dir "<3-5 word slug from topic or filename>"` ->
 gives `export_dir` (exports/<YYYY-MM-DD>-<slug>/) and `work_dir` (.reelready/work/<same>/).
 All intermediates go in `work_dir`.
@@ -96,6 +103,9 @@ python3 scripts/rr.py run -- python3 engines/render_cut.py --edl "$W/edl.story.j
 - Reorder across sentence boundaries only; max 2 moves under 30 s; one structure per reel.
 - The plan shows the new order as the owner's own sentences and names what was dropped and why.
 - "keep it as I said it" -> skip this step and render from `edl.json`.
+- With a picked script: its `structure:` is the default structure here, and its hook line points to the
+  hook sentence (closest spoken match in the transcript). Captions stay verbatim from what was said on
+  film, never from the script. If they went off-script, the reel shows what they said.
 
 ## 3. Plan and show
 
@@ -139,6 +149,7 @@ EDIT PLAN: <slug>                                  <brand.name>
 Clip       raw footage/<file>  (<dur>, <WxH>)  [+ b-roll: <files>]
 Cut        <src dur> -> ~<new dur>   removed <s>: dead air <s>, <n> fillers, <n> retakes
 Format     <aspect> <WxH> @30fps
+Script     <title>, followed | changed                     (only when a script was picked)
 Hook 0-2s  says: "<first spoken words, verbatim>"
            card <ID> <name>: "<TITLE TEXT>"                 [GENERATED - approve?]
 Beats      0:00 hook / 0:0x <beat> / 0:1x <beat> / 0:2x CTA

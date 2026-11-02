@@ -47,7 +47,7 @@ The words in the reel + the profile. Nothing else.
 - [ ] Every claim traces to a line in the words file or a profile field. Name the line if unsure.
 - [ ] Hooks under 8 words; curiosity or specificity, never clickbait or ragebait.
 - [ ] Caption + CTA read aloud by the owner in 10 seconds (about 25 words max together).
-- [ ] No "game-changer", "unlock", "elevate", "dive in" (full list in `references/captions.md`).
+- [ ] No "game-changer", "unlock", "elevate", "dive in" (full list in `engines/banned.txt`).
 - [ ] No em dashes, no semicolons, no exclamation marks, no rule-of-three filler ("fresh, local and delicious").
 - [ ] No emojis unless a profile tone word asks for them.
 - [ ] Plain words a customer would use. Nothing the owner would be embarrassed to say out loud.

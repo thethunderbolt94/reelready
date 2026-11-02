@@ -5,9 +5,11 @@
 # and re-transcribing the draft hears "open at seven" exactly once; then sound.py (punchy) + QA
 # (-16 +/- 1 LUFS, true peak <= -1 dBTP, one whoosh per cut), then captions.py + QA on the result,
 # then captions.py --font (macOS Impact.ttf as a stand-in brand font; skipped if absent) + QA, then the
-# taste gate on tests/smoke/fixtures/ (on-brand plan must PASS, generic plan must FAIL with exit 1).
+# taste gate on tests/smoke/fixtures/ (on-brand plan must PASS, generic plan must FAIL with exit 1),
+# then the script check on tests/smoke/fixtures/script/ (two good scripts must PASS, eight bad ones must FAIL).
 # Exits non-zero on any failure, including the sound step ("SOUND FAILED: <reason>"), the captions
-# step ("CAPTIONS SKIPPED: <reason>") and the taste step ("TASTE GATE DID NOT CATCH GENERIC").
+# step ("CAPTIONS SKIPPED: <reason>"), the taste step ("TASTE GATE DID NOT CATCH GENERIC") and the
+# script step ("SCRIPT CHECK DID NOT CATCH <fixture>").
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 OUT="$ROOT/tests/smoke/out"
@@ -150,6 +152,26 @@ tail -1 "$OUT/taste_generic.txt"
 if [ "$TASTE_RC" -ne 1 ] || ! tail -1 "$OUT/taste_generic.txt" | grep -q '^TASTE FAIL: generic edit'; then
   echo "TASTE GATE DID NOT CATCH GENERIC"; echo "SMOKE FAIL: taste gate"; exit 1
 fi
+
+echo "== script check (fixtures: two good scripts must PASS, eight bad scripts must FAIL)"
+SX="$FX/script"
+for GOOD in good today_ok; do
+  "$PY" "$E/script_check.py" --script "$SX/script_$GOOD.md" --profile "$SX/profile.json" --work-dir "$SX/work" \
+    --chat "$SX/chat.txt" | tee "$OUT/script_$GOOD.txt" \
+    || { echo "SMOKE FAIL: script check failed the good script $GOOD"; exit 1; }
+done
+for BAD in invented_price price_borrowed spelled_number banned fake_source today_fake unflagged long; do
+  set +e
+  "$PY" "$E/script_check.py" --script "$SX/script_$BAD.md" --profile "$SX/profile.json" --work-dir "$SX/work" \
+    --chat "$SX/chat.txt" > "$OUT/script_$BAD.txt"
+  SC_RC=$?
+  set -e
+  tail -1 "$OUT/script_$BAD.txt"
+  if [ "$SC_RC" -ne 1 ] || ! tail -1 "$OUT/script_$BAD.txt" | grep -q '^SCRIPT FAIL'; then
+    echo "SCRIPT CHECK DID NOT CATCH $BAD"; echo "SMOKE FAIL: script check"; exit 1
+  fi
+done
+echo "SCRIPT CHECK PASS"
 
 echo "timings: transcribe ${T_TR}s, cut ${T_CUT}s, render ${T_RENDER}s, sound ${T_SOUND}s, captions ${T_CAP}s" | tee "$OUT/timings.txt"
 echo "SMOKE OK"
