@@ -14,7 +14,7 @@ has already set up a provider (a `heygen` CLI sign-in, `HEYGEN_API_BASE`, or a k
 
 - **Pass `--local-only`** to every `resolve` call. Never ask for a key or a sign-in unprompted; mention the
   optional upgrade at most once, in one line, and only when it would clearly help.
-- **SFX (transitions):** use the bundled royalty-free library in `audio/assets/sfx/` (19 Pixabay-licensed files,
+- **SFX (transitions):** use the bundled library in `audio/assets/sfx/` (19 files synthesised by `engines/make_sfx.py`, MIT;
   see `CREDITS.md` and `manifest.json`): `whoosh`, `whoosh-short`, `pop`, `riser`, `click-soft`, `sparkle`.
 - **Music (BGM):** nothing is bundled. Use a track from the user's `assets/` folder (e.g. `assets/music/`). If
   there is none, ask once: "Drop a royalty-free track (YouTube Audio Library or Pixabay Music are free) into

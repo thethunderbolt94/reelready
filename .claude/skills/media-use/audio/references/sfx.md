@@ -3,7 +3,7 @@
 Named sound effects, produced by the shared audio engine (`scripts/audio.mjs` → `scripts/lib/sfx.mjs`). **Provider-gated** by the engine's one switch — whether a HeyGen credential is present, decided once (not per cue):
 
 - **HeyGen credential present → retrieve every cue** from HeyGen's audio library (`/v3/audio/sounds`, `type=sound_effects`, `min_score=0.4`). Search-and-download, **not** generation. The bundled library is NOT consulted.
-- **No credential → the bundled 21-file library** (`assets/sfx/` + `manifest.json`): match each cue name, copy the matched file into the project. Offline, deterministic, free.
+- **No credential → the bundled 19-file library** (`assets/sfx/` + `manifest.json`): match each cue name, copy the matched file into the project. Offline, deterministic, free.
 
 There is no `npx hyperframes sfx` command. SFX is never generated — it is retrieved (online) or taken from the bundled library (offline).
 
@@ -31,12 +31,12 @@ A cue that matches nothing is **skipped** (recorded as an anomaly); SFX never bl
 
 ## Bundled library (no credential)
 
-21 curated files in `assets/sfx/`, indexed by `manifest.json` — `{ file, duration, description }` per key (e.g. `whoosh`, `pop`, `click`, `chime`, `riser`, `impact-bass-1`, `glitch-1`, `typing`, …). A cue name resolves by **manifest key, file basename, or slug**, so `whoosh`, `whoosh.mp3`, or `"ui click"` (→ slug) all match. Matched files are copied into the project's `assets/sfx/`; `duration_s` comes from the manifest, so timing is known **offline** — e.g. `riser` is 10.03s, so trigger it at `climax − 10.03s`. The manifest's `description` field carries placement hints per effect; read `assets/sfx/manifest.json` for the full set and usage.
+19 synthesised files in `assets/sfx/` (made by `engines/make_sfx.py`, MIT), indexed by `manifest.json` — `{ file, duration, description }` per key (e.g. `whoosh`, `pop`, `click`, `chime`, `riser`, `impact-bass-1`, `glitch-1`, `typing`, …). A cue name resolves by **manifest key, file basename, or slug**, so `whoosh`, `whoosh.mp3`, or `"ui click"` (→ slug) all match. Matched files are copied into the project's `assets/sfx/`; `duration_s` comes from the manifest, so timing is known **offline** — e.g. `riser` is 4.0s, so trigger it at `climax − 4.0s`. The manifest's `description` field carries placement hints per effect; read `assets/sfx/manifest.json` for the full set and usage.
 
 ## Rules
 
 - **Volume ~0.35.** SFX must sit under narration and BGM, not fight them.
 - **No match → skip, don't fail.** A missing effect logs an anomaly and moves on; never a render blocker.
-- **Retrieval (credentialed) or bundled library (offline) — never generation.** You search HeyGen by text, or match a name against the 21-file manifest.
+- **Retrieval (credentialed) or bundled library (offline) — never generation.** You search HeyGen by text, or match a name against the 19-file manifest.
 - **One asset per distinct name.** Reuse across lines is deduped to a single download/copy, many cues.
-- **The switch is global, not per cue.** With a credential, retrieval handles even the long tail (effects not in the 21); without one, only the 21 bundled names resolve.
+- **The switch is global, not per cue.** With a credential, retrieval handles even the long tail (effects not in the 19); without one, only the 19 bundled names resolve.

@@ -29,7 +29,7 @@
 - [x] scripts/rr.py house-style / next-signature; profile.house_style; setup step F; edit skill rotates the signature per reel
 - [x] engines/taste.py: 6 rules, TASTE PASS/FAIL; fixtures prove it passes on-brand and fails generic; smoke step
 - [x] Edit skill: Brand choices block in plan.md, taste gate in QA; CLAUDE.md pipeline + hard rule 4
-- [ ] Open: fixture profile uses H1 as a signature id (works, but real presets use X/M/P/B); Pixabay SFX license read; channel URL confirm
+- [ ] Open: fixture profile uses H1 as a signature id (works, but real presets use X/M/P/B); channel URL confirm
 
 ## v0.4 script writer (2026-11-01)
 Design: docs/superpowers/specs/2026-11-01-reelready-script-design.md (the "Settled" section wins).
@@ -55,4 +55,6 @@ Design: docs/superpowers/specs/2026-11-01-reelready-script-design.md (the "Settl
 - [x] Sound: calm adds no whooshes; others only on jump cuts, 2.5 s apart; sound uses the story EDL
 - [x] rr.py run / doctor find Homebrew tools on a fresh Mac; set-key hides the pasted key
 - [x] SMOKE OK, style guide check ok, private-data scan clean
-- [ ] Owner decisions before a public push: Pixabay SFX (licence bans standalone redistribution), commit author email, hyperframes-helper (no licence, unused), channel URL
+- [x] Pixabay SFX replaced: all 19 sounds synthesised by engines/make_sfx.py (MIT, deterministic); manifest durations refreshed
+- [x] Commit author on main rewritten to the Thrive Labs address (backup branch kept locally, never pushed); Apache-2.0 text copied into each HyperFrames skill folder
+- [ ] Owner decisions still open before a public push: hyperframes-helper (unused, no licence: drop or keep), channel URL

@@ -96,10 +96,9 @@ See [addons/telegram/README.md](addons/telegram/README.md).
 - Rename the brand in one place: `reelready.config.json`
 - Style profile schema: [profile/example-profile.json](profile/example-profile.json); the real one
   lives at `<main folder>/.reelready/style-profile.json`
-- Bundled third-party skills and their licenses: [.claude/skills/ATTRIBUTION.md](.claude/skills/ATTRIBUTION.md).
-  **Check before public release:** `hyperframes-helper` has no upstream LICENSE file (get the
-  author's permission or drop it), and the Apache-2.0 HyperFrames skill folders ship without a copy
-  of the license text (add one).
+- Bundled third-party skills and their licenses: [.claude/skills/ATTRIBUTION.md](.claude/skills/ATTRIBUTION.md)
+  (HyperFrames skills Apache-2.0 with the license text in each folder). Sound effects are synthesised
+  by `engines/make_sfx.py`, so they are MIT like the kit: no third-party samples.
 
 Requirements: macOS (Apple Silicon or Intel) with Homebrew; Linux best-effort; Windows via WSL2.
 

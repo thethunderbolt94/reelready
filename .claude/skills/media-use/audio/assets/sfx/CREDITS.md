@@ -1,12 +1,11 @@
 # SFX Credits
 
-All sound effects in this directory are sourced from [Pixabay](https://pixabay.com/sound-effects/) and used under the [Pixabay Content License](https://pixabay.com/service/license-summary/).
-
-The Pixabay license allows free use for commercial and non-commercial purposes without attribution, but attribution is appreciated and given here for transparency.
+All 19 sound effects in this directory are synthesised from scratch by ReelReady's
+`engines/make_sfx.py` (noise, sine tones, filters, envelopes; fixed seed, deterministic output) and
+encoded to 48 kHz mono MP3 with ffmpeg. No third-party samples or sound libraries are involved, so
+the files are MIT licensed like the rest of the kit.
 
 ## Files
-
-The following `.mp3` files are bundled with this skill:
 
 - `chime.mp3`
 - `click.mp3` / `click-soft.mp3`
@@ -22,14 +21,9 @@ The following `.mp3` files are bundled with this skill:
 - `typing.mp3`
 - `whoosh.mp3` / `whoosh-short.mp3` / `whoosh-cinematic.mp3`
 
-See `manifest.json` for per-file metadata (duration, energy character, recommended use).
+See `manifest.json` for per-file metadata (duration, character, recommended use). Regenerate the
+whole set with `python3 engines/make_sfx.py` from the repo root.
 
 ## License
 
-All files are distributed under the [Pixabay Content License](https://pixabay.com/service/license-summary/), which permits:
-
-- Commercial and non-commercial use
-- Modification and remixing
-- Redistribution as part of derivative works (such as videos rendered with HyperFrames)
-
-without any attribution requirement.
+MIT (the ReelReady `LICENSE`). Use, modify and redistribute freely, in videos or on their own.

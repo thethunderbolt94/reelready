@@ -56,7 +56,7 @@ python3 engines/sound.py <video> --out sound.mp4 [--edl edl.json] [--captions dr
 # "emphasis"; cinematic: cinematic whoosh, riser + hit, longer tails with a light echo. SFX sit -14 dB
 # (cuts, hit) / -20 dB (pops, riser) under the voice. Bed: pink noise, lowpass 400 Hz, ~-45 LUFS.
 # --music: looped/trimmed, sidechain-ducked to ~-22 dB under speech, 0.5 s in / 1.5 s out.
-# Also writes <out stem>.sound.json (cut times + every placed sound). SFX files: engines/sfx/ (ATTRIBUTION.md).
+# Also writes <out stem>.sound.json (cut times + every placed sound). SFX files: engines/sfx/, synthesised by engines/make_sfx.py (ATTRIBUTION.md).
 
 # 7. Story -> edl.story.json: the EDL's keep list split at sentence boundaries and reordered/dropped
 python3 engines/story.py --edl edl.json --transcript transcript.json --list            # numbered sentences
