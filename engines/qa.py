@@ -4,7 +4,9 @@
     python3 engines/qa.py <mp4> --frames 6 --out <dir> [--expect 1080x1920] [--min-duration 3]
 
 Writes <dir>/probe.json (duration, width, height, fps, has_audio, loudness from ebur128, checks)
-and <dir>/frame_01.jpg .. frame_NN.jpg (512 px wide, evenly spaced). Prints exactly one line that
+and <dir>/frame_01.jpg .. frame_NN.jpg (512 px wide, evenly spaced), plus frame_hook.jpg at t=1.0 s
+(the hook card) and frame_end.jpg at duration - 1.5 s (the end card); the evenly spaced frames miss
+both on longer reels. probe.json lists them under "extra_frames". Prints exactly one line that
 starts with "QA PASS" or "QA FAIL". Exit code 0 on pass, 1 on fail.
 
 Fails when: resolution != --expect, duration < --min-duration, no audio stream,
@@ -66,6 +68,18 @@ def main() -> None:
              "-vf", "scale=512:-2", "-q:v", "3", str(f)])
         frames.append({"file": f.name, "t": round(t, 3)})
     probe["frames"] = frames
+    extra = []
+    for name, t in (("frame_hook.jpg", 1.0), ("frame_end.jpg", info["duration"] - 1.5)):
+        t = min(max(t, 0.0), max(info["duration"] - 0.05, 0.0))
+        (out / name).unlink(missing_ok=True)   # never let a stale frame from an earlier run pass as this one
+        try:
+            run(["ffmpeg", "-y", "-v", "error", "-ss", f"{t:.3f}", "-i", a.mp4, "-frames:v", "1",
+                 "-vf", "scale=512:-2", "-q:v", "3", str(out / name)])
+        except RuntimeError:
+            continue   # a very short clip may have no frame there; the evenly spaced ones still exist
+        if (out / name).exists():
+            extra.append({"file": name, "t": round(t, 3)})
+    probe["extra_frames"] = extra
 
     ew, _, eh = a.expect.partition("x")
     lufs = probe["audio"]["integrated_lufs"]

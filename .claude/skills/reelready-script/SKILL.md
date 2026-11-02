@@ -21,14 +21,21 @@ python3 scripts/rr.py where --json
 - Read the profile: `business.*`, `tone`, `platforms`, `aspect`, `copy.cta`, `script.format`,
   `script.seconds`, `reference_style.hook_patterns`. Any field missing -> skip it silently and use
   the default named in this file (`aspect` default 9:16, `tone` default warm, direct, local).
-- Voice: the 5 newest `transcript.json` (or `draft.words.json`) under `<work>/*/` by file
-  modification time, skipping `script-*` folders. Read their text. Note the owner's recurring
+- Voice: the 5 newest job folders under `<work>/*/` by file modification time, skipping `script-*`
+  folders. From each, read `draft.words.json` (what made the cut) or, if missing, `transcript.json`. Read their text. Note the owner's recurring
   phrases, how long their sentences are, words they use for their own product. Details:
   `references/voice.md`.
 - No transcripts yet -> say once, as the first line of your first message: "I don't have any of your
   past videos yet, so what I write won't sound fully like you yet. Change any line that doesn't."
 
-## 1. Pick the mode
+## 1. Start the notes file, then pick the mode
+
+Before anything else: `mkdir -p "<work>/script-draft"`. From the owner's first message on, append
+every message they send about this script or these ideas, verbatim and unedited, one per line, to
+`<work>/script-draft/owner.txt`. Once there is a topic (named, or picked from the idea cards),
+rename the folder: `mv "<work>/script-draft" "<work>/script-<slug>"`. Redoing a script that already
+has an export folder: use that job's `<work_dir>` instead (its `owner.txt` is already there; keep
+appending).
 
 - The owner named a topic ("script for the new chai menu") -> **Script** (step 3).
 - The owner asked what to post, or gave no topic -> **Ideas** (step 2).
@@ -43,7 +50,7 @@ reel (name the reel folder), or something the owner told you today. Different an
 1. <working title>                                  [GENERATED - approve?]
    Source     your past reel 2026-10-28-tuesday-roast: "the back room is a roaster"
    Structure  hook, context, payoff · about 25 s
-   Hook       "Most people don't know the back room is a roaster."
+   Hook       "The back room is a roaster."
    Film       you by the roaster door, then the beans pouring
 ```
 The Source line uses the same three forms as the Facts table in step 4 (`profile <field>`,
@@ -102,10 +109,9 @@ Exact shape and both formats: `references/formats.md`. Worked examples: `referen
   `you told me today: "<what they said>"`. One fact per row. Quote the shortest exact words that
   hold the fact. Any number in Hook or Beats (digits or words) must appear in a row, and a price
   must appear as a price.
-- **Today's facts come from the owner's notes file.** As soon as the owner tells you anything for
-  this script (the topic, answers to questions), append their message, verbatim and unedited, as
-  one line to `<work>/script-<slug>/owner.txt`. A `you told me today` quote must be copied exactly
-  from that file. The check reads it with `--chat` and fails any today-quote that isn't there.
+- **Today's facts come from the owner's notes file** (step 1). A `you told me today` quote must be
+  copied exactly from `owner.txt`. The check reads it with `--chat` and fails any today-quote that
+  isn't there, and any number in a fact that isn't in its quote.
 - **Not used**: what a viewer might expect that the owner didn't give (price, hours), so the
   owner sees the gap.
 - Style: `profile.tone` (default warm, direct, local). Words from `engines/banned.txt` never. No
@@ -124,7 +130,7 @@ Write `<work>/script-<slug>/script.md`.
 ```bash
 python3 scripts/rr.py run -- python3 engines/script_check.py \
   --script "<work>/script-<slug>/script.md" --profile "<profile>" --work-dir "<work>" \
-  --chat "<work>/script-<slug>/owner.txt"
+  --chat "<work>/script-<slug>/owner.txt"     # on a redo: the job's <work_dir> for both
 ```
 - `SCRIPT PASS` -> show it.
 - `SCRIPT FAIL` -> fix the named rule once and re-run. `numbers-sourced` -> source the number or
@@ -136,7 +142,9 @@ every line sounds like something they'd say out loud.
 
 ## 6. Show, then save on "go"
 
-Show the script in chat exactly as written. Under it, if the check printed a `today-only facts`
+Show the script in chat as written, with one change: in the Facts used list, say the sources in
+plain words ("from your settings: your call to action", "from your Tuesday roast video", "from what
+you told me today"). The saved file keeps the exact source labels the check needs. Under it, if the check printed a `today-only facts`
 note: "These come only from what you told me today, please make sure they're right:" then the facts
 (one line if 1 or 2, a short list if more). Then: "Say 'go' to save it, or tell me what to change." Changes -> edit the draft, re-run
 step 5, show again.

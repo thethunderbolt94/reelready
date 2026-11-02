@@ -28,6 +28,15 @@ re:—
 re:–
 re:;
 re:!
+# superlatives and claims the owner almost never says (their own verified quotes are exempt)
+award-winning
+world-class
+voted
+number one
+re:#1\b
+re:\bbest\b.{0,25}\bin\b
+re:\bthe only\b
+re:\bfirst (in|ever)\b
 # judgment only (not machine-checked):
 # rule-of-three filler lists ("fresh, local and delicious")
 # a closing moral ("Because quality matters.")

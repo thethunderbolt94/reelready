@@ -2,9 +2,9 @@
   "id": "S2",
   "category": "sound",
   "name": "Punchy",
-  "oneliner": "Whoosh on every cut, a pop on every caption, and a riser that hits at the end of the hook.",
+  "oneliner": "Whoosh on every jump cut, a pop on every caption, and a riser that hits at the end of the hook.",
   "description": "High-energy sound for menu drops and glow-ups: the hook builds and lands, captions pop, cuts swish.",
-  "prompt": "Sound pass, preset punchy. Run it on the finished picture (after captions, before QA): python3 scripts/rr.py run -- python3 engines/sound.py \"$W/captioned.mp4\" --out \"$W/sound.mp4\" --edl \"$W/edl.json\" --captions \"$W/draft.words.json\" --preset punchy [--hook-seconds <hook length, default the EDL's>]. Voice polish + room-tone bed as in S1, plus: a riser that crests exactly at the end of the hook and an impact-bass hit on that moment (-14 dB under the voice); a full whoosh at -14 dB on each internal cut, transient on the cut; a pop at -20 dB on each caption-group start and a sparkle on words marked as emphasis. Pops are skipped within 0.25 s of a whoosh or the hit, so two sounds never stack on one moment. Ends at -16 LUFS / -1.5 dBTP, video stream copied. If M2 is in the mix, these whooshes replace M2's. Do NOT also add M3's riser, and do NOT run a second S card.",
+  "prompt": "Sound pass, preset punchy. Set EDL to the EDL the draft was rendered from ($W/edl.story.json after a story pass, else $W/edl.json). Run it on the finished picture (after captions, before QA): python3 scripts/rr.py run -- python3 engines/sound.py \"$W/captioned.mp4\" --out \"$W/sound.mp4\" --edl \"$EDL\" --captions \"$W/draft.words.json\" --preset punchy [--hook-seconds <hook length, default the EDL's>]. Voice polish + room-tone bed as in S1, plus: a riser that crests exactly at the end of the hook and an impact-bass hit on that moment (-14 dB under the voice); a full whoosh at -14 dB on each internal cut, transient on the cut; a pop at -20 dB on each caption-group start and a sparkle on words marked as emphasis. Pops are skipped within 0.25 s of a whoosh or the hit, so two sounds never stack on one moment. Ends at -16 LUFS / -1.5 dBTP, video stream copied. If M2 is in the mix, these whooshes replace M2's. Do NOT also add M3's riser, and do NOT run a second S card.",
   "engine": "sound",
   "needs": [
     "transcript"

@@ -74,9 +74,10 @@ captions/overlays/motion. Reference watching: `watch`. Script check: `engines/sc
    riser/hit, room-tone bed, ducked music, -16 LUFS. "make it punchy" / "add sound design" -> re-run this.
 6. **QA**: `engines/qa.py` (ffprobe + 6 frames). Look at every frame. Fix one obvious issue once.
    Then `engines/taste.py` (brand gate: Brand choices in the plan, brand accent + font in captions, exactly
-   one house signature card, sound preset matches the S card) must print `TASTE PASS`; on FAIL fix the
+   one signature move, sound preset matches the S card) must print `TASTE PASS`; on FAIL fix the
    named rule once, re-render only that layer, re-run. Then deliver `final.mp4` + a 3-line summary.
-7. **Copy** (optional): **reelready-copy** writes `post.md` from the reel's words + profile, all DRAFT.
+7. **Copy** (optional): **reelready-copy** writes `post.md` from the reel's words + profile, all DRAFT,
+   checked by `engines/script_check.py --post` (must print `COPY PASS`).
 
 Always run engines through `python3 scripts/rr.py run -- python3 engines/<x>.py ...` (repo .venv
 + user's private .env). Run from the repo root.
@@ -92,7 +93,8 @@ Always run engines through `python3 scripts/rr.py run -- python3 engines/<x>.py 
    Never claim generated copy is the user's words.
 3. **One signature effect per idea.** One big move (title behind subject, whip transition,
    cut-out pop) per beat. Never stack effects on the same moment. If the user's mix stacks, keep the
-   first, say why in one line.
+   first, say why in one line. A signature move = an X card or a `house_style.signature` card; exactly
+   one per reel (taste.py checks it; `--no-signature "<reason>"` only when none fits).
 4. **Designed, not generic.** Brand palette only; profile fonts or the designed defaults; tight,
    kerned titles; eased motion (no linear moves); text inside safe zones; music ducked under speech;
    loudness -16 LUFS, true peak <= -1 dBTP (render_cut + music mix hit this; qa.py accepts -20..-12).

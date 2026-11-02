@@ -93,7 +93,7 @@ Hook (first 2 s, to camera)        [GENERATED - approve?]
   "Saturdays at eight, these come out."     from your words: "the almond croissants come out at eight"
 
 Beats                              [GENERATED - approve?]
-  1. Show the tray. Say what they are and that you bake them here.
+  1. Show the tray. Say what they are.
   2. "Most people don't know the back room is a roaster."   your line, reel 2026-10-28
   3. Invite: "Visit us Saturday morning."                   copy.cta
 
@@ -196,7 +196,7 @@ good must PASS, bad must FAIL), `profile/example-profile.json` + `profile/README
 
 ## Decided
 
-- It ships in the free kit (Suhaas, 2026-11-01).
+- It ships in the free kit (kit author decision, 2026-11-01).
 - Every generated line is flagged `[GENERATED - approve?]` and the file starts with the DRAFT banner.
 
 ## Builder's calls (marked, change if wrong)

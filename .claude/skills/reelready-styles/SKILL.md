@@ -17,9 +17,10 @@ python3 styleguide/serve.py
 
 Run it in the background (it keeps serving until stopped). It rebuilds the page from the cards,
 serves it on the port in `reelready.config.json` (`styleguide.port`, default 4810; it tries the next
-port if busy) and opens the browser. Tell the user, in one or two lines:
+port if busy) and opens the browser. It prints `Style guide running at <url>`: use THAT url (the port
+may not be 4810). Tell the user, in one or two lines:
 
-> Your style guide is open at http://localhost:4810. Tap **Add** on the styles you like, then
+> Your style guide is open at <url>. Tap **Add** on the styles you like, then
 > **Copy prompt** at the bottom and paste it here.
 
 If the browser didn't open, give them the URL. If Python can't serve, open
@@ -31,7 +32,7 @@ Stop the server when the user is done or the session ends.
 When the user would rather not leave the chat, read `styles/cards/*.json` and list them grouped by
 category in this order, one line each: `ID  Name  (one-liner)`.
 
-Hook (H) . Captions (C) . Layout (L) . Proof (P) . B-roll (B) . Signature (X) . Motion + pace (M) . Outro (O)
+Hook (H) . Captions (C) . Layout (L) . Proof (P) . B-roll (B) . Signature (X) . Motion + pace (M) . Outro (O) . Sound (S)
 
 Keep it scannable. Offer the page for pictures, and offer a suggested mix (section 5).
 For "what is H1?", answer with the card's `description`, `duration_hint` and `needs` in plain words,
@@ -46,7 +47,7 @@ with `Edit the newest clip in raw footage. Use styles: ...`, or `Use style: H1.`
 1. Parse ids: split on `+`, `,`, `and`, spaces; uppercase; de-duplicate.
 2. Load `styles/cards/<ID>.json` for each. Unknown id -> say which one and show the closest ids in
    that category. Never invent a card.
-3. Sort into category order (hook, captions, layout, proof, broll, signature, motion, outro).
+3. Sort into category order (hook, captions, layout, proof, broll, signature, motion, outro, sound).
 4. Check conflicts (section 4).
 5. Check `needs` against what exists: `matting` (local subject cut-out available), `transcript`
    (always produced by ingest), `assets:logo` / `assets:music` (files in the main folder's `assets/`),
@@ -76,14 +77,17 @@ Keep captions verbatim. Show me the plan first.
    plan before rendering). Use card prompts verbatim; don't rewrite them.
 
 If the user only wants to save the mix as their default, write it with
-`python3 scripts/rr.py profile-merge -` and `{"default_mix": ["H1","C1","L1","B1","O1"]}` on stdin.
+`python3 scripts/rr.py profile-merge -` and `{"default_mix": ["H1","C1","L1","B1","O1","S4"]}` on stdin
+(their ids, including one sound card if they picked one).
 
 ## 4. The one-signature rule (and other conflicts)
 
-- **One signature effect per idea.** Signature cards are `X1`-`X6`. If the mix has two or more, say
-  so in one friendly line and ask: keep one, or use them in different sections? If the user already
-  said "just do it", keep the first one in the mix order and mention it in the plan.
-  Never put two signature effects on the same moment.
+- **One signature move per reel.** Signature moves are the X cards (`X1`-`X6`) plus any card in the
+  profile's `house_style.signature`. If the mix has two or more, say so in one friendly line and ask
+  which one to keep for this reel (the other can lead the next reel). If the user already said "just do
+  it", keep the first one in the mix order and mention it in the plan. A mix with none is fine:
+  reelready-edit adds the next house signature move and says so.
+- **One sound card.** At most one of `S1`-`S5`; none means S1 (clean).
 - **One per slot.** Only one hook, one caption style and one outro per video. These pairs, plus
   effects that fight for the same spot (e.g. `H1` with `X3`, `L4` with background-swapping X cards),
   are listed in each card's `avoid_with`. When two cards conflict, suggest which to keep based on
@@ -95,18 +99,18 @@ If the user only wants to save the mix as their default, write it with
 Read the profile (`python3 scripts/rr.py where --json` gives its path). If `default_mix` is set, offer
 that first. Otherwise pick by business type and goal, then sanity-check `needs` against their assets:
 
-The first five rows are the named mixes in `styles/mixes.json` (Cafe story, What to order, Salon
-glow-up, Job walk, Listing tour); the user can just say "use the Job walk mix".
+The first five situations are the named mixes in `styles/mixes.json`; read their `ids` from that file
+(they include a sound card), don't retype them. The user can just say "use the Job walk mix".
 
 | Situation | Mix |
 |---|---|
-| Cafe / bakery owner telling a story | H1 + C1 + L1 + B1 + O1 |
-| Restaurant "what to order" / new item | H2 + C2 + B4 + M2 + O3 |
-| Salon, barber, beauty before/after | H5 + C6 + P2 + M1 + O1 |
-| Contractor / trades showing the work | H4 + C4 + L3 + B1 + O3 |
-| Realtor listing tour | H6 + C6 + L1 + P4 + X4 + O1 |
-| No b-roll at all, just one take | H1 + C1 + L1 + M1 + O1 |
-| Calm, premium brand | H6 + C6 + L4 + O1 |
+| Cafe / bakery owner telling a story | `Cafe story` in mixes.json |
+| Restaurant "what to order" / new item | `What to order` |
+| Salon, barber, beauty before/after | `Salon glow-up` |
+| Contractor / trades showing the work | `Job walk` |
+| Realtor listing tour | `Listing tour` |
+| No b-roll at all, just one take | H1 + C1 + L1 + M1 + O1 + S1 |
+| Calm, premium brand | H6 + C6 + L4 + O1 + S4 |
 | Wants one "wow" moment | add one X card that fits (X6 spotlight is the safest; X1/X2 need real photos) |
 
 Adjustments:
@@ -114,7 +118,7 @@ Adjustments:
 - No b-roll -> skip `B1`-`B4`, `L2`, `L3`, `H5`, `M3`.
 - No reviews provided -> skip `P1`/`P2` (never invent reviews).
 - Profile `captions.card` set -> use that caption card.
-- Keep suggestions to 4-6 cards. More effects is not better.
+- Keep suggestions to 4-6 cards plus one sound card. More effects is not better.
 
 Say the mix in one line with a reason per card, e.g.
 "H1 (your opening line big behind you) + C1 (your captions, word for word) + L1 (your name) +

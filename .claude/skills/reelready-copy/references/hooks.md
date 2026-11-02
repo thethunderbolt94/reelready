@@ -20,7 +20,7 @@ Don't repeat the hook title already in the reel (`plan.md`); offer alternatives 
 ## Rules
 
 - Under 8 words. Count them.
-- Digits over spelled-out numbers ("3", not "three"), but only numbers the owner said.
+- Numbers only as the owner gave them. On-screen titles and post copy use digits ("40 minutes"); spoken script lines keep the owner's own words ("forty minutes").
 - Lead with a thing, a number or "you" rather than "I" where it reads naturally.
 - Curiosity must pay off inside the reel. If the reel doesn't answer it, don't ask it.
 - No question that the reel doesn't answer, no exclamation marks, no all caps, no em dashes.

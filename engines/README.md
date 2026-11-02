@@ -27,13 +27,15 @@ python3 engines/render_cut.py --edl edl.json --out draft.mp4 [--aspect 9:16|16:9
     [--crf 20] [--preset medium|veryfast] [--transcript transcript.json]
 # --transcript also writes <out stem>.words.json (draft.words.json): words re-timed onto the draft
 
-# 4. QA -> probe.json + frame_01..06.jpg + one "QA PASS ..." / "QA FAIL ..." line (exit 0 / 1)
+# 4. QA -> probe.json + frame_01..06.jpg + frame_hook.jpg (t=1 s) + frame_end.jpg (end - 1.5 s, listed under
+#    "extra_frames") + one "QA PASS ..." / "QA FAIL ..." line (exit 0 / 1)
 python3 engines/qa.py <mp4> --frames 6 --out <dir> [--expect 1080x1920] [--min-duration 3]
 
 # 5. Captions (fast default) -> verbatim word-timed burn-in with HyperFrames, input audio copied bit-exact
 python3 engines/captions.py <video> --words draft.words.json --out captioned.mp4 \
     [--accent <word>] [--accent-color "#FFD60A"] [--max-words 3] [--keep-project <dir>] \
-    [--font <brand.ttf|otf|woff|woff2>] [--font-family "<CSS name>"] [--font-weight 800]
+    [--font <brand.ttf|otf|woff|woff2>] [--font-family "<CSS name>"] [--font-weight 800] [--font-size <px>]
+# This is exactly the C1 card's look. --font-size: px on the output frame (default 8.3% of the width, ~90 at 1080).
 # 2-3 word groups, each word pops in on its own timestamp; white heavy sans (bundled Inter) with a dark
 # stroke; one accent word (given, else the longest content word). Pure fillers (um, uh) are left off the
 # caption track; every other word is shown as spoken. Exit 1 with "disk is almost full" under 1 GB free.
@@ -41,14 +43,15 @@ python3 engines/captions.py <video> --words draft.words.json --out captioned.mp4
 # fallback; --font-family defaults to the file stem; weight stays 800 (regular files get synthesized bold)
 # unless --font-weight pins it. Missing/unsupported file (.ttc too): one "warning: font not found" line, Inter.
 # Also writes <out stem>.captions.json: {font_family, font_source: brand|bundled-inter|system-fallback,
-# font_path, accent_color, accent_word, max_words, groups, words} (the taste gate reads it).
+# font_path, font_size, accent_color, accent_word, max_words, groups, words} (the taste gate reads it).
 
 # 6. Sound -> voice polish + SFX + room-tone bed (+ ducked music), -16 LUFS / -1.5 dBTP, video stream-copied
 python3 engines/sound.py <video> --out sound.mp4 [--edl edl.json] [--captions draft.words.json] \
     [--preset clean|punchy|cinematic|calm] [--hook-seconds 2] [--music track.mp3] [--no-bed]
 # Voice: highpass 80 Hz, deesser, 3:1 compressor at -18 dB, then two-pass loudnorm on the whole mix.
 # Cuts come from the EDL (render_cut's timeline, crossfades included), else scene detection (scene > 0.4).
-# clean/calm: short whoosh per cut (clean adds one click at the first caption); punchy: whoosh per cut,
+# Only jump cuts get a whoosh (a story-pass move or >= 1 s of source removed; small trims stay seamless),
+# at most one per 2.5 s. calm: none. clean: short whoosh (plus one click at the first caption); punchy: whoosh,
 # riser cresting at the end of the hook + impact hit, pop per caption group, sparkle on words marked
 # "emphasis"; cinematic: cinematic whoosh, riser + hit, longer tails with a light echo. SFX sit -14 dB
 # (cuts, hit) / -20 dB (pops, riser) under the voice. Bed: pink noise, lowpass 400 Hz, ~-45 LUFS.
@@ -64,11 +67,13 @@ python3 engines/story.py --edl edl.json --transcript transcript.json --order 3,0
 # 8. Taste gate -> one "TASTE ok|FAIL|note <rule>: <reason>" line per rule, then "TASTE PASS (n rules)" or
 #    "TASTE FAIL: generic edit, <k> rule(s): a, b" (exit 0 / 1). Stdlib only; runs after qa.py, before "done".
 python3 engines/taste.py --profile <main>/.reelready/style-profile.json --plan <export_dir>/plan.md \
-    [--captions captioned.captions.json] [--sound sound.sound.json] [--mix H1,C1,L2,O1,S2] [--strict]
+    [--captions captioned.captions.json] [--sound sound.sound.json] [--mix H1,C1,L2,O1,S2] [--strict] \
+    [--no-signature "<why no signature card fits>"]
 # Rules: brand-choices (plan.md "## Brand choices" has >= 3 bullets, each naming a brand hex, brand font,
 # "logo" or a 3-word reference_style phrase), palette-in-plan (>= 2 brand colors named there), accent-color
 # (captions accent = brand.colors.accent, never the #FFD60A default), brand-font (brand files on file ->
-# font_source "brand"), signature (exactly one house_style.signature card in the mix), sound-preset (S card
+# font_source "brand"), signature (exactly one signature move in the mix: a house_style.signature card or an
+# X card; none -> FAIL unless --no-signature gives the reason, then a note), sound-preset (S card
 # -> preset: S1 clean, S2 punchy, S3 cinematic, S4 calm, S5 clean + music). No --mix -> profile.default_mix.
 # "note" = could not check (optional file missing, or profile has nothing to compare); --strict makes notes FAIL.
 
@@ -83,10 +88,19 @@ python3 engines/script_check.py --script <script.md> --profile <main>/.reelready
 # Rules: draft-banner, flagged ([GENERATED - approve?] on Hook and Beats), structure (hook, context, payoff |
 # list | before, after | question, answer), length (2.5 spoken words/s, +15 percent), hook-length (< 8 words),
 # banned (engines/banned.txt, shared with reelready-copy), facts-table, numbers-sourced (every number or
-# number word in Hook and Beats is in a Facts row or marked [ASK: ...]; a price must match a sourced
+# number word in Hook and Beats is in a checked source or marked [ASK: ...]; a price must match a sourced
 # price), sources-real (each source is
 # "profile <field>", "your past reel <job>" found in <work-dir>/<job>/transcript.json, or "you told me
 # today" found in the owner's notes file passed with --chat; the last kind is listed in the output so the owner sees what rests only on this chat).
+# Numbers count only from the checked source text (profile value or the verified quote), never from the fact
+# text or a folder date. The owner's own verified quotes and business name/description are exempt from banned.
+# Past-reel quotes are read from draft.words.json first (what survived the cut), else transcript.json.
+
+# 9b. Post copy check (reelready-copy's post.md) -> "COPY ok|FAIL <rule>" lines, then "COPY PASS (4 rules)"
+#     or "COPY FAIL: ...". Rules: draft-banner, flagged (every ## section says "DRAFT: approve before
+#     posting"), banned (outside the owner's quoted words and the hashtag line), numbers-sourced (every
+#     number and price is in the reel's words or a profile value).
+python3 engines/script_check.py --post <export>/post.md --profile <profile> --words <work>/draft.words.json
 ```
 
 Loudness (target -16 LUFS, QA window -20..-12): see "Loudness, stated once" in `docs/engines.md`.

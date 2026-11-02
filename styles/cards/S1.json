@@ -3,8 +3,8 @@
   "category": "sound",
   "name": "Clean",
   "oneliner": "Polished voice and a quiet room-tone bed. Nothing you'd notice, just better.",
-  "description": "Your voice gets cleaned up and evened out, with a soft whoosh on cuts. No hits, no pops.",
-  "prompt": "Sound pass, preset clean. Run it on the finished picture (after captions, before QA): python3 scripts/rr.py run -- python3 engines/sound.py \"$W/captioned.mp4\" --out \"$W/sound.mp4\" --edl \"$W/edl.json\" --captions \"$W/draft.words.json\" --preset clean. It polishes the voice (highpass 80 Hz, de-esser, 3:1 compression at -18 dB), lays a pink room-tone bed at about -45 LUFS so cuts never drop to digital silence, puts one short whoosh at -14 dB under the voice on each internal cut and one soft click at the first caption, then normalises to -16 LUFS / -1.5 dBTP with the video stream copied. If M2 is in the mix, these whooshes replace M2's; never add both. Do NOT add music, risers or impacts with this card, and do NOT run a second S card on the same edit.",
+  "description": "Your voice gets cleaned up and evened out, with a soft whoosh on jump cuts. No hits, no pops.",
+  "prompt": "Sound pass, preset clean. Set EDL to the EDL the draft was rendered from ($W/edl.story.json after a story pass, else $W/edl.json). Run it on the finished picture (after captions, before QA): python3 scripts/rr.py run -- python3 engines/sound.py \"$W/captioned.mp4\" --out \"$W/sound.mp4\" --edl \"$EDL\" --captions \"$W/draft.words.json\" --preset clean. It polishes the voice (highpass 80 Hz, de-esser, 3:1 compression at -18 dB), lays a pink room-tone bed at about -45 LUFS so cuts never drop to digital silence, puts one short whoosh at -14 dB under the voice on each internal cut and one soft click at the first caption, then normalises to -16 LUFS / -1.5 dBTP with the video stream copied. If M2 is in the mix, these whooshes replace M2's; never add both. Do NOT add music, risers or impacts with this card, and do NOT run a second S card on the same edit.",
   "engine": "sound",
   "needs": [],
   "pairs_with": [

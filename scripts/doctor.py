@@ -18,6 +18,11 @@ import sys
 import tempfile
 from pathlib import Path
 
+# Homebrew installs land outside a fresh shell's PATH on a new Mac; look there too.
+for _d in ("/opt/homebrew/bin", "/usr/local/bin"):
+    if os.path.isdir(_d) and _d not in os.environ.get("PATH", "").split(os.pathsep):
+        os.environ["PATH"] = os.environ.get("PATH", "") + os.pathsep + _d
+
 REPO = Path(__file__).resolve().parent.parent
 VENV_PY = REPO / ".venv" / "bin" / "python"
 sys.path.insert(0, str(Path(__file__).resolve().parent))

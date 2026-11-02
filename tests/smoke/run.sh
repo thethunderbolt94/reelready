@@ -112,13 +112,30 @@ if ! "$PY" "$E/captions.py" "$OUT/draft.mp4" --words "$OUT/draft.words.json" --o
 fi
 T_CAP=$(lap "$t")
 "$PY" "$E/qa.py" "$OUT/captioned.mp4" --frames 6 --out "$OUT/qa_captioned" | tee "$OUT/qa_captioned.txt"
+"$PY" - "$OUT" <<'PYEOF'
+import json, sys
+from pathlib import Path
+out = Path(sys.argv[1])
+c = json.load(open(out / "captioned.captions.json"))
+probe = json.load(open(out / "qa_captioned/probe.json"))
+names = [f["file"] for f in probe.get("extra_frames", [])]
+fails = []
+if c.get("font_size") != 90:
+    fails.append(f"default caption size {c.get('font_size')!r}, want 90 at 1080 wide")
+for n in ("frame_hook.jpg", "frame_end.jpg"):
+    if n not in names or not (out / "qa_captioned" / n).exists():
+        fails.append(f"qa.py did not write {n}")
+if fails:
+    print("CAPTIONS/QA CONTRACT FAILED:\n  " + "\n  ".join(fails)); sys.exit(1)
+print(f"CAPTIONS/QA CONTRACT PASS: font_size 90, extra frames {names}")
+PYEOF
 
 echo "== captions with a brand font (--font, Impact as a stand-in; captions.json must say font_source brand)"
 TEST_FONT="/System/Library/Fonts/Supplemental/Impact.ttf"   # Apple system font: referenced, never copied into the repo
 rm -f "$OUT/captioned_brandfont.mp4" "$OUT/captioned_brandfont.captions.json" "$OUT/qa_captioned_brandfont.txt"
 if [ -f "$TEST_FONT" ]; then
   if ! "$PY" "$E/captions.py" "$OUT/draft.mp4" --words "$OUT/draft.words.json" --out "$OUT/captioned_brandfont.mp4" \
-       --accent seven --font "$TEST_FONT" --font-family TestBrand 2> "$OUT/captions_brandfont_err.txt"; then
+       --accent seven --font "$TEST_FONT" --font-family TestBrand --font-size 100 2> "$OUT/captions_brandfont_err.txt"; then
     REASON=$(grep -v '^[[:space:]]*$' "$OUT/captions_brandfont_err.txt" | head -1 | sed 's/^error: //')
     echo "BRAND FONT FAILED: ${REASON:-captions.py --font failed (see tests/smoke/out/captions_brandfont_err.txt)}"
     echo "SMOKE FAIL: captions passed, brand-font captions did not"
@@ -127,9 +144,9 @@ if [ -f "$TEST_FONT" ]; then
   "$PY" - "$OUT/captioned_brandfont.captions.json" <<'PYEOF'
 import json, sys
 c = json.load(open(sys.argv[1]))
-if c.get("font_source") != "brand" or c.get("font_family") != "TestBrand":
-    print(f"BRAND FONT FAILED: captions.json says {c.get('font_source')!r} / {c.get('font_family')!r}, "
-          "want 'brand' / 'TestBrand'"); sys.exit(1)
+if c.get("font_source") != "brand" or c.get("font_family") != "TestBrand" or c.get("font_size") != 100:
+    print(f"BRAND FONT FAILED: captions.json says {c.get('font_source')!r} / {c.get('font_family')!r} / "
+          f"{c.get('font_size')!r}, want 'brand' / 'TestBrand' / 100"); sys.exit(1)
 print(f"BRAND FONT PASS: {c['font_family']} from {c['font_path']}, {c['groups']} groups, {c['words']} words")
 PYEOF
   "$PY" "$E/qa.py" "$OUT/captioned_brandfont.mp4" --frames 6 --out "$OUT/qa_captioned_brandfont" \
@@ -152,6 +169,21 @@ tail -1 "$OUT/taste_generic.txt"
 if [ "$TASTE_RC" -ne 1 ] || ! tail -1 "$OUT/taste_generic.txt" | grep -q '^TASTE FAIL: generic edit'; then
   echo "TASTE GATE DID NOT CATCH GENERIC"; echo "SMOKE FAIL: taste gate"; exit 1
 fi
+set +e   # two signature moves (house H1 + X card X1) must FAIL; no signature with a stated reason must PASS
+"$PY" "$E/taste.py" --profile "$FX/profile.json" --plan "$FX/plan_good.md" --captions "$FX/captions_brand.json" \
+  --sound "$FX/sound_punchy.json" --mix H1,X1,C1,L2,O1,S2 > "$OUT/taste_stacked.txt"
+STACK_RC=$?
+"$PY" "$E/taste.py" --profile "$FX/profile.json" --plan "$FX/plan_good.md" --captions "$FX/captions_brand.json" \
+  --sound "$FX/sound_punchy.json" --mix H2,C1,L2,O1,S2 --no-signature "no b-roll for the house moves" > "$OUT/taste_nosig.txt"
+NOSIG_RC=$?
+set -e
+if [ "$STACK_RC" -ne 1 ] || ! grep -q '^TASTE FAIL signature: stacked' "$OUT/taste_stacked.txt"; then
+  echo "TASTE GATE DID NOT CATCH STACKED SIGNATURES"; echo "SMOKE FAIL: taste gate"; exit 1
+fi
+if [ "$NOSIG_RC" -ne 0 ] || ! grep -q '^TASTE note signature: no signature move' "$OUT/taste_nosig.txt"; then
+  echo "TASTE GATE --no-signature DID NOT NOTE"; echo "SMOKE FAIL: taste gate"; exit 1
+fi
+echo "TASTE SIGNATURE PASS: stacked moves fail, --no-signature notes"
 
 echo "== script check (fixtures: two good scripts must PASS, eight bad scripts must FAIL)"
 SX="$FX/script"
@@ -172,6 +204,19 @@ for BAD in invented_price price_borrowed spelled_number banned fake_source today
   fi
 done
 echo "SCRIPT CHECK PASS"
+
+echo "== post copy check (good post must PASS, invented price + banned word must FAIL)"
+PW="$SX/work/2026-10-28-tuesday-roast/transcript.json"
+"$PY" "$E/script_check.py" --post "$SX/post_good.md" --profile "$SX/profile.json" --words "$PW" | tail -1 \
+  | grep -q '^COPY PASS' || { echo "SMOKE FAIL: post check failed the good post"; exit 1; }
+set +e
+"$PY" "$E/script_check.py" --post "$SX/post_bad.md" --profile "$SX/profile.json" --words "$PW" > "$OUT/post_bad.txt"
+PC_RC=$?
+set -e
+if [ "$PC_RC" -ne 1 ] || ! grep -q 'banned' "$OUT/post_bad.txt" || ! grep -q 'FAIL numbers-sourced' "$OUT/post_bad.txt"; then
+  echo "POST CHECK DID NOT CATCH post_bad"; echo "SMOKE FAIL: post check"; exit 1
+fi
+echo "POST CHECK PASS"
 
 echo "timings: transcribe ${T_TR}s, cut ${T_CUT}s, render ${T_RENDER}s, sound ${T_SOUND}s, captions ${T_CAP}s" | tee "$OUT/timings.txt"
 echo "SMOKE OK"

@@ -10,18 +10,18 @@ Your brand, written once during setup, read by every edit.
 
 | Key | Meaning |
 |---|---|
-| `business` | name, handle, one line on what you do |
+| `business` | name, handle, `what_we_do` (one line; picks the house style), `location` (town or area, for local hashtags) |
 | `platforms`, `aspect`, `resolution` | where you post; 9:16 1080x1920 default |
 | `brand.colors` | primary, secondary, accent, text, background (hex) |
 | `brand.logo`, `brand.fonts` | paths relative to the main folder; fonts default to Archivo Black + Inter |
-| `captions` | `look` (clean-pill, bold-pop, karaoke, quiet-subtitle), matching style `card`, `verbatim` always true |
-| `music` | none, my-own, calm, upbeat; ducked -18 dB under speech |
+| `captions` | `card`: a captions card ID the owner picked, or `null` = match the house style; `look`: that card's name, or `house`; `verbatim` always true |
+| `music` | `preference` `none` (add a trending sound in the app) or `my-own`; `file` `assets/music/<track>` or null; ducked -18 dB under speech |
 | `tone` | three feel words |
 | `references` | links/files the user admires |
 | `reference_style` | what the study found: caption style, pacing, color, hooks, music, effects, do-not-copy, summary |
 | `post_caption.draft` | write `caption.txt` (always marked DRAFT) |
-| `copy.auto` | optional; true = write `post.md` (hooks, caption, CTA, hashtags) after every edit via `reelready-copy`; false = only when asked ("write the post for this") |
-| `copy.cta` | your usual call to action ("Visit us", "Book via link in bio", "DM us"); shaped to each reel, never adds offers or hours |
+| `copy.auto` | set by setup (same answer as `post_caption.draft`); true = write `post.md` (hooks, caption, CTA, hashtags) after every edit via `reelready-copy`; false = only when asked ("write the post for this") |
+| `copy.cta` | set by setup: your usual call to action ("Visit us", "Book via link in bio", "DM us"); shaped to each reel, never adds offers or hours |
 | `copy.hashtags_extra` | tags you always want (e.g. your own branded tag); counted in the 5-8 |
 | `script.format` | optional; `talking-points` (default: short lines you say in your own words) or `word-for-word` (full sentences); used by `reelready-script` |
 | `script.seconds` | optional; how long the filmed reel should run, default 30; the script check allows about 2.5 spoken words per second |

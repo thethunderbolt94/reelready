@@ -11,26 +11,31 @@ so edits match it. Borrow patterns, never content. Free: no paid transcription s
 ## 1. Gather sources
 
 ```bash
-python3 scripts/rr.py where --json      # -> profile, references, work
+python3 scripts/rr.py where --json      # -> main_folder, profile, references, work
 ```
 Sources = `profile.references[].url` + new links the user just gave + video files in references/
-(ignore README.txt and links.txt; read links.txt for extra URLs, skip `#` lines). Cap at 5; if more,
-ask which 5 matter most. Work dir: `<work>/study/<n>/`.
+(ignore README.txt and links.txt; read links.txt for extra URLs, skip `#` lines). A relative path
+like `references/x.mp4` is relative to the main folder: pass `<main_folder>/references/x.mp4`.
+New links -> add them to `profile.references` (send the whole list: lists are replaced on merge).
+Cap at 5; if more, ask which 5 matter most. Work dir: `<work>/study/<n>/`.
 
 ## 2. Watch each one
 
 The bundled `watch` skill downloads (yt-dlp), pulls frames and gets a transcript: native captions
-first, then free local Whisper (it runs `engines/transcribe.py --backend whisper-local` itself: no
-key, nothing uploaded). The default run is all you need:
+first, then free local Whisper (no key, nothing uploaded). Run it through `rr.py run` so the repo's
+yt-dlp and ffmpeg are on PATH:
 ```bash
-python3 .claude/skills/watch/scripts/watch.py "<url-or-file>" --out-dir "<work>/study/<n>" --max-frames 30
+python3 scripts/rr.py run -- python3 .claude/skills/watch/scripts/watch.py "<url-or-file>" --out-dir "<work>/study/<n>" --max-frames 12
 ```
 Don't pass `--whisper assemblyai|groq|openai` (those upload the audio) unless the user asks.
-- Read every frame it lists, in one parallel batch. The downloaded video is `<work>/study/<n>/video.<ext>`.
+- Read every frame it lists, in one parallel batch.
+- The video: a link downloads to `<work>/study/<n>/download/video.<ext>` (usually .mp4; `ls` it); a local
+  file is used in place, at its original path in references/ (read-only: never move or delete it).
 - watch's transcript is sentence-level. For real pacing numbers (words/sec, gaps), get word timings
-  from the same local engine (skip if the video has no speech):
-  `python3 scripts/rr.py run -- python3 engines/transcribe.py "<work>/study/<n>/video.<ext>" --out "<work>/study/<n>/transcript.json"`
-- For pacing, count cuts: `ffmpeg -i "<video>" -vf "select='gt(scene,0.3)',showinfo" -f null - 2>&1 | grep -c pts_time`
+  from the local engine (skip if the video has no speech):
+  `python3 scripts/rr.py run -- python3 engines/transcribe.py "<video>" --out "<work>/study/<n>/transcript.json"`
+- Cuts: `ffmpeg -i "<video>" -vf "select='gt(scene,0.3)',showinfo" -f null - 2>&1 | grep -c pts_time`;
+  duration: `ffprobe -v error -show_entries format=duration -of csv=p=0 "<video>"`
   -> average shot length = duration / (cuts + 1).
 
 **Failures are normal. Be polite and move on, never retry in a loop:**
@@ -38,12 +43,16 @@ Don't pass `--whisper assemblyai|groq|openai` (those upload the audio) unless th
   Record `{url, reason}` in `reference_style.skipped`. Tell the user once, kindly: "I couldn't open
   2 of your links (Instagram asks for a login on those). If you save them to your phone and drop the
   videos in the references folder, I can study them from there."
+- No internet ("could not resolve host", "timed out", "network is unreachable") on the first link ->
+  stop trying links. Study only local files, and say once: "I can't reach the internet right now, so
+  I'll study your links later. Say 'study my references' when you're back online."
 - yt-dlp missing -> `bash scripts/setup.sh` with the user's OK, then continue.
 - Never ask for, use, or store the user's social-media passwords or cookies.
 
 ## 3. Write the style
 
-Look across all studied videos for what they share. Merge into the profile:
+Look across all studied videos for what they share. Write `<work>/study/reference_style.json`, then
+merge it into the profile:
 ```bash
 python3 scripts/rr.py profile-merge "<work>/study/reference_style.json"
 ```
@@ -59,8 +68,9 @@ with `{"reference_style": {...}}` containing exactly:
 - `summary`: the 10-line human summary (below), as one string with newlines
 - `studied_at`: ISO time; `sources`: urls/files studied; `skipped`: [{url, reason}]
 
-Map what you saw to style card IDs when obvious (read `styles/cards/*.json`): suggest them, but
-only write `default_mix` if the user says yes.
+Map what you saw to style card IDs when obvious (read `styles/cards/*.json`) and list them in line 9.
+Called from **reelready-setup**: never write `default_mix` (setup's house style step does that).
+Otherwise: write `default_mix` only if the user says yes.
 
 ## 4. Tell the user (10 lines, plain words)
 
@@ -74,7 +84,9 @@ What your favourite videos have in common:
 6. Effects: ...
 7. What we'll borrow for you: ...
 8. What we won't copy: ...
-9. Styles that match: <IDs + names>  (say "show me the styles" to see them)
+9. Styles that match: <IDs + names>
 10. Skipped: <n links + why, or "none">
 ```
-Clean up downloaded videos in `<work>/study/` afterwards (keep transcripts and the JSON).
+Outside setup, line 9 may add: (say "show me the styles" to see them).
+Afterwards delete only the downloads: `rm -f "<work>"/study/*/download/video.{mp4,webm,mkv,mov}` (keep transcripts and
+the JSON). Never delete anything in references/.

@@ -8,8 +8,10 @@ What it does
   * Voice: highpass 80 Hz -> de-esser (ffmpeg `deesser`, else a -3 dB cut at 7 kHz) -> 3:1 compressor
     at -18 dB with makeup -> (after the mix) two-pass loudnorm to -16 LUFS / -1.5 dBTP, like render_cut.
   * Cuts: from --edl (render_cut's output timeline: segment durations minus the 0.08 s crossfades), else
-    ffmpeg scene detection (scene > 0.4). One whoosh per internal cut at -14 dB relative to the voice,
-    placed so its transient lands on the cut: short (clean, calm), full (punchy), cinematic (cinematic).
+    ffmpeg scene detection (scene > 0.4). Only jump cuts get a whoosh: a story-pass move or >= 1 s of
+    source removed. Small trims between sentences are joins and stay seamless. At most one whoosh per
+    2.5 s, at -14 dB relative to the voice, transient on the cut: short (clean), full (punchy),
+    cinematic (cinematic). Calm gets none (S4: bed and voice only).
   * Hook: punchy/cinematic get a riser that crests at --hook-seconds and an impact-bass-1 hit there;
     clean gets one click-soft at the first caption; calm gets nothing.
   * Captions (--captions: draft.words.json from render_cut, or a list of {start,end,text}): punchy adds a
@@ -46,7 +48,7 @@ PRESETS = {
     "clean":     {"whoosh": "whoosh-short", "hook": "click", "pops": False, "tail": 1.0, "echo": False},
     "punchy":    {"whoosh": "whoosh", "hook": "riser", "pops": True, "tail": 1.0, "echo": False},
     "cinematic": {"whoosh": "whoosh-cinematic", "hook": "riser", "pops": False, "tail": 2.0, "echo": True},
-    "calm":      {"whoosh": "whoosh-short", "hook": None, "pops": False, "tail": 1.0, "echo": False},
+    "calm":      {"whoosh": None, "hook": None, "pops": False, "tail": 1.0, "echo": False},
 }
 # Per sound: seconds kept before/after its transient (peak) and the fades on the kept window.
 WINDOWS = {
@@ -101,19 +103,29 @@ def peak_time(path: Path) -> float:
     return at / 8000
 
 
-def edl_cuts(edl: dict) -> list[float]:
-    """Cut times on render_cut's output timeline (mid-point of each 0.08 s crossfade)."""
+JUMP_GAP = 1.0      # s of source removed before a join counts as a jump cut worth a whoosh
+WHOOSH_SPACING = 2.5  # s minimum between two whooshes
+
+
+def edl_cuts(edl: dict) -> tuple[list[float], list[float]]:
+    """(jumps, joins) on render_cut's output timeline (mid-point of each 0.08 s crossfade).
+
+    A jump is a cut the viewer feels: the story pass moved a sentence (the next keep starts before
+    the previous one ended) or at least JUMP_GAP s of source was removed. A join is a small trim
+    (a pause or filler between sentences): it should feel seamless, so it gets no whoosh."""
     keep = [k for k in edl["keep"] if k["end"] - k["start"] > 0.01]
     if len(keep) < 2:
-        return []
+        return [], []
     durs = [k["end"] - k["start"] for k in keep]
     xf = min(XF, min(durs) / 3)
-    cuts, acc = [], durs[0]
-    for d in durs[1:]:
+    jumps, joins, acc = [], [], durs[0]
+    for prev, nxt, d in zip(keep, keep[1:], durs[1:]):
         off = acc - xf
-        cuts.append(round(off + xf / 2, 3))
+        t = round(off + xf / 2, 3)
+        gap = nxt["start"] - prev["end"]
+        (jumps if gap < -0.01 or gap >= JUMP_GAP else joins).append(t)
         acc = off + d
-    return cuts
+    return jumps, joins
 
 
 def scene_cuts(video: str, dur: float) -> list[float]:
@@ -218,7 +230,7 @@ def main() -> None:
 
     edl = json.loads(Path(a.edl).read_text()) if a.edl else None
     hook = a.hook_seconds if a.hook_seconds is not None else float((edl or {}).get("hook_seconds", 2.0))
-    cuts = edl_cuts(edl) if edl else scene_cuts(a.video, dur)
+    cuts, joins = edl_cuts(edl) if edl else (scene_cuts(a.video, dur), [])
     cuts = [c for c in cuts if 0.2 < c < dur - 0.2]
     groups, emph = caption_events(a.captions) if a.captions else ([], [])
 
@@ -241,7 +253,13 @@ def main() -> None:
             hook_note, hit_at = "click", groups[0]
 
         # Cuts (the hook hit already marks a cut that lands on it)
-        whooshes = [c for c in cuts if hit_at is None or abs(c - hit_at) > 0.35 or P["hook"] == "click"]
+        whooshes = []
+        for c in cuts if P["whoosh"] else []:
+            if hit_at is not None and abs(c - hit_at) <= 0.35 and P["hook"] != "click":
+                continue
+            if whooshes and c - whooshes[-1] < WHOOSH_SPACING:
+                continue
+            whooshes.append(c)
         for c in whooshes:
             mix.add(P["whoosh"], c, REL["whoosh"], kind="cut-whoosh")
 
@@ -309,7 +327,7 @@ def main() -> None:
     meas = loudness(a.out)
     side = str(Path(a.out).with_suffix("")) + ".sound.json"
     Path(side).write_text(json.dumps({"source": a.video, "preset": a.preset, "hook_seconds": hook,
-                                      "cuts": cuts, "cut_source": "edl" if edl else "scene-detect",
+                                      "cuts": cuts, "joins": joins, "cut_source": "edl" if edl else "scene-detect",
                                       "voice_lufs_pre": vl, "placed": mix.placed, "bed": not a.no_bed,
                                       "music": a.music, "loudness": meas}, indent=1))
     n = len(whooshes)

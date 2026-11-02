@@ -32,14 +32,14 @@
     }
   },
   "captions": {
-    "look": "bold-pop",
-    "card": "C1",
+    "look": "house",
+    "card": null,
     "position": "lower-third",
     "max_words_per_line": 4,
     "verbatim": true
   },
   "music": {
-    "preference": "calm",
+    "preference": "none",
     "file": null,
     "duck_db_under_speech": -18,
     "note": "Trending sounds are best added in the app at posting time."
@@ -97,7 +97,7 @@
     "note": "Always written to caption.txt marked DRAFT for human approval."
   },
   "copy": {
-    "auto": false,
+    "auto": true,
     "cta": "Visit us",
     "hashtags_extra": []
   },

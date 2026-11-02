@@ -3,6 +3,7 @@
 
     python3 engines/taste.py --profile style-profile.json [--plan plan.md] \
         [--captions captioned.captions.json] [--sound sound.sound.json] [--mix H1,C1,L2,O1,S2] [--strict]
+        [--no-signature "<why no signature card fits>"]
 
 qa.py proves the pixels and loudness are sound; this proves the render used THIS brand, not the kit
 defaults. It reads the profile, the plan.md the user approved, and the sidecars the engines write
@@ -14,7 +15,9 @@ Rules (each prints one line, "TASTE ok|FAIL|note <rule>: <reason>"):
                    reference_style (pacing / caption_style / hook_patterns / music_use)
   accent-color     captions accent_color == brand.colors.accent (never the engine default #FFD60A)
   brand-font       brand.fonts.files non-empty -> captions font_source must be "brand"
-  signature        exactly one card of profile.house_style.signature in the mix (hard rule 3)
+  signature        exactly one signature move in the mix (hard rule 3): a card from
+                   profile.house_style.signature or a signature-category card (X1-X6). None is a FAIL
+                   unless --no-signature gives the reason (e.g. no card's needs could be met): then a note
   sound-preset     sound.json preset matches the mix's S card (S1 clean, S2 punchy, S3 cinematic,
                    S4 calm, S5 clean + music)
   palette-in-plan  the Brand choices section names >= 2 distinct brand colors (hex or role word)
@@ -35,6 +38,7 @@ import sys
 from pathlib import Path
 
 sys.dont_write_bytecode = True  # keep engines/ free of __pycache__
+CARDS = Path(__file__).resolve().parent.parent / "styles" / "cards"
 
 ENGINE_DEFAULT_ACCENT = "#FFD60A"
 SOUND_PRESETS = {"S1": "clean", "S2": "punchy", "S3": "cinematic", "S4": "calm", "S5": "clean"}
@@ -91,6 +95,19 @@ def brand_section(plan: str) -> list[str] | None:
     return None
 
 
+def signature_cards() -> set[str]:
+    """IDs of signature-category cards (X1-X6) from styles/cards; empty if the folder is missing."""
+    out = set()
+    for f in CARDS.glob("*.json"):
+        try:
+            c = json.loads(f.read_text())
+        except (OSError, ValueError):
+            continue
+        if c.get("category") == "signature" and c.get("id"):
+            out.add(str(c["id"]).upper())
+    return out
+
+
 def parse_mix(s: str) -> list[str]:
     return [t.upper() for t in re.split(r"[\s,+]+|\band\b", s, flags=re.I) if t.strip()]
 
@@ -118,6 +135,8 @@ def main() -> None:
     ap.add_argument("--sound", default=None, help="<stem>.sound.json written by sound.py")
     ap.add_argument("--mix", default=None, help="card IDs used, e.g. H1,C1,L2,O1,S2 (default: profile.default_mix)")
     ap.add_argument("--strict", action="store_true", help="notes (unchecked rules) count as FAILs")
+    ap.add_argument("--no-signature", default=None, metavar="REASON",
+                    help="no signature card fits this reel (say why); turns a missing signature into a note")
     a = ap.parse_args()
 
     try:
@@ -241,20 +260,23 @@ def main() -> None:
     # 4. signature
     hs = prof.get("house_style") or {}
     sig = [str(x).upper() for x in (hs.get("signature") or [])]
+    pool = sig + sorted(signature_cards() - set(sig))
+    used = [c for c in mix if c in pool]
     if not mix:
         g.note("signature", "no --mix and no profile default_mix")
-    elif not sig:
-        g.note("signature", "profile has no house_style.signature list")
+    elif len(used) > 1:
+        g.fail("signature", f"stacked signature moves: {', '.join(used)} (hard rule 3: one per reel)")
+    elif not used and a.no_signature:
+        g.note("signature", f"no signature move: {a.no_signature}")
+    elif not used and not sig:
+        g.note("signature", "profile has no house_style.signature list and the mix has no X card")
+    elif not used:
+        g.fail("signature", f"no signature move: mix {'+'.join(mix)} ({mix_src}) has none of "
+                            f"{', '.join(sig)} or an X card (or pass --no-signature \"<why>\")")
+    elif hs.get("rotate") and len(sig) > 1 and str(hs.get("last_signature") or "").upper() == used[0]:
+        g.note("signature", f"{used[0]} repeats last_signature while house_style.rotate is on")
     else:
-        used = [c for c in mix if c in sig]
-        if not used:
-            g.fail("signature", f"no signature move: mix {'+'.join(mix)} ({mix_src}) has none of {', '.join(sig)}")
-        elif len(used) > 1:
-            g.fail("signature", f"stacked signature moves: {', '.join(used)} (hard rule 3: one per idea)")
-        elif hs.get("rotate") and len(sig) > 1 and str(hs.get("last_signature") or "").upper() == used[0]:
-            g.note("signature", f"{used[0]} repeats last_signature while house_style.rotate is on")
-        else:
-            g.ok("signature", f"one signature move: {used[0]}")
+        g.ok("signature", f"one signature move: {used[0]}")
 
     # 5. sound-preset
     s_cards = [c for c in mix if c in SOUND_PRESETS]

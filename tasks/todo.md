@@ -45,4 +45,14 @@ Design: docs/superpowers/specs/2026-11-01-reelready-script-design.md (the "Settl
 - Three dry runs found 20+ unclear spots in the first skill draft; all fixed. Biggest: facts from today's chat were taken on trust, now checked against the owner's verbatim notes file.
 - Still judgment-only (not machine-checked): claims in direction beats without numbers ("say it's free"), rule-of-three lists, closing morals. The skill lists them as eye checks.
 - The script's "about n s" estimate is not checked against the length budget; the budget uses profile.script.seconds.
-- Open before public release: tasks/todo.md (this file) names a client in the v0.1 section and is in git history; scrub before pushing. Calm sound preset whooshes on every sentence join (found on a real reel test). Pixabay SFX license read; channel URL confirm.
+- Open before public release: see the pre-push audit below.
+
+## Pre-push audit (2026-11-02)
+- [x] Secrets sweep of every file in every commit: no real keys, tokens or private keys (only fake test tokens)
+- [x] Every engine flag and rr.py command named in skills and docs exists
+- [x] Independent reviews of all six ReelReady skills; 37 findings fixed (setup 15, edit/styles 12, copy/script 10)
+- [x] Script checker hardened: numbers only from checked sources, owner's own words exempt from banned list, superlatives banned, post copy mode (COPY PASS)
+- [x] Sound: calm adds no whooshes; others only on jump cuts, 2.5 s apart; sound uses the story EDL
+- [x] rr.py run / doctor find Homebrew tools on a fresh Mac; set-key hides the pasted key
+- [x] SMOKE OK, style guide check ok, private-data scan clean
+- [ ] Owner decisions before a public push: Pixabay SFX (licence bans standalone redistribution), commit author email, hyperframes-helper (no licence, unused), channel URL

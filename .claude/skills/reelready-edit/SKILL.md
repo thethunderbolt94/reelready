@@ -43,6 +43,16 @@ Say which file(s) you picked in one line. Probe each:
 `ffprobe -v error -show_entries format=duration:stream=codec_type,width,height,r_frame_rate,side_data_list -of json "<clip>"`
 (note rotation side data: phone clips are often stored landscape + rotate 90).
 
+**Clip checks (before any work).**
+- ffprobe errors, duration 0, or no video stream: "That file won't open as a video. Can you send it
+  again, or pick another clip?" Stop for this clip.
+- Under 3 s: "That clip is only <n> seconds; a reel needs at least 3. Got a longer take?" (qa.py fails
+  anything under 3 s.)
+- Over 90 s, or 4K: one line before starting: "This is a long clip, so it will take a few minutes
+  (the cut-outs alone take about 2-3 minutes per 10 seconds)." Then carry on. The story pass (2.5)
+  trims it to length.
+- No speech: decided after transcribing (step 2).
+
 **Script hand-off (check before creating the job).** If an export folder from the last 14 days has
 `script.md` (or `script-v2.md`) and no `final.mp4`, list up to 3, newest first, by script title and ask
 once: "Is this clip for one of your scripts?" with "none" as an option. On a pick: reuse that folder
@@ -54,8 +64,9 @@ Create the job: `python3 scripts/rr.py export-dir "<3-5 word slug from topic or 
 gives `export_dir` (exports/<YYYY-MM-DD>-<slug>/) and `work_dir` (.reelready/work/<same>/).
 All intermediates go in `work_dir`.
 
-**Multi-clip roles.** Classify each clip: *A-roll* (someone talking; transcript has words) or
-*b-roll* (no/little speech: product, space, hands). Ask only if unclear.
+**Multi-clip roles.** Transcribe every clip first (step 2's transcribe line, one transcript per clip),
+then classify each: *A-roll* (someone talking; 5+ words) or *b-roll* (no/little speech: product, space,
+hands). Ask only if unclear.
 - A-roll drives the timeline and the audio. B-roll is laid OVER the A-roll as cutaways (A-roll
   audio keeps playing), 1.5-3 s each, placed on lines that describe what the b-roll shows.
 - Several A-roll clips: the EDL is single-source, so run step 2 once per A-roll clip with numbered
@@ -76,6 +87,16 @@ python3 scripts/rr.py run -- python3 engines/cut.py "$C" --transcript "$W/transc
 python3 scripts/rr.py run -- python3 engines/render_cut.py --edl "$W/edl.json" --transcript "$W/transcript.json" --out "$W/draft.mp4" --aspect <aspect> --fps 30
 ```
 - Cloud backend fails (bad key, no network) -> say so in one line, retry with `whisper-local`.
+- **No speech** (transcript under 5 words, every clip b-roll): do NOT run cut.py (it would cut the whole
+  clip as dead air). Tell the owner: "There's no talking in this clip, so I'll make it a music reel:
+  no captions, your music under it." Keep the whole clip with a one-range EDL, then render_cut as below:
+  `python3 -c 'import json,sys;d=float(sys.argv[2]);json.dump({"source":sys.argv[1],"duration":d,"hook_seconds":0,"keep":[{"start":0,"end":d,"reason":"broll"}],"removed":[],"stats":{}},open(sys.argv[3],"w"))' "$C" <duration> "$W/edl.json"`
+  Skip the story pass, captions and caption cards. Music is required: use the music rule in step 4;
+  if there is no track, ask once for one (a royalty-free mp3 in assets/music). Clip has its own sound:
+  sound.py on the last video (`graphics.mp4`, else `draft.mp4`) with `--edl "$W/edl.json" --preset calm
+  --music "<track>"` and no `--captions`. No audio track at all (sound.py
+  refuses it): mix the track straight on, then go to QA:
+  `ffmpeg -v error -y -i "$W/draft.mp4" -stream_loop -1 -i "<track>" -map 0:v -map 1:a -t <duration> -af "loudnorm=I=-16:TP=-1.5:LRA=11,afade=t=in:d=0.5,afade=t=out:st=<duration-1.5>:d=1.5,aresample=48000" -c:v copy -c:a aac -b:a 192k -movflags +faststart "$W/final.mp4"`
 - `render_cut.py` also writes `<out without .mp4>.words.json` (here `$W/draft.words.json`): words
   re-timed to the draft. Captions use THAT, never the source-timed transcript. It needs `--transcript`.
 - Loudness is handled here once: render_cut normalises to -16 LUFS (true peak -1.5 dBTP). Later steps
@@ -103,9 +124,16 @@ python3 scripts/rr.py run -- python3 engines/render_cut.py --edl "$W/edl.story.j
 - Reorder across sentence boundaries only; max 2 moves under 30 s; one structure per reel.
 - The plan shows the new order as the owner's own sentences and names what was dropped and why.
 - "keep it as I said it" -> skip this step and render from `edl.json`.
+- **Too long.** If the draft is over 60 s, use `--order` to keep the strongest sentences, hook first, until
+  it is under 60 s (this overrides the 2-move limit; drops only, never cut inside a sentence). The plan names
+  what was left out, and the owner can say "keep it all".
 - With a picked script: its `structure:` is the default structure here, and its hook line points to the
   hook sentence (closest spoken match in the transcript). Captions stay verbatim from what was said on
   film, never from the script. If they went off-script, the reel shows what they said.
+
+**From here on, `EDL` is the EDL the draft was rendered from:** `EDL="$W/edl.story.json"` after a story
+pass, else `EDL="$W/edl.json"`. The sound step and the deliverables use `$EDL` (the S1-S5 card prompts
+say the same).
 
 ## 3. Plan and show
 
@@ -126,21 +154,38 @@ python3 scripts/rr.py run -- python3 engines/render_cut.py --edl "$W/edl.story.j
    **end card** (first `outro` card). If styles/cards is missing: built-in equivalents (big hook
    title 0-2 s, word-chunk captions, name lower-third, logo end card).
 
-**Rotate the signature** (steps 3-4 only; user-named IDs or mixes stay as given):
-`python3 scripts/rr.py next-signature` -> this reel's big move (prints nothing = skip). If the mix
-holds a card from `house_style.signature`, swap it for this one; else add it. If it clashes with the
-mix (`avoid_with`), skip it this reel and say why. After "go": `next-signature --commit` (re-edits
-of this reel keep its signature; don't call it again).
+**Pick the one signature move.** A signature move is an X card (X1-X6) or any card in the profile's
+`house_style.signature`. Every reel has exactly one; taste.py checks it. This never dead-ends:
+1. User-named or pasted mix with exactly one signature move: keep it.
+2. Any mix with two or more: keep the first, say in one line "One big effect per reel, so I kept <ID>
+   and saved <ID> for your next reel."
+3. Mix from steps 3-4 (profile or house style): take out any `house_style.signature` card so the move
+   rotates; if an X card is still in it, keep that one; else rotate and add. User-named mix with no
+   signature move: rotate and add the result, saying so in one line.
+4. **Rotate:** `python3 scripts/rr.py next-signature` prints the house pick (nothing printed = no house
+   list, go to 5). Walk `house_style.signature` in order starting at that card, wrapping round, and take
+   the first card that **fits**: its `needs` are met (see Check the mix), it is not in another mix card's
+   `avoid_with`, and for P1/P2 the owner has already given real reviews (never invent them, never stop to
+   ask mid-edit; add to the plan "Send me 2-3 real reviews and I'll use the review cards next time").
+5. Nothing fits: no signature this reel. Write `Signature  none: <reason in plain words>` in the plan and
+   pass `--no-signature "<reason>"` to taste.py. Only after trying every card in the list.
+
+After "go", if the signature came from `house_style.signature`, save the card you actually used (not
+what next-signature printed):
+`echo '{"house_style":{"last_signature":"<ID>"}}' | python3 scripts/rr.py profile-merge -`
+Re-edits of this reel keep its signature; don't save it again.
 
 **Fill the brand tokens** in each card prompt from the profile: `{{brand.primary}}` ->
 `brand.colors.primary`, `{{brand.accent}}` -> `brand.colors.accent`, `{{font.display}}` ->
 `brand.fonts.heading`, `{{font.body}}` -> `brand.fonts.body`. Missing value -> the kit default
 (Archivo Black / Inter; never guess a brand color).
 
-**Check the mix.** Drop or swap anything in another card's `avoid_with`. At most ONE signature
-effect (category `signature`, or any behind-subject / big-motion card) per idea; if the user stacked
-two, keep the first, say why in one line. Every `needs` entry must be met (`assets:logo` -> logo
-file exists; `matting` -> local matting via the captions/composite skill; `transcript` -> done).
+**Check the mix.** Drop or swap anything in another card's `avoid_with`; never stack two big moves on
+the same moment (a behind-subject hook like H1 runs 0-3 s, so keep the signature move off the hook).
+`needs`: `transcript` -> done (not met for a no-speech clip); `assets:logo` -> `brand.logo` file exists;
+`assets:music` -> a track per the music rule in step 4; `broll` -> extra clips or photos besides the A-roll
+in raw footage or assets; `matting` -> met (local cut-out in the HyperFrames skills; if it fails, see
+"When a layer fails"). A card whose needs aren't met is dropped with one line saying why.
 
 **Write the plan** to `<export_dir>/plan.md` and show it (one screen, this exact shape):
 
@@ -157,9 +202,9 @@ B-roll     <file> at 0:12-0:15 over "<words>"   (or: none)
 Captions   <ID> <name>: verbatim, <font>, <colors>, max <n> words/line
 Lower 3rd  <ID> 0:02-0:06 "<Business> · <descriptor>"      [GENERATED - approve?]
 End card   <ID> logo + "<CTA>"                             [GENERATED - approve?]
-Music      <file | none>: -18 dB under speech, 0.5 s in / 1.5 s out
-Signature  <ID> <name> (this reel's one big move; last reel: <last_signature name | none>)
-Post copy  caption.txt draft                               [GENERATED - approve?]   (only if profile asks)
+Music      <file>: -18 dB under speech, 0.5 s in / 1.5 s out   (S5: about -22 dB)   or: none
+Signature  <ID> <name> (this reel's one big move; last reel: <last_signature name | none>)   or: none: <reason>
+Post copy  caption.txt draft                               [GENERATED - approve?]   (only if post_caption.draft and not copy.auto)
 Output     exports/<slug>/final.mp4
 
 ## Brand choices   (3+ bullets; each names a brand hex, a brand font, "logo" or a reference_style phrase; 2+ hexes overall)
@@ -180,34 +225,44 @@ exact timings from the plan, output path in `work_dir`, target size and fps.
 
 | engine | skill | used for |
 |---|---|---|
-| cut | (done in step 2) / `talking-head-recut` | punch-in zooms on key lines, jump-cut rhythm |
+| cut (M1) | (done in step 2) / `talking-head-recut` | punch-in zooms on key lines, jump-cut rhythm |
+| cut (B1) | `general-video` | B1 says engine `cut` but it is b-roll cutaways laid over the A-roll: composite it |
 | captions (fast default) | `engines/captions.py` | plain word-timed captions: C1, the built-in default, or "simple captions" |
 | captions (designed) | `embedded-captions` | C2-C6 looks, words behind the subject (matting), anything captions.py can't draw |
 | overlay | `talking-head-recut` | lower-thirds, callouts, background text on talking head |
 | motion | `motion-graphics` | hook titles, end cards, animated text, transitions + transition SFX |
 | composite | `general-video` | b-roll cutaways, subject cut-out in front of/behind cards, multi-layer builds |
-| (assets) | `media-use` | music/SFX/images only when assets/ has none; keys optional, skip if missing |
+| (assets) | `media-use` | SFX/images only when assets/ has none; music only with the owner's OK; keys optional, skip if missing |
 
-**Captions, fast path.** `engines/captions.py` is deterministic and verbatim: 2-3 word groups, each word
-popping in on its own timestamp, white heavy text with a dark stroke, one accent word. The font is the owner's
+**Captions, fast path.** `engines/captions.py` is deterministic and verbatim, and draws exactly what the C1
+card describes: 2-3 word groups, each word popping in on its own timestamp, white heavy text with a dark
+stroke, one accent word in the whole reel. The font is the owner's
 brand font when the profile has one (`brand.fonts.files` not empty), else bundled Inter. Use it when the caption
 card is C1 or there is no caption card, and run it on the video that already has the graphics (captions go on top):
 ```bash
 python3 scripts/rr.py run -- python3 engines/captions.py "$W/graphics.mp4" --words "$W/draft.words.json" \
   --out "$W/captioned.mp4" --accent-color "<brand.colors.accent>" --max-words <profile.captions.max_words_per_line, default 3> \
   [--font "<main folder>/<profile.brand.fonts.files[0]>" --font-family "<profile.brand.fonts.heading>"] \
-  [--accent <the one emphasis word, as spoken>]
+  [--accent <the one emphasis word, as spoken>] [--font-size <px, default ~90 at 1080 wide>]
 ```
 Pass `--font`/`--font-family` only when `brand.fonts.files` has an entry (ttf, otf, woff or woff2). If the file is
 missing or unsupported it prints one `warning: font not found` line and falls back to Inter: tell the user in one
 line. Weight stays 800 (a regular-only file gets synthesized bold); add `--font-weight 400` if the brand font is
-already black/heavy. No graphics layer -> pass `$W/draft.mp4`. It keeps the input's audio bit-exact and leaves pure
+already black/heavy. `--font-size` only on request: "bigger captions" about 1.2x the default, "smaller" about 0.85x
+(110 / 75 at 1080 wide; the default is 8.3% of the width). No graphics
+layer -> pass `$W/draft.mp4`. It keeps the input's audio bit-exact and leaves pure
 fillers (um, uh) off the caption track; every other word is shown exactly as spoken. It also writes
-`$W/captioned.captions.json` (font_family, font_source brand|bundled-inter|system-fallback, font_path, accent_color,
+`$W/captioned.captions.json` (font_family, font_source brand|bundled-inter|system-fallback, font_path, font_size, accent_color,
 accent_word, max_words, groups, words); the taste gate reads it, so leave it next to the video. It only does this
 one look (no box, no karaoke fill): for any other caption card or behind-subject words, use `embedded-captions`;
 for captions that are part of an overlay card layout on a talking head, `talking-head-recut`. Exits 1 with "disk
 is almost full" when HyperFrames has under 1 GB: handle as in step 0.
+
+**Designed captions keep the same words.** `embedded-captions` re-transcribes by default (WhisperX), which can
+hear different words. Before its `prepare.sh`, write our words into the caption project as its
+`transcript.json` (same `{"words":[{"w","start","end"}]}` shape as `draft.words.json`) so it uses them. No
+"creative substitutions" (e.g. "15%" for "fifteen percent"): hard rule 1. Before rendering, spot-check 2
+caption lines against `draft.words.json`.
 
 Order: draft -> composite (b-roll) -> overlay/motion (`graphics.mp4`) -> captions on top
 (`captioned.mp4`) -> sound (`sound.mp4`) -> final.
@@ -220,32 +275,47 @@ right 140 px clear in the lower half (platform buttons); a card prompt's exact p
 Fonts: profile fonts (files in assets/fonts) else defaults; tight tracking on titles, eased motion
 (no linear moves), brand palette only.
 
+**When a layer fails** (HyperFrames render error, matting fails, npx can't download): disk messages ->
+step 0. Otherwise retry that layer once. Still failing -> drop only that layer and keep going: designed
+captions fall back to captions.py (same words, C1 look); a hook, overlay, motion or X card is left out;
+b-roll cutaways are left out. Tell the owner in one line, e.g. "The cut-out effect wouldn't render on this
+clip, so I left it out; everything else is in." Never deliver a talking reel without captions: if
+captions.py itself fails twice, stop and say so. A dropped signature card -> `--no-signature "<reason>"`.
+
 **Sound** (always; triggers: "make it punchy", "add sound design"). Preset = the S card in the mix, else
 the S card in `profile.default_mix`, else S1: S1 `clean`, S2 `punchy`, S3 `cinematic`, S4 `calm`,
-S5 `clean` + `--music`. "make it punchy" -> S2 for this edit; a re-edit reruns only this step.
+S5 `clean` + `--music`. "make it punchy" -> S2 for this edit; a re-edit reruns this step and everything after it.
 ```bash
 python3 scripts/rr.py run -- python3 engines/sound.py "$W/captioned.mp4" --out "$W/sound.mp4" \
-  --edl "$W/edl.json" --captions "$W/draft.words.json" --preset <preset> [--music "<assets/music/track>"]
+  --edl "$EDL" --captions "$W/draft.words.json" --preset <preset> [--music "<track>"]
 ```
 Voice polish, whooshes on the EDL cuts, hook riser/hit, caption pops (punchy), room-tone bed, ducked
 music; re-normalised to -16 LUFS, video stream copied. Multi-clip joins: omit `--edl` (scene detection).
 Ran with `--music` -> skip the Music step and copy `sound.mp4` to `final.mp4`.
 
-**Music** (skip if `profile.music.preference` is none, or the sound step already mixed it). Normalize the track to the voice level,
-then automate: -18 dB under speech, -8 dB in gaps, 0.25 s ramps, 0.5 s fade in, 1.5 s fade out:
+**Which track (the music rule).** `profile.music.preference` "my-own" and `profile.music.file` exists ->
+track = `<main folder>/<music.file>` (e.g. `assets/music/song.mp3`). "none" -> no music. Older profiles may say
+"calm" or "upbeat": treat them as "my-own" when `music.file` is set, else none. "my-own" but the file is gone ->
+no music, say so in one line. Never download music without the owner's OK. S5 in the mix with no track ->
+use S1 and ask once for a royalty-free mp3 in assets/music. With S5 the sound step mixes the track (ducked to
+about -22 dB) and the plan's Music line says so; otherwise the Music step below mixes it (-18 dB).
+
+**Music** (skip if there is no track by the rule above, or the sound step already mixed it). Normalize the track
+to the voice level, then automate: -18 dB under speech, -8 dB in gaps, 0.25 s ramps, 0.5 s fade in, 1.5 s fade out:
 ```bash
 F=$(python3 scripts/rr.py duck-filter "$W/draft.words.json" --duration <video seconds>)
-ffmpeg -v error -y -i "$W/sound.mp4" -stream_loop -1 -i "<assets/music/track>" -filter_complex \
+ffmpeg -v error -y -i "$W/sound.mp4" -stream_loop -1 -i "<track>" -filter_complex \
  "[1:a]atrim=0:<video seconds>,asetpts=N/SR/TB,loudnorm=I=-16:TP=-2,aresample=48000,${F}[m];[0:a][m]amix=inputs=2:duration=first:normalize=0,loudnorm=I=-16:TP=-1.5:LRA=11,aresample=48000[a]" \
  -map 0:v -map "[a]" -c:v copy -c:a aac -b:a 192k -ar 48000 -movflags +faststart "$W/final.mp4"
 ```
 No music -> copy `sound.mp4` to `final.mp4` (no re-encode).
 Transition SFX come only from the sound step (one per cut); it replaces M2's whoosh, never doubles it.
 
-**Deliverables** into `export_dir`: `final.mp4`, `draft.mp4`, `edl.json` (multi-clip: `edl_01.json`,
-`edl_02.json`, ...), `plan.md` (approved
+**Deliverables** into `export_dir`: `final.mp4`, `draft.mp4`, `edl.json` (a copy of `$EDL`, the one the
+draft was rendered from; multi-clip: `edl_01.json`, `edl_02.json`, ...), `plan.md` (approved
 version, plus a "Caption corrections" list if any word was fixed), and `caption.txt` only if
-`profile.post_caption.draft` is true. caption.txt starts with
+`profile.post_caption.draft` is true. When `profile.copy.auto` is true, skip caption.txt: reelready-copy
+writes the caption in `post.md`, so the owner never gets two different captions. caption.txt starts with
 `DRAFT - written by AI, read and edit before posting.` and uses the profile tone.
 
 ## 5. QA (never say "done" before this)
@@ -253,15 +323,16 @@ version, plus a "Caption corrections" list if any word was fixed), and `caption.
 ```bash
 python3 scripts/rr.py run -- python3 engines/qa.py "<export_dir>/final.mp4" --frames 6 --out "$W/qa" --expect <WxH>
 ```
-Read `probe.json` and ALL 6 frames. Checklist:
+Read `probe.json`, ALL 6 frames, and the two extra frames `frame_hook.jpg` (t=1.0 s) and `frame_end.jpg`
+(1.5 s before the end). Checklist:
 - [ ] QA PASS line; WxH exact; 30 fps; H.264 + AAC; duration within 0.5 s of plan
 - [ ] loudness: qa.py fails outside -20..-12 LUFS (target -16); also read `audio.true_peak_dbfs` in
       probe.json, it must be <= -1
-- [ ] frame 1 shows the hook (title/card visible inside the first 2 s)
+- [ ] `frame_hook.jpg` shows the hook (title/card visible inside the first 2 s)
 - [ ] captions readable, inside safe zone, never covering the face, spelled as spoken
 - [ ] caption text matches `draft.words.json` word for word (spot-check 2 lines)
 - [ ] brand colors/fonts used; logo crisp, not stretched
-- [ ] no black/frozen frames, no stacked effects, end card present and on-brand
+- [ ] no black/frozen frames, no stacked effects; `frame_end.jpg` shows the end card, on-brand
 - [ ] music audible in gaps, clearly under speech (if music)
 
 One obvious issue -> fix once, re-run QA. Still failing -> deliver with an honest note.
@@ -269,13 +340,17 @@ One obvious issue -> fix once, re-run QA. Still failing -> deliver with an hones
 **Taste gate** (never say "done" before it passes):
 ```bash
 python3 scripts/rr.py run -- python3 engines/taste.py --profile "<main folder>/.reelready/style-profile.json" \
-  --plan "<export_dir>/plan.md" --captions "$W/captioned.captions.json" --sound "$W/sound.sound.json" --mix <IDs used>
+  --plan "<export_dir>/plan.md" --captions "$W/captioned.captions.json" --sound "$W/sound.sound.json" \
+  --mix <IDs used, incl. the signature and S card actually rendered> [--no-signature "<reason from step 3>"]
 ```
-Must end `TASTE PASS`. On `TASTE FAIL`, fix each named rule once: brand-choices / palette-in-plan -> rewrite the
-Brand choices bullets; accent-color / brand-font -> re-run captions.py with `--accent-color` / `--font`;
-signature -> swap the mix to exactly one house signature card; sound-preset -> re-run sound.py with the S card's
-preset. Re-render only the affected layer, then re-run qa.py and taste.py. If the profile genuinely has nothing
-to give (no colors, fonts, logo or references), say so to the user in one line and run taste.py with `--profile` only.
+Always pass all of `--plan`, `--captions`, `--sound` and `--mix`; a missing sidecar (designed captions, a
+no-speech reel) only prints a note. `--no-signature` only when step 3 found no card that fits. Must end
+`TASTE PASS`. On `TASTE FAIL`, fix each named rule once: brand-choices / palette-in-plan -> rewrite the Brand
+choices bullets; accent-color / brand-font -> re-run captions.py with `--accent-color` / `--font`; signature ->
+redo "Pick the one signature move" in step 3; sound-preset -> re-run sound.py with the S card's preset. Re-render
+only the affected layer and everything after it, then re-run qa.py and taste.py. A rule you can't fix (e.g. the
+brand font file won't load) -> do not say "Done": deliver with the first line `Ready, with one thing to fix:
+<rule in plain words>` and tell the owner what to send (e.g. "the font file as .ttf or .otf").
 
 **Deliver** in 3 lines:
 ```
@@ -292,6 +367,11 @@ after delivery when `profile.copy.auto` is true: invoke **reelready-copy** on th
 the profile. Otherwise offer it as the one next step. Never post it.
 
 ## Re-edits
-"make the captions bigger", "swap the hook", "no music": reuse `work_dir` (transcript, EDL,
-draft), redo only the affected render steps, re-run QA, write to the SAME export folder
-(final.mp4 replaced, old one kept as final-v1.mp4).
+"make the captions bigger", "swap the hook", "no music", "make it 16:9 for YouTube": reuse `work_dir`
+(transcript, EDL, draft) and the same signature. Redo the changed step and every step after it in the step 4
+order (graphics -> captions -> sound -> music), then qa.py and taste.py again.
+- "bigger / smaller captions": captions.py `--font-size` (see the fast path), or the designed caption card's size.
+- New aspect: render_cut again with the new `--aspect` (new `draft.mp4` + `draft.words.json`), then every layer;
+  qa.py `--expect` the new size. Save it as `final-16x9.mp4` next to `final.mp4` (a second version, not a replace).
+- Other changes: write to the SAME export folder. Before replacing `final.mp4`, rename the old one to
+  `final-v<N>.mp4` with the next free N (v1, v2, ...), so nothing is overwritten.

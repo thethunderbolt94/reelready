@@ -21,7 +21,7 @@ Corner Bean Coffee · structure: hook, context, payoff · format: talking-points
 "Saturdays at eight, these come out."
 
 ## Beats  [GENERATED - approve?]
-1. Show the tray. Say what they are and that you bake them here.
+1. Show the tray. Say what they are.
 2. "Most people don't know the back room is a roaster."
 3. "Visit us Saturday morning."
 
@@ -63,7 +63,7 @@ Fixed in forty minutes. Cabinet still dry.
 ## Beats  [GENERATED - approve?]
 1. Monday, this kitchen had water everywhere.
 2. A burst pipe right under the sink.
-3. We do same-day repairs, so we came straight over.
+3. We do same-day repairs.
 4. If a pipe goes at your place, call us.
 
 ## Film this

@@ -50,9 +50,10 @@ If a value is missing, use the kit's designed defaults rather than guessing a br
 ## The one-signature-effect rule
 
 Signature cards (`X1`-`X6`) are the show-stoppers: orbit, wall collage, headline behind you, frame break,
-UI world, spotlight. **One signature effect per idea, never stacked.** If a mix has two, they go in
-different sections of the video. The style guide page warns you when you add a second one, and the
-combined prompt tells Claude to keep them apart.
+UI world, spotlight. Your house style's `signature` cards (from `styles/presets.json`, e.g. a punch-in or a
+review stack) count as signature moves too. **One signature move per reel, never stacked.** If a mix has
+two, keep one and save the other for the next reel. The style guide page warns you when you add a second
+one, and `engines/taste.py` fails a reel that stacks two.
 
 Sound cards (`S1`-`S5`) do not count against this rule: they shape the audio under the whole video, not
 one moment. But only **one S card per edit** (they all `avoid_with` each other), and the sound pass never
@@ -171,7 +172,7 @@ Defined in `styles/mixes.json` and shown on the page.
 | O2 | Follow for part 2 | Outro | A 'Part 2' teaser card that gives people a reason to follow. |
 | O3 | QR + website outro | Outro | Your website and a scannable QR code to close. |
 | S1 | Clean | Sound | Polished voice and a quiet room-tone bed. Nothing you'd notice, just better. |
-| S2 | Punchy | Sound | Whoosh on every cut, a pop on every caption, and a riser that hits at the end of the hook. |
+| S2 | Punchy | Sound | Whoosh on every jump cut, a pop on every caption, and a riser that hits at the end of the hook. |
 | S3 | Cinematic | Sound | Sweeping whooshes, a riser into a deep hit, and long tails that breathe. |
 | S4 | Calm | Sound | Warm, quiet polish for cafes and wellness. Bed and voice only, no hits. |
 | S5 | Music under | Sound | Your own track from assets/music, ducked under your voice. |

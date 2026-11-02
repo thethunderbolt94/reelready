@@ -7,7 +7,7 @@ Corner Bean Coffee · structure: hook, context, payoff · format: talking-points
 "Saturdays at eight, these come out."
 
 ## Beats  [GENERATED - approve?]
-1. Show the tray. Say what they are and that you bake them here.
+1. Show the tray. Say what they are.
 2. "Most people don't know the back room is a roaster."
 3. "They are $5 each."
 4. "Visit us Saturday morning."

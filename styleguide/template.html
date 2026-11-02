@@ -376,7 +376,7 @@ dialog::backdrop{background:rgba(18,17,15,.55);-webkit-backdrop-filter:blur(4px)
   <div class="mixes" id="mixList"></div>
   <div class="rule">
     <span class="star" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M12 2.5l2.6 6.1 6.6.6-5 4.4 1.5 6.5L12 16.7l-5.7 3.4 1.5-6.5-5-4.4 6.6-.6z" fill="#1B1500"/></svg></span>
-    <div><h3>One signature effect per idea.</h3><p>Signature cards (X) are the show-stoppers. Stack two on the same moment and nothing stands out. And captions always stay word for word: Claude never rewrites what you said, and anything it writes for you gets flagged for your OK.</p></div>
+    <div><h3>One signature effect per reel.</h3><p>Signature cards (X) are the show-stoppers. Use one per reel and save the next for your next reel: stack two and nothing stands out. And captions always stay word for word: Claude never rewrites what you said, and anything it writes for you gets flagged for your OK.</p></div>
   </div>
 </section>
 
@@ -458,14 +458,14 @@ function buildPrompt(ids){
   var out = "Edit the newest clip in raw footage. Use " + (cards.length > 1 ? "styles: " : "style: ") + cards.map(function(c){ return c.id; }).join(" + ") + ".\n\n";
   cards.forEach(function(c){ out += c.id + " · " + c.name + " (" + c.duration_hint + ")\n" + c.prompt + "\n\n"; });
   var xs = cards.filter(function(c){ return c.category === "signature"; });
-  if (xs.length > 1) out += "Note: " + xs.map(function(c){ return c.id; }).join(" and ") + " are both signature effects. Put them in different sections, never on the same moment (one signature effect per idea).\n\n";
+  if (xs.length > 1) out += "Note: " + xs.map(function(c){ return c.id; }).join(" and ") + " are both signature effects. Keep only the first one for this reel (one signature effect per reel).\n\n";
   out += "Keep captions verbatim. Show me the plan first.";
   return out;
 }
 function conflicts(ids){
   var list = sorted(ids), out = [], seen = {};
   var xs = list.filter(function(id){ return BY[id].category === "signature"; });
-  if (xs.length > 1) { out.push("Two signature effects (" + xs.join(" + ") + "). One per idea: keep one, or they go in separate sections."); xs.forEach(function(a){ xs.forEach(function(b){ seen[a + b] = 1; }); }); }
+  if (xs.length > 1) { out.push("Two signature effects (" + xs.join(" + ") + "). One per reel: keep one and save the other for your next reel."); xs.forEach(function(a){ xs.forEach(function(b){ seen[a + b] = 1; }); }); }
   list.forEach(function(a, i){
     list.slice(i + 1).forEach(function(b){
       if (seen[a + b] || BY[a].avoid_with.indexOf(b) < 0) return;

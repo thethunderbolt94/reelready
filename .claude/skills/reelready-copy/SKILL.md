@@ -52,10 +52,17 @@ The words in the reel + the profile. Nothing else.
 - [ ] No emojis unless a profile tone word asks for them.
 - [ ] Plain words a customer would use. Nothing the owner would be embarrassed to say out loud.
 
-## 4. Write post.md and show it
+## 4. Write post.md, check it, show it
 
 Write `<export_dir>/post.md` in exactly the shape of the example below (overwrite only with a yes if
-one exists; else save `post-v2.md`). Show it in chat, then ask one question: "Which hook do you want,
+one exists; else save `post-v2.md`). Then run the check:
+
+```bash
+python3 scripts/rr.py run -- python3 engines/script_check.py --post "<export_dir>/post.md" \
+  --profile "<profile>" --words "<the words file from step 0>"
+```
+`COPY PASS` -> show it. `COPY FAIL` -> fix the named rule once (a number nobody said: cut it; a
+banned word: rewrite the line) and re-run. Show it in chat, then ask one question: "Which hook do you want,
 1, 2 or 3?" If they pick a hook that differs from the reel's on-screen title, offer once:
 "Want me to swap the hook in the video too?" (reelready-edit, re-edit section).
 
@@ -68,6 +75,8 @@ Words in the reel: "We roast our beans right here, every Tuesday morning. Most p
 back room is a roaster. And on Saturdays the almond croissants come out at eight."
 
 ```
+DRAFT - written by AI, read and edit before posting.
+
 # Post copy: 2026-10-28-tuesday-roast
 Corner Bean Coffee · @cornerbean · from draft.words.json + style-profile.json
 
@@ -76,13 +85,13 @@ Corner Bean Coffee · @cornerbean · from draft.words.json + style-profile.json
    (specific · "the back room is a roaster")
 2. What happens here every Tuesday morning
    (curiosity · "we roast our beans right here, every Tuesday morning")
-3. Almond croissants, out at eight
+3. Saturday almond croissants, out at 8
    (detail · "the almond croissants come out at eight")
 
 ## Post caption · DRAFT: approve before posting
 We roast our beans right here, every Tuesday.
 The back room is our roaster.
-Almond croissants come out Saturdays at eight.
+Almond croissants come out Saturdays at 8.
 
 ## CTA · DRAFT: approve before posting
 Visit us on Saturday morning.

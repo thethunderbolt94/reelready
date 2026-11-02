@@ -4,6 +4,7 @@
     python3 engines/captions.py <draft.mp4> --words <draft.words.json> --out captioned.mp4
         [--accent seven] [--accent-color #FFD60A] [--max-words 3] [--keep-project <dir>]
         [--font <brand.ttf|otf|woff|woff2>] [--font-family "Brand Name"] [--font-weight 800]
+        [--font-size 90]
 
 * Words come straight from the transcript (re-timed onto the draft by render_cut.py). Nothing is
   rewritten. Pure fillers (um, uh, er...) are dropped from the caption track only, as in the
@@ -11,11 +12,12 @@
 * Style: white heavy sans (bundled Inter 700, or the owner's brand font via --font, Inter as the
   fallback), dark stroke for legibility on any background,
   2-3 word groups in the lower-middle safe zone, each word pops in on its own timestamp.
+  Size: --font-size px (default 8.3% of the frame width, ~90 px at 1080 wide).
   Exactly one accent word (first match of --accent, else the longest content word) is yellow.
 * Rendering: builds a tiny HyperFrames project and runs the pinned CLI via npx (Chrome headless,
   local, no key). The draft's audio is muxed back untouched, so loudness stays at -16 LUFS.
-* Writes <out stem>.captions.json (font_family, font_source, font_path, accent_color, accent_word,
-  max_words, groups, words): the contract the taste gate reads.
+* Writes <out stem>.captions.json (font_family, font_source, font_path, font_size, accent_color,
+  accent_word, max_words, groups, words): the contract the taste gate reads.
 For richer looks (behind-the-subject hero words, 35 identities) use .claude/skills/embedded-captions.
 """
 from __future__ import annotations
@@ -95,9 +97,13 @@ def resolve_font(arg: str, family: str | None) -> dict | None:
     return None
 
 
+def default_size(w: int) -> int:
+    return round(w * 0.083)            # ~90 px on a 1080-wide frame
+
+
 def build_html(words: list[dict], dur: float, w: int, h: int, accent_idx: int, accent_color: str,
                max_words: int, font_ok: bool, gsap_src: str, brand: dict | None = None,
-               weight: int = 800) -> str:
+               weight: int = 800, size: int | None = None) -> str:
     groups = group(words, max_words)
     blocks, tweens, idx = [], [], 0
     for gi, g in enumerate(groups):
@@ -123,7 +129,7 @@ def build_html(words: list[dict], dur: float, w: int, h: int, accent_idx: int, a
         font_face = (f'@font-face{{font-family:"{brand["family"]}";src:url("brand-font{brand["ext"]}") '
                      f'format("{brand["fmt"]}");}}\n' + font_face)
         family = f'"{brand["family"]}",' + family
-    fs = round(w * 0.083)              # ~90 px on a 1080-wide frame
+    fs = size or default_size(w)
     return f"""<!doctype html>
 <html lang="en">
 <head>
@@ -173,7 +179,11 @@ def main() -> None:
                     help="brand font file (ttf/otf/woff/woff2), absolute or relative to the main folder or its assets/")
     ap.add_argument("--font-family", default=None, help="CSS family name for --font (default: the file stem)")
     ap.add_argument("--font-weight", type=int, default=800, help="caption font-weight (default 800)")
+    ap.add_argument("--font-size", type=int, default=None,
+                    help="caption size in px on the output frame (default 8.3%% of the width, ~90 at 1080 wide)")
     a = ap.parse_args()
+    if a.font_size is not None and not 24 <= a.font_size <= 400:
+        sys.exit("error: --font-size must be between 24 and 400 px")
     need("ffmpeg"); need("npx")
 
     t0 = time.time()
@@ -210,7 +220,7 @@ def main() -> None:
         shutil.copyfile(assets / "vendor/gsap.min.js", proj / "gsap.min.js")
         gsap_src = "gsap.min.js"
     (proj / "index.html").write_text(build_html(words, dur, w, h, accent_idx, a.accent_color, a.max_words,
-                                                font_ok, gsap_src, brand, a.font_weight))
+                                                font_ok, gsap_src, brand, a.font_weight, a.font_size))
 
     env = {**os.environ, "HYPERFRAMES_SKIP_SKILLS": "1", "HYPERFRAMES_NO_TELEMETRY": "1", "DO_NOT_TRACK": "1"}
     silent = proj / "captioned_silent.mp4"
@@ -238,7 +248,8 @@ def main() -> None:
     else:
         src, fam, fpath = "system-fallback", "sans-serif", None
     Path(a.out).with_suffix(".captions.json").write_text(json.dumps({
-        "font_family": fam, "font_source": src, "font_path": fpath, "accent_color": a.accent_color,
+        "font_family": fam, "font_source": src, "font_path": fpath, "font_size": a.font_size or default_size(w),
+        "accent_color": a.accent_color,
         "accent_word": words[accent_idx]["w"] if accent_idx >= 0 else None, "max_words": a.max_words,
         "groups": len(group(words, a.max_words)), "words": len(words)}, indent=2) + "\n")
     print(f"captioned {a.out}: {len(words)} words, accent '{acc}', font {fam} ({src}), {w}x{h}, "

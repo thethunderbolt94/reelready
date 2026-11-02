@@ -4,8 +4,10 @@ The script is in their voice or it is slop. Learn the voice from their past reel
 
 ## Read
 
-The 5 newest transcripts under `<main folder>/.reelready/work/*/transcript.json` (or
-`draft.words.json`). Read the text, not the timings.
+The 5 newest job folders under `<main folder>/.reelready/work/` (skip `script-*`). From each read
+`draft.words.json`, which holds only what survived the cut, or `transcript.json` if that's missing.
+The raw transcript still has retakes and corrected slips, so never quote a line from it that the
+draft cut out. Read the text, not the timings.
 
 ## Note, in your head, before writing
 

@@ -170,6 +170,11 @@ def cmd_run(args):
     if p.get("env_file"):
         for k, v in load_env_file(p["env_file"]).items():
             env.setdefault(k, v)
+    # Homebrew installs land outside a fresh shell's PATH on a new Mac; add them so ffmpeg is found.
+    extra = [d for d in ("/opt/homebrew/bin", "/usr/local/bin")
+             if Path(d).is_dir() and d not in env.get("PATH", "").split(os.pathsep)]
+    if extra:
+        env["PATH"] = os.pathsep.join([env.get("PATH", "")] + extra)
     venv_bin = REPO / ".venv" / "bin"
     if venv_bin.exists():
         env["PATH"] = f"{venv_bin}{os.pathsep}{env.get('PATH', '')}"
@@ -183,7 +188,11 @@ def cmd_set_key(args):
     p = need_home()
     if not args or args[0] not in KEY_NAMES:
         die("usage: rr.py set-key <assemblyai|elevenlabs>  (key on stdin)")
-    key = sys.stdin.read().strip()
+    if sys.stdin.isatty():
+        import getpass
+        key = getpass.getpass("Paste your key and press Enter (it won't show): ").strip()
+    else:
+        key = sys.stdin.read().strip()
     if not key or any(c.isspace() for c in key):
         die("No key received (or it contained spaces). Nothing saved.")
     name = KEY_NAMES[args[0]]
