@@ -15,7 +15,6 @@ license text, a copy was added as `LICENSE` so every folder is self-describing.
 | `motion-graphics` | HeyGen HyperFrames workflow skill | Apache-2.0 | Bundled note; "keep this skill fresh" prompt removed (its `GEMINI_API_KEY` was already optional) |
 | `general-video` | HeyGen HyperFrames workflow skill | Apache-2.0 | Bundled note; update step removed; borrowing limited to bundled workflows |
 | `media-use` | HeyGen HyperFrames media skill | Apache-2.0; the bundled SFX were replaced by sounds synthesised by `engines/make_sfx.py` (MIT, `audio/assets/sfx/CREDITS.md`) | New "no-key mode" section: `--local-only`, bundled SFX, user-supplied music/images in `assets/`, local transcription; HeyGen sign-in is an optional upgrade |
-| `hyperframes-helper` | Community helper kit for HyperFrames, from the kit author's skill library (no upstream license file shipped) | Unknown upstream; check before redistributing | Copied as is (its sample `smoke-test.mp4` left out) |
 | `watch` | claude-video by Bradley Bonanno (https://github.com/bradautomates/claude-video) | MIT (`LICENSE`, kept) | Whisper fallback now prefers ReelReady's local `engines/transcribe.py` (faster-whisper, no key); `--whisper local|assemblyai|groq|openai`; setup treats the local engine as "ready"; private notes removed. `~/.config/watch/.env` stays optional |
 | `yt-edit` | The kit author's own skill (dead-air / filler / retake EDL, `deadair.py`) | Same license as ReelReady | Copied as is; its logic is reused by `engines/cut.py` |
 

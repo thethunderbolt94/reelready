@@ -10,7 +10,6 @@
 
 ## Review
 - Policy call left open: captions.py drops "um"/"uh" from on-screen captions (audio untouched). Confirm or revert.
-- hyperframes-helper has no upstream license file; confirm before public release.
 - Telegram bridge not yet run against a real bot token or a real `claude -p`.
 - Next: push to GitHub (public), record the "comment STYLES" reel, install on the first client's machine.
 
@@ -57,4 +56,5 @@ Design: docs/superpowers/specs/2026-11-01-reelready-script-design.md (the "Settl
 - [x] SMOKE OK, style guide check ok, private-data scan clean
 - [x] Pixabay SFX replaced: all 19 sounds synthesised by engines/make_sfx.py (MIT, deterministic); manifest durations refreshed
 - [x] Commit author on main rewritten to the Thrive Labs address (backup branch kept locally, never pushed); Apache-2.0 text copied into each HyperFrames skill folder
-- [ ] Owner decisions still open before a public push: hyperframes-helper (unused, no licence: drop or keep), channel URL
+- [x] hyperframes-helper removed (unused, no upstream licence)
+- [ ] Owner decision still open before a public push: channel URL

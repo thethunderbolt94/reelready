@@ -53,7 +53,7 @@ Everything in `.claude/skills/` (23 folders + `ATTRIBUTION.md` with origins and 
 | `motion-graphics` | hook titles, end cards, kinetic type, transitions | reelready-edit (`motion` cards) |
 | `general-video` | b-roll cutaways, cut-outs, multi-layer builds | reelready-edit (`composite` cards) |
 | `media-use` | music / SFX / images in no-key mode | reelready-edit, only when `assets/` has none |
-| `hyperframes`, `hyperframes-core`, `-cli`, `-animation`, `-creative`, `-audio`, `-registry`, `-keyframes`, `-studio`, `hyperframes-helper` | the HyperFrames framework the visual skills build on | the engine skills above |
+| `hyperframes`, `hyperframes-core`, `-cli`, `-animation`, `-creative`, `-audio`, `-registry`, `-keyframes`, `-studio` | the HyperFrames framework the visual skills build on | the engine skills above |
 | `watch` | download + frames + transcript for any video | reelready-study |
 | `yt-edit` | dead-air / filler / retake logic (`deadair.py`) | source of `engines/cut.py`'s rules |
 
