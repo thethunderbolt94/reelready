@@ -11,7 +11,7 @@
 ## Review
 - Policy call left open: captions.py drops "um"/"uh" from on-screen captions (audio untouched). Confirm or revert.
 - Telegram bridge not yet run against a real bot token or a real `claude -p`.
-- Next: push to GitHub (public), record the "comment STYLES" reel, install on the first client's machine.
+- Pushed public 2026-11-02: https://github.com/thethunderbolt94/reelready. Next: record the "comment STYLES" reel, install on the first client's machine.
 
 ## v0.2 (2026-10-28, evening)
 - [x] Rebrand to "ReelReady by Suhaas Builds" (config, README, business doc, spec, fallbacks); Thrive Labs kept as `brand.service`
