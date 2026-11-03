@@ -14,7 +14,7 @@ Your brand, written once during setup, read by every edit.
 | `platforms`, `aspect`, `resolution` | where you post; 9:16 1080x1920 default |
 | `brand.colors` | primary, secondary, accent, text, background (hex) |
 | `brand.logo`, `brand.fonts` | paths relative to the main folder; fonts default to Archivo Black + Inter |
-| `captions` | `card`: a captions card ID the owner picked, or `null` = match the house style; `look`: that card's name, or `house`; `verbatim` always true |
+| `captions` | `card`: a captions card ID the owner picked, or `null` = match the house style; `look`: that card's name, or `house`; `verbatim` always true; `accent_color` (optional hex): the emphasis-word colour when the owner wants one that is not `brand.colors.accent` (the taste gate then expects this one) |
 | `music` | `preference` `none` (add a trending sound in the app) or `my-own`; `file` `assets/music/<track>` or null; ducked -18 dB under speech |
 | `tone` | three feel words |
 | `references` | links/files the user admires |

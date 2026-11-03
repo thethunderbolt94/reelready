@@ -241,7 +241,7 @@ brand font when the profile has one (`brand.fonts.files` not empty), else bundle
 card is C1 or there is no caption card, and run it on the video that already has the graphics (captions go on top):
 ```bash
 python3 scripts/rr.py run -- python3 engines/captions.py "$W/graphics.mp4" --words "$W/draft.words.json" \
-  --out "$W/captioned.mp4" --accent-color "<brand.colors.accent>" --max-words <profile.captions.max_words_per_line, default 3> \
+  --out "$W/captioned.mp4" --accent-color "<profile.captions.accent_color if set, else brand.colors.accent>" --max-words <profile.captions.max_words_per_line, default 3> \
   [--font "<main folder>/<profile.brand.fonts.files[0]>" --font-family "<profile.brand.fonts.heading>"] \
   [--accent <the one emphasis word, as spoken>] [--font-size <px, default ~90 at 1080 wide>]
 ```

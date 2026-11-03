@@ -13,7 +13,8 @@ Rules (each prints one line, "TASTE ok|FAIL|note <rule>: <reason>"):
   brand-choices    plan.md has "## Brand choices" with >= 3 bullets, and every bullet names a brand
                    color hex, a brand font, "logo" (if brand.logo is set) or a 3-word phrase from
                    reference_style (pacing / caption_style / hook_patterns / music_use)
-  accent-color     captions accent_color == brand.colors.accent (never the engine default #FFD60A)
+  accent-color     captions accent_color == profile captions.accent_color if set, else brand.colors.accent
+                   (never the engine default #FFD60A)
   brand-font       brand.fonts.files non-empty -> captions font_source must be "brand"
   signature        exactly one signature move in the mix (hard rule 3): a card from
                    profile.house_style.signature or a signature-category card (X1-X6). None is a FAIL
@@ -226,8 +227,11 @@ def main() -> None:
                 g.fail("palette-in-plan", f"{len(seen)} brand color(s) named in Brand choices, need >= {need} "
                                           f"(hex or role: {', '.join(colors)})")
 
-    # 2. accent-color
-    accent = colors.get("accent")
+    # 2. accent-color: the owner may pick a caption highlight that is not the brand accent
+    #    (profile captions.accent_color); otherwise the brand accent is the rule.
+    caps_override = norm_hex(str((prof.get("captions") or {}).get("accent_color") or ""))
+    accent = caps_override or colors.get("accent")
+    accent_name = "caption accent (profile captions.accent_color)" if caps_override else "brand accent"
     if caps is None:
         g.note("accent-color", "no captions.json (designed captions or none); check the frames by eye")
     else:
@@ -238,11 +242,11 @@ def main() -> None:
             else:
                 g.note("accent-color", f"profile has no accent color; captions used {got or 'none'}")
         elif got == accent:
-            g.ok("accent-color", f"captions accent {got} = brand accent")
+            g.ok("accent-color", f"captions accent {got} = {accent_name}")
         elif got == ENGINE_DEFAULT_ACCENT:
-            g.fail("accent-color", f"captions used the engine default {got}, brand accent is {accent}")
+            g.fail("accent-color", f"captions used the engine default {got}, {accent_name} is {accent}")
         else:
-            g.fail("accent-color", f"captions accent {got or 'missing'} != brand accent {accent}")
+            g.fail("accent-color", f"captions accent {got or 'missing'} != {accent_name} {accent}")
 
     # 3. brand-font
     if not font_files:
