@@ -20,7 +20,7 @@
 - [x] Sound layer: S1-S5 cards, engines/sound.py, sfx + attribution, smoke step, mixes get one S card
 - [x] Wire story pass into reelready-edit SKILL.md step 2.5 + CLAUDE.md pipeline
 - [x] Verify: styleguide --check (41 cards), smoke end to end, secrets scan, no clients/ tracked
-- [ ] Confirm Suhaas Builds channel URL (placeholder: youtube.com/@suhaasbuilds)
+- [x] Suhaas Builds channel URL confirmed by owner 2026-11-02 (youtube.com/@suhaasbuilds)
 
 ## v0.3 taste layer (2026-10-28, night)
 - [x] engines/captions.py: --font/--font-family/--font-weight, writes captioned.captions.json (verified Inter vs Impact frames)
@@ -28,7 +28,7 @@
 - [x] scripts/rr.py house-style / next-signature; profile.house_style; setup step F; edit skill rotates the signature per reel
 - [x] engines/taste.py: 6 rules, TASTE PASS/FAIL; fixtures prove it passes on-brand and fails generic; smoke step
 - [x] Edit skill: Brand choices block in plan.md, taste gate in QA; CLAUDE.md pipeline + hard rule 4
-- [ ] Open: fixture profile uses H1 as a signature id (works, but real presets use X/M/P/B); channel URL confirm
+- [ ] Open: fixture profile uses H1 as a signature id (works, but real presets use X/M/P/B)
 
 ## v0.4 script writer (2026-11-01)
 Design: docs/superpowers/specs/2026-11-01-reelready-script-design.md (the "Settled" section wins).
@@ -57,4 +57,4 @@ Design: docs/superpowers/specs/2026-11-01-reelready-script-design.md (the "Settl
 - [x] Pixabay SFX replaced: all 19 sounds synthesised by engines/make_sfx.py (MIT, deterministic); manifest durations refreshed
 - [x] Commit author on main rewritten to the Thrive Labs address (backup branch kept locally, never pushed); Apache-2.0 text copied into each HyperFrames skill folder
 - [x] hyperframes-helper removed (unused, no upstream licence)
-- [ ] Owner decision still open before a public push: channel URL
+- [x] Channel URL confirmed; nothing left to decide before a public push
