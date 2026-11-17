@@ -14,11 +14,10 @@
 - `rr.py studio --start|--stop`, SessionStart hook in `.claude/settings.json`, CLAUDE.md "Session start".
 - Folder contract text (CLAUDE.md, README, init.py README, skills), `rr.py newest` and telegram `newest_clip`
   search group folders.
-- `tests/smoke/studio.sh` passes (STUDIO PASS); called from `tests/smoke/run.sh`.
+- `tests/smoke/studio.sh` passes (STUDIO PASS); called from `tests/smoke/run.sh`, which prints SMOKE OK.
 - Checked in a real browser (desktop + 375 px, light + dark): sort moment, grid, review flow end to end.
 
 ## Left
-- Confirm the full `bash tests/smoke/run.sh` prints SMOKE OK (it was running when this was written).
 - Split the wip commit into logical commits if wanted.
 - Optional: README tour screenshots (part 7).
 
