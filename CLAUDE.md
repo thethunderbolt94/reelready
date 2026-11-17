@@ -45,7 +45,7 @@ AI Video Editor/
 | "show me the styles", "what styles are there", "style guide" | **reelready-styles** (local style guide page) |
 | "set up", "change my colors/fonts/logo", "redo setup" | **reelready-setup** (only the changed answers) |
 | "study my references", new reference links | **reelready-study** |
-| "write me a script", "what should I say", "give me reel ideas", "what should I post this week" | **reelready-script** (`script.md`: hook, beats, shot list, facts with sources, all `[GENERATED - approve?]`; checked by `engines/script_check.py`) |
+| "write me a script", "what should I say", "give me reel ideas", "what should I post this week" | **reelready-script**: interview by default (5 to 8 questions or a voice memo; the script is her own answers, ordered, each line cites its answer, `source: answers`). "Just write it for me" = generated lines, all `[GENERATED - approve?]`. Checked by `engines/script_check.py` |
 | "write the post for this", "post copy", "hashtags for this" | **reelready-copy** (`post.md`: hooks, caption, CTA, hashtags; auto when `profile.copy.auto`) |
 | "make the captions bigger", "swap the hook", "no music", "make it 16:9 for YouTube" | **reelready-edit**, re-edit section |
 | Telegram questions | `addons/telegram/README.md` (off by default) |
@@ -58,8 +58,8 @@ composite -> `general-video`; sound -> `engines/sound.py`; cut -> `engines/cut.p
 captions/overlays/motion. Reference watching: `watch`. Script check: `engines/script_check.py`.
 
 ## Pipeline (reelready-edit has the details)
-0. **Script** (optional, before filming): **reelready-script** asks up to 3 fact questions, then writes
-   `script.md` from the owner's own facts and voice. `engines/script_check.py` must print `SCRIPT PASS`.
+0. **Script** (optional, before filming): **reelready-script** interviews the owner (5 to 8 short questions or a
+   voice memo) and builds `script.md` only from her answers, verbatim. `engines/script_check.py` must print `SCRIPT PASS`.
    When the clip arrives, the edit offers that script's folder and uses its structure and hook as hints.
 1. **Ingest**: probe clips, optional 720p proxy, transcribe with word timestamps
    (`engines/transcribe.py`, backend from profile; `whisper-local` default, free, no key).

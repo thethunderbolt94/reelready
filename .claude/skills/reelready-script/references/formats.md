@@ -59,3 +59,36 @@ Talking points are the default because owners sound like themselves when they sa
 own words, and the reel's captions then carry their real phrasing. Word for word is for owners who
 asked for it, or who freeze without exact lines. Keep word-for-word sentences short (under 12 words)
 and in the owner's rhythm from `voice.md`.
+
+## Interview scripts (`source: answers`)
+
+The default. The words are the owner's, taken from `answers.json`, so nothing is marked
+`[GENERATED - approve?]`. The banner stays (the order and picks are ours):
+
+```
+DRAFT - written by AI. Every spoken line is your own words from your answers. Only the order and the picks are ours, so check them.
+
+# Script: <short title>
+<Business name> · structure: <...> · format: <talking-points | word-for-word> · source: answers · about <n> s · <aspect>
+
+## Hook
+"<a span of one answer, under 10 words>" (A3)
+
+## Beats
+1. "<a span of one answer>" (A1)
+2. Show the board.            <- a direction, no quotes, no citation
+3. "<a span of one answer>" (A7)
+
+## Film this
+...
+## Not used
+- <answers left out>
+```
+- Talking points: spoken text is in double quotes, each followed by `(A<n>)` or `(M<n>)`. Word for
+  word: each spoken line is the span plus the citation; a direction is `[in square brackets]`.
+- A span is one contiguous run of one answer: no added, swapped or reordered words (case and
+  punctuation free). You may trim to a sentence or clause.
+- No `## Facts used` section: the citations are the sources. Numbers need no row, they are hers.
+- `answers-only` (see `engines/script_check.py --help`) fails a changed word, an uncited spoken line,
+  an unknown id, or a span spliced from two answers. Length and hook (under 10 words) still apply.
+- `source: generated` (or no `source`) is the old mode: every line flagged, facts table required.

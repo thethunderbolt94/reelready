@@ -102,9 +102,9 @@ and the page opens. (4) The style guide folds into the Studio app: Library, Revi
 - [ ] Render writes <export>/review.json; the edit skill waits for it and re-renders only changed layers
 
 ### 6. Script by interview (independent)
-- [ ] reelready-script interview mode: 5 to 8 short questions; the script is the owner's answers ordered,
+- [x] reelready-script interview mode: 5 to 8 short questions; the script is the owner's answers ordered,
       never a written line; each beat cites its answer; script_check answers-only rule
-- [ ] Voice-memo path: a 2-minute ramble -> transcript -> story pass -> script, same rule
+- [x] Voice-memo path: a 2-minute ramble -> transcript -> story pass -> script, same rule
 
 ### 7. Proof
 - [ ] Smoke test covers sort, overlays, review.json; README tour with screenshots; push main

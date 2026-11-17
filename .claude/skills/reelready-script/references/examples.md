@@ -1,6 +1,6 @@
 # Worked examples
 
-Both examples pass `engines/script_check.py`. Businesses are made up.
+The first two examples are the generated mode (only on "just write it for me"). The third is the default interview. All pass `engines/script_check.py`. Businesses are made up.
 
 ## 1. Cafe, talking points, from a past reel
 
@@ -85,3 +85,58 @@ The check notes three facts that rest only on today's chat, so the skill tells t
 line: "Three facts come only from what you told me today: the forty minutes, the dry cabinet and
 the Monday job. Make sure they're right." Not allowed here: "24/7" (never said), "Anytown's most
 trusted plumber" (superlative), "Don't wait until it's too late" (fake urgency).
+
+
+## 3. Barber, interview (the default), talking points
+
+Business: Maple Street Barbers, Anytown. The owner named a topic ("kids haircut Saturdays"). The
+skill asked 7 short questions, one or two per message, and saved each answer untouched to
+`answers.json`:
+
+- A1  Q: What is it, in a sentence?
+      A: "Saturday mornings we do kids haircuts with no appointment. You just walk in and sit down."
+- A2  Q: Who is it for?
+      A: "It's for parents who dread the haircut meltdown. Most of our kids are four to eight."
+- A3  Q: Tell me about a moment that really happened.
+      A: "Last week a little boy fell asleep in the chair halfway through his fade. We just turned the clippers off and let him finish his nap."
+- A4  Q: What do people say about it?
+      A: "People say it's the only place their son sits still."
+- A5  Q: What is a detail only you would know?
+      A: "We keep a jar of stickers by the mirror and the kids pick one before they pay."
+- A6  Q: Why does it matter to you?
+      A: "My dad cut my hair on his kitchen floor, so I know how scary the first haircut feels."
+- A7  Q: How do people find you?
+      A: "Come by Maple Street any Saturday morning. The door's open from eight."
+
+The script is those answers, picked and ordered (hook, context, payoff). The hook is the most
+concrete moment (A3); the clipper line travels right after it because it finishes the story; the
+invite closes. A2 and A6 are left out, listed under Not used. Nothing was added to any span.
+
+```
+DRAFT - written by AI. Every spoken line is your own words from your answers. Only the order and the picks are ours, so check them.
+
+# Script: kids haircut Saturdays
+Maple Street Barbers · structure: hook, context, payoff · format: talking-points · source: answers · about 25 s · 9:16
+
+## Hook
+"A little boy fell asleep in the chair." (A3)
+
+## Beats
+1. "We just turned the clippers off and let him finish his nap." (A3)
+2. "Saturday mornings we do kids haircuts with no appointment." (A1)
+3. "People say it's the only place their son sits still." (A4)
+4. "We keep a jar of stickers by the mirror and the kids pick one before they pay." (A5)
+5. "Come by Maple Street any Saturday morning." (A7)
+
+## Film this
+- A-roll: you beside the chair, phone at eye level, window light on your face.
+- B-roll: the empty chair (2 s), the sticker jar by the mirror (3 s), the shop door (2 s).
+
+## Not used
+- A2 (who it is for), A6 (why it matters): kept for a longer cut.
+```
+
+`engines/script_check.py` prints `SCRIPT PASS (7 rules)` with `answers-only` ok. It also prints a
+note that "the only" is on the banned list: that is her own phrase in A4, so it stays and the owner
+is told. Not allowed here: "A little boy fell asleep in the barber chair" (one word added, fails
+`answers-only`), a line with no `(A<n>)`, or one that joins the end of A1 to the start of A5.

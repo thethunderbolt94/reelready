@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "business": {"name": "Maple Street Barbers", "handle": "@maplestreetbarbers", "what_we_do": "Neighbourhood barber shop", "location": "Anytown"},
+  "tone": ["warm", "direct", "local"],
+  "aspect": "9:16",
+  "copy": {"auto": false, "cta": "Come by", "hashtags_extra": []},
+  "script": {"format": "talking-points", "seconds": 30}
+}

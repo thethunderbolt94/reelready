@@ -1,14 +1,20 @@
 ---
 name: reelready-script
-description: ReelReady script writer. Before filming, drafts what the owner says on camera - a hook, 3 to 6 beats, a shot list and a facts table with sources - built only from the style profile, the owner's past reel transcripts and what they say in the chat, every line marked [GENERATED - approve?], checked by engines/script_check.py, saved to exports/<date>-<slug>/script.md on "go". Also gives 3 idea cards when asked what to post. Use when the user says "write me a script", "what should I say", "script for <topic>", "give me reel ideas", "what should I post this week", "help me plan a video". Never posts anything.
+description: ReelReady script by interview. Before filming, asks the owner 5 to 8 short questions (or takes a voice-memo ramble) and builds the script ONLY from their answers, verbatim, ordered with a story structure and each line citing its answer, so it is in their words. Only on "just write it for me" does it write lines itself from the profile and past reels, every line marked [GENERATED - approve?]. Checked by engines/script_check.py, saved to exports/<date>-<slug>/script.md on "go". Also gives 3 idea cards when asked what to post. Use when the user says "write me a script", "what should I say", "script for <topic>", "give me reel ideas", "what should I post this week", "help me plan a video". Never posts anything.
 ---
 
 # ReelReady script
 
-Run from the repo root. CLAUDE.md hard rules apply: every word here is generated copy (rule 2),
-nothing is posted or sent (rule 7), write only to `exports/` and `.reelready/`.
+Run from the repo root. CLAUDE.md hard rules apply (rule 2 for any line we write), nothing is posted
+or sent (rule 7), write only to `exports/` and `.reelready/`.
 
-The line this skill holds: **it may write, but only from the owner's own facts and phrasing.** A
+**Default is the interview: the script is the owner's own answers, picked and ordered, never a line
+we wrote.** Method: `references/interview.md`. Why: an owner read a script we wrote from her facts and
+said she would never say it like that. Only when the owner explicitly asks ("just write it for me")
+does the skill use the generated mode below (steps 3 to 6 as written), and then everything we write
+follows this rule:
+
+The line the generated mode holds: **it may write, but only from the owner's own facts and phrasing.** A
 script with a price, date, number, story or claim the owner never gave is a failed script, even if
 it reads well. When a fact is missing, ask. Never fill it in.
 
@@ -37,8 +43,14 @@ rename the folder: `mv "<work>/script-draft" "<work>/script-<slug>"`. Redoing a 
 has an export folder: use that job's `<work_dir>` instead (its `owner.txt` is already there; keep
 appending).
 
-- The owner named a topic ("script for the new chai menu") -> **Script** (step 3).
-- The owner asked what to post, or gave no topic -> **Ideas** (step 2).
+- The owner named a topic ("script for the new chai menu") -> **Interview** (`references/interview.md`):
+  5 to 8 short questions, one or two per message, every answer saved verbatim to
+  `<work>/script-<slug>/answers.json`; or a 1 to 3 minute voice memo, split into answers M1, M2, ...
+  with `engines/memo_answers.py`. Build the script only from those answers, then step 5.
+- The owner said "just write it for me" or "you write it" -> **Script, generated** (step 3 onward,
+  `source: generated`).
+- The owner asked what to post, or gave no topic -> **Ideas** (step 2). Picking a card goes to the
+  Interview, not step 3.
 
 ## 2. Ideas mode
 
@@ -62,7 +74,7 @@ The Source line uses the same three forms as the Facts table in step 4 (`profile
 - Cards stay in chat: not saved, not run through the check. Ask: "Which one, 1, 2 or 3?" Then run
   step 3 on that idea.
 
-## 3. Fact interview
+## 3. Fact interview (generated mode only)
 
 List the facts the script needs: what it is, one concrete detail (a number, a time, a name), when
 or where, and the invite. "Why it matters to a customer" is optional: use it if the owner gave it,
@@ -83,9 +95,10 @@ owner said today, a past transcript line, the profile. Anything not found become
   they can fill it while filming. Never guess.
 - Never use the web for facts.
 
-## 4. Write the draft
+## 4. Write the draft (generated mode only)
 
 Exact shape and both formats: `references/formats.md`. Worked examples: `references/examples.md`.
+The meta line says `source: generated` here.
 
 - **Format**: `profile.script.format`, else talking points. Word for word only when asked
   ("write it out exactly", "give me the exact words").
@@ -132,6 +145,10 @@ python3 scripts/rr.py run -- python3 engines/script_check.py \
   --script "<work>/script-<slug>/script.md" --profile "<profile>" --work-dir "<work>" \
   --chat "<work>/script-<slug>/owner.txt"     # on a redo: the job's <work_dir> for both
 ```
+Interview scripts (`source: answers`): the check also reads `answers.json` next to the script (or
+`--answers <file>`) and runs `answers-only`: every spoken line must be a word-for-word span of the
+answer it cites, no line uncited. Fix the named line (restore the exact span or drop it) and re-run.
+A banned-word note there is the owner's own word: show it, don't change it.
 - `SCRIPT PASS` -> show it.
 - `SCRIPT FAIL` -> fix the named rule once and re-run. `numbers-sourced` -> source the number or
   turn it into `[ASK: ...]`. `sources-real` -> fix the quote to the exact transcript words or drop
@@ -153,8 +170,10 @@ On "go", for a new script:
 ```bash
 python3 scripts/rr.py export-dir "<slug>"
 ```
-Copy the draft to `<export_dir>/script.md`, then move the draft and the notes out of scratch so
+Copy the draft to `<export_dir>/script.md` (an interview script also copies `answers.json` there),
+then move the draft and the notes out of scratch so
 `work/` only holds job folders: `mv "<work>/script-<slug>/script.md" "<work>/script-<slug>/owner.txt" "<work_dir>/"`
+(an interview script also moves `answers.json` and any voice-note files)
 and `rmdir "<work>/script-<slug>"` (the folder is empty by then; never delete anything else).
 
 Re-doing a script that already has an export folder: do not call `export-dir`. Save
