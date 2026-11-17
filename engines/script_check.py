@@ -419,9 +419,11 @@ def main() -> int:
         for sp, _, pr in sorted(spans, key=lambda t: -len(t[0])):
             if not pr:
                 scan = re.sub(re.escape(sp), " ", scan, flags=re.I)
-        hits = [lab for lab, pat in load_banned() if pat.search(scan)]
+        def plain(lab):  # show "the only", not the regex form "\bthe only\b"
+            return lab.replace("\\b", "").strip() or lab
+        hits = [plain(lab) for lab, pat in load_banned() if pat.search(scan)]
         rule("banned", not hits, "clean" if not hits else "found in our directions: " + ", ".join(hits))
-        own = [lab for lab, pat in load_banned() if any(pat.search(sp) for sp, _, pr in spans if not pr)]
+        own = [plain(lab) for lab, pat in load_banned() if any(pat.search(sp) for sp, _, pr in spans if not pr)]
         for name, ok, why in results:
             print(f"SCRIPT {'ok' if ok else 'FAIL'} {name}: {why}")
         if own:
