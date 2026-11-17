@@ -28,7 +28,8 @@ You need about **3 GB of free space** on your computer; Claude tells you if it's
 
 ```
 AI Video Editor/
-  raw footage/   <- drop your phone clips here (never changed or deleted)
+  raw footage/   <- drop your phone clips here (never changed or deleted; sorted into folders:
+                    Talking to camera, B-roll, Voice notes, Photos, Too short. Undo: "undo the sort")
   references/    <- videos you love the look of, or links in links.txt
   assets/        <- logo, fonts/, music/, sfx/
   exports/       <- finished videos appear here
@@ -47,6 +48,8 @@ AI Video Editor/
 | edit these 3 clips | talking clip + b-roll shots cut together |
 | use styles H1+C2 / use the Cafe story mix | edits with exactly those styles |
 | show me the styles | opens the style guide in your browser |
+| show me my clips | opens your Library: every clip sorted into folders, with thumbnails |
+| undo the sort | puts every sorted clip back where it was |
 | make it 16:9 for YouTube | wide version of the same edit |
 | study my references | learns the look of videos you like |
 | change my brand colors | updates your setup |
@@ -72,7 +75,18 @@ folder, never shown back to you.
 30+ hand-picked style cards (Hook, Captions, Layout, Proof, B-roll, Signature, Motion & pace,
 Outro), each with a sketch, a two-line description and a copyable prompt. Mix a few, copy the
 combined prompt, and say "use styles ...". Say **show me the styles** to open the
-[style guide](styleguide/) (runs locally at `http://localhost:4810`).
+[style guide](styleguide/) (runs locally at `http://localhost:4810/#styles`).
+
+## The Studio (opens when you start Claude)
+
+One page on your own computer, three tabs:
+
+- **Library**: new clips in raw footage are sorted into folders (Talking to camera, B-roll, Voice notes,
+  Photos, Too short) and shown with thumbnails, length, shape and the day you shot them. Your files are only
+  moved into those folders, never renamed or deleted, and "undo the sort" puts them back.
+- **Review**: before anything renders, see the draft, trim a cut, swap a b-roll shot, pick hook A or B, and
+  approve, edit or reject every line Claude wrote. Press **Approve and render** (or just say "go" in chat).
+- **Styles**: the style guide.
 
 Rules every edit follows: captions are word-for-word, any text Claude writes is marked for your
 approval, and only one big effect per moment, so nothing looks "AI".

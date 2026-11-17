@@ -217,7 +217,10 @@ def extract_video(msg):
 
 
 def newest_clip(raw_dir):
-    clips = [p for p in Path(raw_dir).glob("*") if p.suffix.lower() in VIDEO_EXTS]
+    """Newest video anywhere in raw footage, including the sorter's group folders ("Too short" skipped)."""
+    raw = Path(raw_dir)
+    clips = [p for p in raw.rglob("*") if p.is_file() and p.suffix.lower() in VIDEO_EXTS
+             and p.relative_to(raw).parts[0] != "Too short"]
     return max(clips, key=lambda p: p.stat().st_mtime) if clips else None
 
 

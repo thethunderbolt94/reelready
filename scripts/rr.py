@@ -4,7 +4,8 @@
 Stdlib only. Run from anywhere:  python3 scripts/rr.py <command> [...]
 
   where [--json]                 main-folder paths (raw footage, exports, work, profile, env)
-  newest [--n N]                 newest video file(s) in "raw footage"
+  newest [--n N] [--group G]     newest video file(s) in "raw footage", group folders included ("Too short"
+                                 skipped); --group "Talking to camera" picks from one group folder
   export-dir <slug>              create exports/<YYYY-MM-DD>-<slug>/ (+ matching work dir), print JSON
   run -- <cmd ...>               run <cmd> from the repo with .venv on PATH and .reelready/.env loaded
   set-key <assemblyai|elevenlabs>  read a key from stdin, save to <main>/.reelready/.env (never printed)
@@ -20,6 +21,19 @@ Stdlib only. Run from anywhere:  python3 scripts/rr.py <command> [...]
   duck-filter <transcript.json> [--duration S]  ffmpeg volume filter: music -18 dB under speech
   join-drafts <out.mp4> <draft_01.mp4> <draft_02.mp4> ...  multi-clip: concat render_cut drafts
                                  (stream copy) and merge their .words.json side files with time offsets
+  sort [--dry-run] [--undo [BATCH]] [--resort] [--json] [--quiet]
+                                 move new files in "raw footage" into its group folders (Talking to camera,
+                                 B-roll, Voice notes, Photos, Too short), logged in .reelready/sort-log.jsonl;
+                                 --undo puts the last (or named) batch back; writes .reelready/library.json
+  studio [--start] [--stop] [--no-open]
+                                 the Studio page (Library, Review, Styles). --start: sort new clips, start the
+                                 server in the background if needed, open the browser (session-start hook;
+                                 does nothing before setup; REELREADY_NO_BROWSER=1 never opens a browser)
+  review-request <export> [--edl EDL] [--draft MP4] < partial.json
+                                 write <export>/review-request.json (cuts filled from the EDL), validated
+  wait-review <export> [--timeout SEC]
+                                 wait for the Review page's review.json (newer than the request), print it;
+                                 exit 0 = approved, 2 = timed out, 3 = review incomplete
 """
 import argparse
 import datetime as _dt
@@ -134,12 +148,18 @@ def cmd_where(args):
 
 
 def cmd_newest(args):
+    """Newest videos anywhere in raw footage, including the sorter's group folders (skips "Too short").
+    --group "Talking to camera" limits it to one group folder."""
     p = need_home()
     n = int(args[args.index("--n") + 1]) if "--n" in args else 1
+    group = args[args.index("--group") + 1] if "--group" in args else None
     raw = Path(p["raw_footage"])
-    clips = [f for f in raw.rglob("*") if f.is_file() and f.suffix.lower() in VIDEO_EXT and not f.name.startswith(".")]
+    clips = [f for f in raw.rglob("*") if f.is_file() and f.suffix.lower() in VIDEO_EXT and not f.name.startswith(".")
+             and f.relative_to(raw).parts[0] != "Too short"]
+    if group:
+        clips = [f for f in clips if len(f.relative_to(raw).parts) == 2 and f.relative_to(raw).parts[0] == group]
     if not clips:
-        die('No video files in "raw footage" yet.', 3)
+        die('No video files in "raw footage" yet.' if not group else f'No video files in "raw footage/{group}".', 3)
     clips.sort(key=lambda f: f.stat().st_mtime, reverse=True)
     for f in clips[:n]:
         print(f)
@@ -425,11 +445,193 @@ def cmd_join_drafts(args):
                       "duration": round(offset, 3), "word_count": len(words)}))
 
 
+# ---------------------------------------------------------------- sorter, studio, review
+def _scripts():
+    here = str(Path(__file__).resolve().parent)
+    if here not in sys.path:
+        sys.path.insert(0, here)
+
+
+def cmd_sort(args):
+    p = need_home()
+    _scripts()
+    import sorter
+    sys.exit(sorter.main(args, Path(p["main_folder"])))
+
+
+def _studio_mod():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("reelready_studio", REPO / "studio" / "serve.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def _spawn(cmd, log):
+    """Start a process detached from this one (own session, no terminal), output to `log`."""
+    log.parent.mkdir(parents=True, exist_ok=True)
+    with open(log, "a", encoding="utf-8") as out:
+        return subprocess.Popen(cmd, cwd=str(REPO), stdin=subprocess.DEVNULL, stdout=out, stderr=subprocess.STDOUT,
+                                start_new_session=True, close_fds=True)
+
+
+def cmd_studio(args):
+    ap = argparse.ArgumentParser(prog="rr.py studio")
+    ap.add_argument("--start", action="store_true", help="sort, start in the background, open the browser")
+    ap.add_argument("--stop", action="store_true")
+    ap.add_argument("--no-open", action="store_true")
+    ap.add_argument("--quiet", action="store_true")
+    ap.add_argument("--port", type=int)
+    a = ap.parse_args(args)
+    p = paths()
+    if not (a.start or a.stop):
+        fwd = (["--no-open"] if a.no_open else []) + (["--port", str(a.port)] if a.port else [])
+        sys.exit(_studio_mod().main(fwd))
+    if not p.get("configured"):
+        return  # before setup the hook stays silent and does nothing
+    import time
+    import webbrowser
+    _scripts()
+    import sorter
+    studio = _studio_mod()
+    home = Path(p["main_folder"])
+    log = home / ".reelready" / "work" / "studio.log"
+    url = studio.running_url(home)
+    if a.stop:
+        sf = studio.studio_file(home)
+        if url and sf.exists():
+            import signal
+            os.kill(int(json.loads(sf.read_text(encoding="utf-8"))["pid"]), signal.SIGTERM)
+            if not a.quiet:
+                print("Studio stopped.")
+        elif not a.quiet:
+            print("Studio is not running.")
+        return
+    new = len(sorter.pending(sorter.Home(home)))
+    if url:
+        if new:
+            _spawn([sys.executable, str(REPO / "scripts" / "rr.py"), "sort", "--quiet"], log)
+    else:
+        _spawn([sys.executable, str(REPO / "studio" / "serve.py"), "--no-open"] + (["--sort"] if new else [])
+               + (["--port", str(a.port)] if a.port else []), log)
+        for _ in range(40):          # up to ~4 s for the server to answer
+            time.sleep(0.1)
+            url = studio.running_url(home)
+            if url:
+                break
+    if not url:
+        print(f"ReelReady Studio did not start (see {log}).")
+        return
+    waiting = studio.waiting_export(home)
+    page = url + ("#review/" + waiting if waiting else "#library")
+    if not (a.no_open or studio.no_browser()):
+        webbrowser.open(page)
+    if not a.quiet:
+        extra = f", sorting {new} new file(s) from raw footage" if new else ""
+        extra += f", review waiting: {waiting}" if waiting else ""
+        print(f"ReelReady Studio open at {page}{extra}")
+
+
+def _export_path(p, arg):
+    d = Path(arg).expanduser()
+    if not d.is_absolute():
+        d = d if (d / "review-request.json").exists() else Path(p["exports"]) / arg
+    return d
+
+
+def cmd_review_request(args):
+    ap = argparse.ArgumentParser(prog="rr.py review-request")
+    ap.add_argument("export", help="export folder (name under exports/, or a path)")
+    ap.add_argument("--edl", help="EDL the draft was rendered from: fills cuts[] when the JSON has none")
+    ap.add_argument("--draft", help="the draft video (default: the JSON's draft)")
+    ap.add_argument("--from", dest="src", default="-", help="partial request JSON file (default: stdin)")
+    a = ap.parse_args(args)
+    p = need_home()
+    _scripts()
+    import review as rv
+    home = Path(p["main_folder"]).resolve()
+    d = _export_path(p, a.export)
+    if not d.is_dir():
+        die(f"No export folder {d}.")
+    req = json.loads(sys.stdin.read() if a.src == "-" else Path(a.src).read_text(encoding="utf-8"))
+    if a.draft:
+        req["draft"] = a.draft
+    if req.get("draft"):
+        dp = Path(req["draft"]).expanduser()
+        dp = (dp if dp.is_absolute() else home / dp).resolve()
+        if not dp.exists():
+            die(f"Draft video not found: {dp}")
+        try:
+            req["draft"] = dp.relative_to(home).as_posix()
+        except ValueError:
+            die("The draft must be inside the main folder (exports/ or .reelready/work/) so the Review page can play it.")
+    if a.edl and not any(c.get("kind", "talking") == "talking" for c in req.get("cuts") or []):
+        broll = [c for c in req.get("cuts") or [] if c.get("kind") == "broll"]   # cutaways laid over the A-roll
+        edl = json.loads(Path(a.edl).read_text(encoding="utf-8"))
+        src = Path(edl.get("source") or "")
+        lib = {}
+        try:
+            lib = {(home / i["path"]).resolve(): i for i in
+                   json.loads((home / ".reelready" / "library.json").read_text(encoding="utf-8")).get("items", [])}
+        except (OSError, ValueError):
+            pass
+        item = lib.get(src.resolve()) if src.name else None
+        label = f"{src.name} · {item['folder'] or item['group']}" if item and (item.get("folder") or item.get("group")) else src.name
+        req["cuts"] = rv.cuts_from_edl(edl, label) + broll
+        for i, c in enumerate(req["cuts"]):
+            c["index"] = i
+    req.setdefault("export", d.name)
+    req.setdefault("generated", [])
+    req.setdefault("caption_corrections", [])
+    req.setdefault("brand_choices", [])
+    req.setdefault("hook_options", [])
+    req["requested_at"] = rv.now_iso()
+    errs = rv.check_request(req)
+    if errs:
+        die("review-request not written:\n  " + "\n  ".join(errs))
+    rv.write_json(d / rv.REQUEST, req)
+    print(json.dumps({"written": str(d / rv.REQUEST), "generated_items": len(req["generated"]),
+                      "cuts": len(req.get("cuts") or []), "hook_options": len(req["hook_options"])}, indent=2))
+
+
+def cmd_wait_review(args):
+    import time
+    ap = argparse.ArgumentParser(prog="rr.py wait-review")
+    ap.add_argument("export")
+    ap.add_argument("--timeout", type=float, default=540, help="seconds (default 540, under the 10 min tool limit)")
+    a = ap.parse_args(args)
+    p = need_home()
+    _scripts()
+    import review as rv
+    d = _export_path(p, a.export)
+    reqf = d / rv.REQUEST
+    if not reqf.exists():
+        die(f"No {rv.REQUEST} in {d}. Write it first: rr.py review-request.")
+    end = time.time() + max(0.0, a.timeout)
+    while True:
+        rev = rv.fresh_review(d)
+        if rev is not None and rev.get("request_hash") not in (None, rv.request_hash(reqf)):
+            rev = None   # answers an older request
+        if rev is not None:
+            errs = rv.check_review(rev, json.loads(reqf.read_text(encoding="utf-8")))
+            if errs:
+                print("review.json is incomplete:\n  " + "\n  ".join(errs), file=sys.stderr)
+                sys.exit(3)
+            print(json.dumps(rev, indent=2, ensure_ascii=False))
+            sys.exit(0)
+        if time.time() >= end:
+            print(f"No review yet after {a.timeout:.0f} s (still waiting on the Review page; run wait-review again, "
+                  "or the owner can say go in chat).", file=sys.stderr)
+            sys.exit(2)
+        time.sleep(0.5)
+
+
 COMMANDS = {
     "where": cmd_where, "newest": cmd_newest, "export-dir": cmd_export_dir, "run": cmd_run,
     "set-key": cmd_set_key, "profile-merge": cmd_profile_merge, "palette": cmd_palette,
     "duck-filter": cmd_duck_filter, "join-drafts": cmd_join_drafts,
     "house-style": cmd_house_style, "next-signature": cmd_next_signature,
+    "sort": cmd_sort, "studio": cmd_studio, "review-request": cmd_review_request, "wait-review": cmd_wait_review,
 }
 
 if __name__ == "__main__":

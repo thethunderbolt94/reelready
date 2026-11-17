@@ -30,7 +30,9 @@ READMES = {
 
 - Any video file works: .mov, .mp4 straight off your phone is perfect.
 - Talking-to-camera clips and b-roll (shots of your product, space, hands) both go here.
-- {brand} only READS this folder. Your originals are never changed or deleted.
+- {brand} never changes, renames or deletes your originals. The one thing it does here: it sorts
+  new files into folders (Talking to camera, B-roll, Voice notes, Photos, Too short) so they are
+  easy to find. Every move is written down, and saying "undo the sort" puts them all back.
 
 Then tell Claude: "edit this" (or "edit the newest clip").
 """,
