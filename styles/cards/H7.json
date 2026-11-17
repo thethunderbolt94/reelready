@@ -1,0 +1,28 @@
+{
+  "id": "H7",
+  "category": "hook",
+  "name": "Brand hook card",
+  "oneliner": "Your opening line on a card in your brand, with the key phrase in your italic.",
+  "description": "The hook looks like your website: your display font, the important words in its italic and your accent colour, on a card in your brand colour. Reads as yours, not as a template.",
+  "prompt": "Render with engines/overlays.py, item kind \"hook\", for the first 2.0-2.5s (end it when the hook sentence ends). Copy: two short lines lifted from the spoken hook in the transcript: \"title\" (up to 20 characters) and \"italic\" (the phrase that carries the idea, up to 22 characters); any word you write yourself is flagged for approval in the plan. Look: a card at x=72, y=260, up to 936px wide, radius 30px, padding 52px 64px; \"on\": \"card\" = {{brand.primary}} card, or \"light\" = the brand background colour with a soft shadow. A short {{brand.accent}} rule above the title; title in {{font.display}} 700, 112px (shrinks to no less than 72px to fit one line), tracking -2%; the italic line in the italic of {{font.display}}, 112px, in {{brand.accent}} (or the most vivid brand colour that reads on the card). Motion: card rises 40px and fades in over 550ms (power3 out), the rule wipes in, the title rises, the italic slides in 300ms later; out: fades up over 350ms. Inside the safe zone and clear of the caption band (59-73% of the height). Do NOT uppercase, do NOT add a third line, and do NOT stack it with a signature effect in the same moment.",
+  "engine": "overlay",
+  "needs": [
+    "transcript"
+  ],
+  "pairs_with": [
+    "C1",
+    "L5",
+    "B5",
+    "O4"
+  ],
+  "avoid_with": [
+    "H1",
+    "H2",
+    "H3",
+    "H4",
+    "H5",
+    "H6"
+  ],
+  "sketch": "sketches/H7.svg",
+  "duration_hint": "first 2-2.5s"
+}

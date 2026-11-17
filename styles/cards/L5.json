@@ -1,0 +1,22 @@
+{
+  "id": "L5",
+  "category": "layout",
+  "name": "Note-card lower third",
+  "oneliner": "Your name on a little paper note, slightly tilted, with a fine line in your accent.",
+  "description": "A soft paper card in your brand colours with a strip of tape, your name in your display font and one line about you underneath. Feels handmade, like a note pinned to the counter.",
+  "prompt": "Render with engines/overlays.py, item kind \"lower_third\", for 2.5-3.5s when the speaker first says their name or business (or at 1.5s if they never do). Copy: \"name\" (up to 20 characters) and \"detail\" (up to 22 characters), from the profile; never guess a name or title, and anything you write is flagged for approval. Look: a paper note in the brand background colour, min 560px and up to 800px wide, left edge at x=72, top at y=850, rotated -2 degrees, soft shadow, a strip of tape in the brand secondary colour on the top edge. Name in {{font.display}} 700, 76px (no less than 64px); a 2px {{brand.accent}} hairline rule; detail in {{font.body}} 400, 64px, at 82% opacity. Motion: slides in 60px from the left while turning from -6 to -2 degrees over 600ms (power3 out), the rule wipes in 250ms later, the detail fades in; out: slides left and fades over 300ms. It stays above the caption band (59-73% of the height) and off the right 140px; it sits on the chest, never on the face.",
+  "engine": "overlay",
+  "needs": [
+    "transcript"
+  ],
+  "pairs_with": [
+    "H7",
+    "C1",
+    "O4"
+  ],
+  "avoid_with": [
+    "L1"
+  ],
+  "sketch": "sketches/L5.svg",
+  "duration_hint": "2.5-3.5s at your intro"
+}

@@ -1,0 +1,22 @@
+{
+  "id": "O4",
+  "category": "outro",
+  "name": "Brand end card with seal",
+  "oneliner": "Your logo or seal, address, website and one call to action, in your colours.",
+  "description": "A calm last frame that looks like your shopfront: your logo (or your name in your display font), where to find you and one rounded button in your accent colour.",
+  "prompt": "Render with engines/overlays.py, item kind \"end_card\", for the last 2.5-4s. Copy: \"address\" and \"website\" from the profile (up to 23 characters each) and \"cta\" (up to 16 characters): the speaker's own closing line if there is one, else 2 options in the plan, flagged for approval. Look: full frame in the brand background colour with a soft radial fade to the secondary colour (\"on\": \"dark\" = {{brand.primary}}). Centred stack from y=340, 760px wide: the logo from brand.logo (300px tall; a round seal turns in from -8 degrees), or, without a logo, the business name in {{font.display}} 700 at 120px; a short {{brand.accent}} rule; address and website in {{font.body}} 400 at 64px; a fully rounded CTA pill in {{brand.accent}} with {{font.body}} 700 64px text in whichever brand light or dark reads best on it, gently pulsing (1.0 to 1.03, sine). Motion: fades in over 300ms, items stagger in 80ms apart and are all in within 0.8s. Everything stays above the caption band (captions still draw on top) and inside the safe zone. Do NOT add social icons the profile does not list.",
+  "engine": "overlay",
+  "needs": [],
+  "pairs_with": [
+    "H7",
+    "L5",
+    "C1"
+  ],
+  "avoid_with": [
+    "O1",
+    "O2",
+    "O3"
+  ],
+  "sketch": "sketches/O4.svg",
+  "duration_hint": "last 2.5-4s"
+}

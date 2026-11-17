@@ -4,7 +4,7 @@ The style catalog for ReelReady. Each **style card** is one editing recipe: a ho
 a layout, a bit of proof, a b-roll move, a signature effect, a pacing rule, an outro or a sound pass. You pick a few
 cards, they become one prompt, and Claude renders them onto your clip.
 
-41 cards: Hook 6, Captions 6, Layout 4, Proof 4, B-roll 4, Signature 6, Motion + pace 3, Outro 3, Sound 5.
+45 cards: Hook 7, Captions 6, Layout 5, Proof 4, B-roll 5, Signature 6, Motion + pace 3, Outro 4, Sound 5.
 
 Browse them visually with the style guide page:
 
