@@ -17,3 +17,6 @@ tests/smoke/out/*.mp4
 
 # OS noise
 .DS_Store
+
+# agent worktrees (local only)
+.claude/worktrees/
