@@ -205,6 +205,22 @@ for BAD in invented_price price_borrowed spelled_number banned fake_source today
 done
 echo "SCRIPT CHECK PASS"
 
+echo "== interview scripts (answers-only: good must PASS; added word, uncited, spliced must FAIL)"
+IX="$SX/interview"
+"$PY" "$E/script_check.py" --script "$IX/script_good.md" --profile "$IX/profile.json" | tee "$OUT/script_interview_good.txt" \
+  || { echo "SMOKE FAIL: answers-only failed the good interview script"; exit 1; }
+for BAD in added_word uncited spliced; do
+  set +e
+  "$PY" "$E/script_check.py" --script "$IX/script_$BAD.md" --profile "$IX/profile.json" > "$OUT/script_interview_$BAD.txt"
+  SC_RC=$?
+  set -e
+  tail -1 "$OUT/script_interview_$BAD.txt"
+  if [ "$SC_RC" -ne 1 ] || ! grep -q 'FAIL answers-only' "$OUT/script_interview_$BAD.txt"; then
+    echo "ANSWERS-ONLY DID NOT CATCH $BAD"; echo "SMOKE FAIL: answers-only"; exit 1
+  fi
+done
+echo "ANSWERS-ONLY PASS"
+
 echo "== post copy check (good post must PASS, invented price + banned word must FAIL)"
 PW="$SX/work/2026-10-28-tuesday-roast/transcript.json"
 "$PY" "$E/script_check.py" --post "$SX/post_good.md" --profile "$SX/profile.json" --words "$PW" | tail -1 \

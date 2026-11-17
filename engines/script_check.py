@@ -31,6 +31,24 @@ Rules (each prints one line, "SCRIPT ok|FAIL <rule>: <reason>"):
                                                        always listed in the output
 Seconds: --seconds, else profile.script.seconds, else 30.
 
+Interview scripts (meta line says "source: answers", or --answers answers.json is passed):
+    python3 engines/script_check.py --script script.md --profile style-profile.json \
+        [--answers answers.json]     # default: answers.json next to script.md
+  The spoken lines are the owner's own words, so the generated-copy rules change:
+  answers-only     every spoken line is a contiguous span of the answer it cites, word for word
+                   (case and punctuation ignored). Talking points: `"<span>" (A3)`. Word for word:
+                   `<span> (A3)`. A line in [square brackets] is a stage direction, not spoken.
+                   Fails on an added, swapped or reordered word, a span spliced from two answers,
+                   an unknown answer id, or a spoken line with no citation.
+  flagged          not required (the words are the owner's); the DRAFT banner still is, because the
+                   order and the picks are ours
+  hook-length      under 10 words instead of under 8
+  banned           checked on our words only (directions); a banned word inside the owner's own
+                   span is reported as a note, not a failure
+  facts-table, numbers-sourced, sources-real  not run: answers-only already proves every word is
+                   in an answer. answers.json is a list of {id, question, answer, ts}; ids A1.. for
+                   an interview, M1.. for a voice memo.
+
 Post mode (reelready-copy's post.md):
     python3 engines/script_check.py --post post.md --profile style-profile.json --words draft.words.json
   draft-banner     first line starts "DRAFT - written by AI"
@@ -76,6 +94,8 @@ STOP = set("the a an and or of to in on at for with is are was we our you your i
            "these those my me i be by from as".split())
 QUOTE_RE = re.compile(r'["“]([^"”]+)["”]')
 ASK_RE = re.compile(r"\[ASK:[^\]]*\]", re.I)
+CITE_RE = re.compile(r"\(\s*([AM]\d+)\s*\)")
+CITED_QUOTE_RE = re.compile(r'["“]([^"”]+)["”]\s*\(\s*([AM]\d+)\s*\)')
 
 
 def norm_words(s: str) -> list[str]:
@@ -85,6 +105,44 @@ def norm_words(s: str) -> list[str]:
 
 def norm_text(s: str) -> str:
     return " ".join(w.strip(".'") for w in norm_words(s) if w.strip(".'"))
+
+
+def span_tokens(s: str) -> list[str]:
+    return [w for w in (t.strip(".':") for t in norm_words(s)) if w]
+
+
+def has_span(answer: str, span: str) -> bool:
+    a, b = span_tokens(answer), span_tokens(span)
+    return bool(b) and any(a[i:i + len(b)] == b for i in range(len(a) - len(b) + 1))
+
+
+def answer_spans(lines: list[str], fmt: str | None, answers: dict[str, str]):
+    """(spoken span, cited id, problem) for each spoken line of an interview script."""
+    out = []
+    for ln in lines:
+        body = re.sub(r"^\d+[.)]\s*", "", ln).strip()
+        if fmt == "word-for-word":
+            if body.startswith("[") and body.endswith("]"):
+                continue  # stage direction
+            ids = CITE_RE.findall(body)
+            span = CITE_RE.sub(" ", body).strip()
+            pairs = [(span, ids[0] if ids else "")]
+        else:
+            quotes = QUOTE_RE.findall(body)
+            if not quotes:
+                continue  # a direction, not spoken
+            cited = CITED_QUOTE_RE.findall(body)
+            pairs = list(cited) + [(q, "") for q in quotes[len(cited):]]
+        for span, cid in pairs:
+            if not cid:
+                out.append((span, "", "no answer cited"))
+            elif cid not in answers:
+                out.append((span, cid, f"{cid} is not in answers.json"))
+            elif not has_span(answers[cid], span):
+                out.append((span, cid, f"not word for word from {cid}"))
+            else:
+                out.append((span, cid, ""))
+    return out
 
 
 def numbers_in(s: str) -> set[float]:
@@ -246,6 +304,7 @@ def main() -> int:
     ap.add_argument("--words", help="post mode: the reel's draft.words.json or transcript.json")
     ap.add_argument("--profile", required=True)
     ap.add_argument("--work-dir")
+    ap.add_argument("--answers", help="answers.json from the interview or voice memo (default: next to the script)")
     ap.add_argument("--chat", help="owner's messages from this chat, verbatim, one per line")
     ap.add_argument("--seconds", type=float)
     a = ap.parse_args()
@@ -276,12 +335,30 @@ def main() -> int:
             print(f"SCRIPT FAIL: cannot read --chat {a.chat}")
             return 1
     sc = parse(text)
+    ans_mode = "source: answers" in sc["meta"].lower() or bool(a.answers)
+    answers: dict[str, str] = {}
+    if ans_mode:
+        ap_path = Path(a.answers) if a.answers else Path(a.script).with_name("answers.json")
+        try:
+            raw = json.loads(ap_path.read_text(encoding="utf-8"))
+            answers = {str(x["id"]): str(x.get("answer", "")) for x in raw}
+        except (OSError, json.JSONDecodeError, KeyError, TypeError):
+            print(f"SCRIPT FAIL: answers-only: cannot read answers file {ap_path} (pass --answers)")
+            return 1
     secs = a.seconds or (profile.get("script") or {}).get("seconds") or 30
     hook = sc["sections"].get("hook", [])
     beats = sc["sections"].get("beats", [])
-    spoken_area = "\n".join(re.sub(r"^\d+[.)]\s*", "", ln) for ln in hook + beats)
     meta = sc["meta"].lower()
     fmt = next((f for f in FORMATS if f"format: {f}" in meta), None)
+    if ans_mode:
+        raw_lines = hook + beats
+
+        def keep(ln: str) -> bool:
+            return not (fmt == "word-for-word" and re.sub(r"^\d+[.)]\s*", "", ln).startswith("["))
+
+        hook = [CITE_RE.sub("", ln).strip() for ln in hook if keep(ln)]
+        beats = [CITE_RE.sub("", ln).strip() for ln in beats if keep(ln)]
+    spoken_area = "\n".join(re.sub(r"^\d+[.)]\s*", "", ln) for ln in hook + beats)
 
     results: list[tuple[str, bool, str]] = []
 
@@ -293,8 +370,11 @@ def main() -> int:
          else "first line must start 'DRAFT - written by AI'")
 
     missing = [k for k in ("hook", "beats") if FLAG not in sc["headings"].get(k, "")]
-    rule("flagged", not missing,
-         "Hook and Beats flagged" if not missing else f"no {FLAG} on: {', '.join(missing) or '?'}")
+    if ans_mode:
+        rule("flagged", True, "owner's own words, not generated copy (banner still required)")
+    else:
+        rule("flagged", not missing,
+             "Hook and Beats flagged" if not missing else f"no {FLAG} on: {', '.join(missing) or '?'}")
 
     struct = next((s for s in STRUCTURES if f"structure: {s}" in meta), None)
     rule("structure", bool(struct and fmt),
@@ -325,8 +405,33 @@ def main() -> int:
     hook_words = spoken(hook)
     if not hook_words and hook:
         hook_words = norm_words(hook[0])
-    rule("hook-length", 0 < len(hook_words) < 8,
-         f"hook {len(hook_words)} words" + ("" if 0 < len(hook_words) < 8 else ", must be 1-7"))
+    hmax = 10 if ans_mode else 8
+    rule("hook-length", 0 < len(hook_words) < hmax,
+         f"hook {len(hook_words)} words" + ("" if 0 < len(hook_words) < hmax else f", must be 1-{hmax - 1}"))
+
+    if ans_mode:
+        spans = answer_spans(raw_lines, fmt, answers)
+        probs = [f"'{sp[:40]}': {pr}" for sp, _, pr in spans if pr]
+        rule("answers-only", bool(spans) and not probs,
+             f"{len(spans)} spoken lines, all word for word from the owner's answers" if spans and not probs
+             else "; ".join(probs) if probs else "no spoken lines found")
+        scan = spoken_area
+        for sp, _, pr in sorted(spans, key=lambda t: -len(t[0])):
+            if not pr:
+                scan = re.sub(re.escape(sp), " ", scan, flags=re.I)
+        hits = [lab for lab, pat in load_banned() if pat.search(scan)]
+        rule("banned", not hits, "clean" if not hits else "found in our directions: " + ", ".join(hits))
+        own = [lab for lab, pat in load_banned() if any(pat.search(sp) for sp, _, pr in spans if not pr)]
+        for name, ok, why in results:
+            print(f"SCRIPT {'ok' if ok else 'FAIL'} {name}: {why}")
+        if own:
+            print("SCRIPT note banned words inside the owner's own answers (kept, their words): " + ", ".join(own))
+        failed = [n for n, ok, _ in results if not ok]
+        if failed:
+            print(f"SCRIPT FAIL: {len(failed)} rule(s): {', '.join(failed)}")
+            return 1
+        print(f"SCRIPT PASS ({len(results)} rules)")
+        return 0
 
     rows = []
     for ln in sc["sections"].get("facts used", []):
