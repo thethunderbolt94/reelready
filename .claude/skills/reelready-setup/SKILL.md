@@ -74,6 +74,19 @@ replaced on merge, not appended: always send the whole list.
    `aspect` 9:16, `resolution` 1080x1920. YouTube (wide) -> 16:9 1920x1080. Instagram feed -> 4:5
    1080x1350. Several -> the vertical one wins. `platforms` list from: `instagram-reels`, `tiktok`,
    `youtube-shorts`, `youtube`, `instagram-feed`. Handle -> `business.handle` (skip is fine).
+4b. **Brand from your website (optional).** "Do you have a website? I can read your colours, fonts and
+   logo from it so your videos match it. (skip is fine)". On a link:
+   ```bash
+   python3 scripts/brand_from_site.py "<url>" --out "<main folder>/.reelready/work/brand-from-site.json"
+   ```
+   It reads only that site's page and stylesheets and downloads nothing. Show its summary in plain words,
+   one line each ("Your accent looks like terracotta #B4502A: your buttons use it"; "Headings: Fraunces, with
+   an italic phrase; body text: Inter"; "Your logo looks like <url>"), then ask: "Use these? Change any?"
+   On yes (with their edits), merge `proposal.profile_merge` from that file (edited) with the heredoc below,
+   set `brand.colors_source` "website", and skip questions 6 and 7's font names (still offer the download in 7).
+   Logo: ask "Save this logo into your assets folder?" Only on yes: download that one URL to
+   `<main folder>/assets/logo.<ext>` (never overwrite; add `-2` if taken), check it is an image (`file`), and
+   save `brand.logo`; then skip question 5. Error or "skip" -> carry on with 5. Never log in or fetch more pages.
 5. **Logo.** "Drag your logo into the assets folder (PNG with a see-through background is best),
    or tell me where it is." Dragged in -> `ls "<assets>"` to find it. Given a path -> ask before
    copying it into assets/ as `logo.<ext>` (never overwrite). Save `brand.logo: "assets/<file name>"`
@@ -87,13 +100,22 @@ replaced on merge, not appended: always send the whole list.
    - "You pick": primary `#1F2A30`, secondary `#F4EFE6`, accent `#E2603A`, text `#FFFFFF`,
      background `#141414`.
    - Fill `brand.colors` primary/secondary/accent/text/background (text must contrast with
-     background: white or near-black). `brand.colors_source`: manual | logo | default.
+     background: white or near-black). `brand.colors_source`: manual | logo | website | default.
+   - **Caption highlight.** Then `python3 scripts/rr.py recommend-accent` and say its line plainly ("For the
+     highlighted word in your captions I'd use <name> <hex>: <why>. OK?"). Yes and it is not the brand
+     accent -> save `captions.accent_color`. Their own pick -> save that. Never leave the engine yellow.
 7. **Fonts.** "Got brand fonts? Drop the .ttf/.otf files in assets/fonts. Otherwise I'll use a
    clean, bold pair that looks great on phones." Default: `brand.fonts` heading `Archivo Black`,
    body `Inter`, `source: "default"`, `files: []`. With files: `files: ["assets/fonts/<file>"]`
    (heading font first), `source: "files"`, and `heading` = the font's real family name:
    `python3 scripts/rr.py run -- python -c 'import sys; from PIL import ImageFont; print(ImageFont.truetype(sys.argv[1]).getname()[0])' "<main folder>/assets/fonts/<file>"`
    (if that fails, ask them the font's name).
+   Font names but no files (from 4b, or they named Google Fonts): `python3 scripts/rr.py fonts` prints what it
+   would download (free OFL fonts from Google Fonts into assets/fonts). Ask "Download these fonts so your
+   videos use them?" Only on yes: `python3 scripts/rr.py fonts --yes` (records `brand.fonts.files` + `faces`,
+   never overwrites). Not on Google Fonts -> ask them to drop the files in assets/fonts. If the heading has an
+   italic (4b says so) offer the matching caption look in 8: "your words in your body font, one word of each line
+   in your heading's italic" -> `captions.emphasis: "group"`.
 8. **Caption look.** Read each option's `name` and `oneliner` from `styles/cards/<ID>.json` and
    offer: **You pick: matched to your business** (default) / C1 / C3 / C6 ("or say 'more' for C2, C4,
    C5"). Default -> `captions.look: "house"`, `captions.card: null` (the house style in F picks it).

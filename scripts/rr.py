@@ -17,6 +17,12 @@ Stdlib only. Run from anywhere:  python3 scripts/rr.py <command> [...]
                                  this reel's signature card (rotates house_style.signature after
                                  last_signature); --commit saves it as last_signature
   palette <image> [--n 5]        dominant brand colors of an image (logo) as hex
+  fonts [--profile P] [--yes]    download the profile's Google Fonts (heading 400/700 + italic, body 400/700,
+                                 hand if set; OFL) into <main>/assets/fonts as .ttf, record them in
+                                 brand.fonts.files/faces; never overwrites; without --yes only prints the plan
+  recommend-accent [--profile P] [--json]
+                                 the caption emphasis colour to suggest: brand accent if it reads over video
+                                 with the caption outline, else the best brand colour (prints why)
   duck-filter <transcript.json> [--duration S]  ffmpeg volume filter: music -18 dB under speech
   join-drafts <out.mp4> <draft_01.mp4> <draft_02.mp4> ...  multi-clip: concat render_cut drafts
                                  (stream copy) and merge their .words.json side files with time offsets
@@ -425,11 +431,108 @@ def cmd_join_drafts(args):
                       "duration": round(offset, 3), "word_count": len(words)}))
 
 
+# ---------------------------------------------------------------- brand kit
+def _engines():
+    eng = str(REPO / "engines")
+    if eng not in sys.path:
+        sys.path.insert(0, eng)
+    sys.dont_write_bytecode = True   # keep engines/ free of __pycache__
+
+
+FONT_ROLES = (("heading", True), ("body", False), ("hand", False))   # (role, wants italic)
+
+
+def cmd_fonts(args):
+    """Download the profile's Google Fonts into <main>/assets/fonts (only with --yes) and record them."""
+    ap = argparse.ArgumentParser(prog="rr.py fonts")
+    ap.add_argument("--profile")
+    ap.add_argument("--yes", action="store_true", help="the owner said OK: download and save")
+    a = ap.parse_args(args)
+    p = need_home()
+    prof_path = _profile_arg(a.profile)
+    fonts = (_load_profile(prof_path).get("brand") or {}).get("fonts") or {}
+    if fonts.get("source") == "files" and fonts.get("files"):
+        print("Your profile uses your own font files already; nothing to download.")
+        return
+    wanted, seen = [], set()
+    for role, italic in FONT_ROLES:
+        fam = fonts.get(role).strip() if isinstance(fonts.get(role), str) else ""
+        if fam and fam.lower() not in seen:
+            seen.add(fam.lower())
+            wanted.append((role, fam, italic))
+    if not wanted:
+        die("No font names in brand.fonts (heading / body). Set them first.")
+    _engines()
+    import _fonts  # noqa: E402
+    dest = Path(p["assets"]) / "fonts"
+    plan, missing = [], []
+    for role, fam, italic in wanted:
+        try:
+            plan.append((role, _fonts.faces(fam, want_italic=italic)))
+        except LookupError:
+            missing.append(fam)
+        except OSError as exc:
+            die(f"Could not reach Google Fonts ({exc.__class__.__name__}). Check the internet and try again.")
+    for fam in missing:
+        print(f"'{fam}' is not on Google Fonts: drop its .ttf/.otf files in {dest} instead.")
+    if not plan:
+        sys.exit(1)
+    if not a.yes:
+        print(f"Would download into {dest} (free fonts, SIL Open Font License, from fonts.google.com):")
+        for role, fs in plan:
+            styles = ", ".join(f"{f['weight']}{' italic' if f['style'] == 'italic' else ''}" for f in fs)
+            print(f"  {role:8} {fs[0]['family']}: {styles}")
+        print("Nothing downloaded. Run again with --yes once the owner says OK.")
+        return
+    files, faces = [], []
+    for role, fs in plan:
+        # heading bold first: captions.py and older steps read brand.fonts.files[0] as the heading face
+        for f in sorted(fs, key=lambda f: (f["style"] == "italic", -f["weight"])):
+            try:
+                path, fresh = _fonts.download(f, dest)
+            except (OSError, ValueError) as exc:
+                print(f"  could not download {f['family']} {f['weight']} {f['style']}: {exc}")
+                continue
+            rel = path.relative_to(Path(p["main_folder"])).as_posix()
+            print(f"  {'saved' if fresh else 'kept '} {rel}" + ("" if fresh else " (already there, not replaced)"))
+            files.append(rel)
+            faces.append({"role": role, "family": f["family"], "style": f["style"], "weight": f["weight"],
+                          "file": rel})
+    if not files:
+        die("Nothing downloaded.")
+    source = fonts.get("source") if fonts.get("source") not in (None, "", "default") else "google"
+    merge_profile(prof_path, {"brand": {"fonts": {"files": files, "faces": faces, "source": source}}})
+    print(f"Recorded {len(files)} font files in {prof_path}")
+
+
+def cmd_recommend_accent(args):
+    ap = argparse.ArgumentParser(prog="rr.py recommend-accent")
+    ap.add_argument("--profile")
+    ap.add_argument("--json", action="store_true")
+    a = ap.parse_args(args)
+    prof = _load_profile(_profile_arg(a.profile))
+    brand = prof.get("brand") or {}
+    _engines()
+    import _color  # noqa: E402
+    rec = _color.recommend_accent(brand.get("colors") or {}, brand.get("palette") or {})
+    rec["current_caption_accent"] = (prof.get("captions") or {}).get("accent_color")
+    if a.json:
+        print(json.dumps(rec, indent=2))
+        return
+    if not rec["hex"]:
+        die(f"No recommendation: {rec['reason']}.")
+    print(f"Recommended caption emphasis colour: {rec['hex']} ({rec['name']}, {rec['from']})")
+    print(f"Why: {rec['reason']} (contrast on the caption outline {rec['contrast_on_outline']}:1).")
+    if rec["current_caption_accent"]:
+        print(f"The profile already sets captions.accent_color {rec['current_caption_accent']}; that one wins.")
+
+
 COMMANDS = {
     "where": cmd_where, "newest": cmd_newest, "export-dir": cmd_export_dir, "run": cmd_run,
     "set-key": cmd_set_key, "profile-merge": cmd_profile_merge, "palette": cmd_palette,
     "duck-filter": cmd_duck_filter, "join-drafts": cmd_join_drafts,
     "house-style": cmd_house_style, "next-signature": cmd_next_signature,
+    "fonts": cmd_fonts, "recommend-accent": cmd_recommend_accent,
 }
 
 if __name__ == "__main__":
