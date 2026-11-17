@@ -12,6 +12,9 @@ words, short messages, one question at a time, run every command yourself.
 - Missing tools at any point -> `python3 scripts/doctor.py`; if it exits 1 with `MISS` lines, explain
   in one line, get the user's OK, run `bash scripts/setup.sh`, re-run doctor. Never use sudo; never
   install system-wide without the user's OK.
+- On Windows (`uname -s` starts with MINGW/MSYS/CYGWIN, or `os.name == "nt"`), follow
+  `.claude/skills/reelready-setup/references/windows.md`: winget installs with the user's OK, then
+  local-only patches to the Mac-only spots. Untested on Windows; never commit those patches.
 - doctor `FAIL free disk space` (under 1.5 GB; HyperFrames won't render under 1 GB) is not fixed by
   setup: tell the user plainly how much is free and ask them to empty the Trash / delete old videos.
   `WARN` (under 3 GB) is fine for short clips.
