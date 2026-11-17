@@ -3,11 +3,12 @@
 
     python3 engines/taste.py --profile style-profile.json [--plan plan.md] \
         [--captions captioned.captions.json] [--sound sound.sound.json] [--mix H1,C1,L2,O1,S2] [--strict]
-        [--no-signature "<why no signature card fits>"]
+        [--no-signature "<why no signature card fits>"] [--overlays graphics.overlays.json]
 
 qa.py proves the pixels and loudness are sound; this proves the render used THIS brand, not the kit
 defaults. It reads the profile, the plan.md the user approved, and the sidecars the engines write
-(captions.py -> <stem>.captions.json, sound.py -> <stem>.sound.json). No --mix -> profile.default_mix.
+(captions.py -> <stem>.captions.json, sound.py -> <stem>.sound.json, overlays.py -> <stem>.overlays.json).
+No --mix -> profile.default_mix.
 
 Rules (each prints one line, "TASTE ok|FAIL|note <rule>: <reason>"):
   brand-choices    plan.md has "## Brand choices" with >= 3 bullets, and every bullet names a brand
@@ -22,6 +23,11 @@ Rules (each prints one line, "TASTE ok|FAIL|note <rule>: <reason>"):
   sound-preset     sound.json preset matches the mix's S card (S1 clean, S2 punchy, S3 cinematic,
                    S4 calm, S5 clean + music)
   palette-in-plan  the Brand choices section names >= 2 distinct brand colors (hex or role word)
+Two more rules run only with --overlays (overlays.py -> <stem>.overlays.json):
+  overlay-fonts    every overlay font is a brand font (brand.fonts heading / body / hand) and none of them
+                   fell back to a bundled face when the profile names one
+  overlay-colors   every overlay fill and text colour is in the brand palette (brand.colors, brand.palette,
+                   captions.accent_color); shadows are not colours here
 
 "note" means the rule could not be checked (optional file absent, or the profile/mix gives nothing
 to check against); notes never fail unless --strict. Never crashes on a missing optional file.
@@ -43,7 +49,8 @@ CARDS = Path(__file__).resolve().parent.parent / "styles" / "cards"
 
 ENGINE_DEFAULT_ACCENT = "#FFD60A"
 SOUND_PRESETS = {"S1": "clean", "S2": "punchy", "S3": "cinematic", "S4": "calm", "S5": "clean"}
-RULES = ("brand-choices", "accent-color", "brand-font", "signature", "sound-preset", "palette-in-plan")
+RULES = ("brand-choices", "accent-color", "brand-font", "signature", "sound-preset", "palette-in-plan",
+         "overlay-fonts", "overlay-colors")
 REF_KEYS = ("pacing", "caption_style", "hook_patterns", "music_use")
 LOOSE_ROLES = ("text", "background")  # only count as a color role when written "<role> color"
 WORD = re.compile(r"[a-z0-9]+(?:[.'-][a-z0-9]+)*")
@@ -134,6 +141,7 @@ def main() -> None:
     ap.add_argument("--plan", default=None, help="<export_dir>/plan.md (approved version)")
     ap.add_argument("--captions", default=None, help="<stem>.captions.json written by captions.py")
     ap.add_argument("--sound", default=None, help="<stem>.sound.json written by sound.py")
+    ap.add_argument("--overlays", default=None, help="<stem>.overlays.json written by overlays.py")
     ap.add_argument("--mix", default=None, help="card IDs used, e.g. H1,C1,L2,O1,S2 (default: profile.default_mix)")
     ap.add_argument("--strict", action="store_true", help="notes (unchecked rules) count as FAILs")
     ap.add_argument("--no-signature", default=None, metavar="REASON",
@@ -167,6 +175,7 @@ def main() -> None:
     io_notes: list[str] = []
     caps = load_json(a.captions, "captions.json", io_notes)
     snd = load_json(a.sound, "sound.json", io_notes)
+    ovl = load_json(a.overlays, "overlays.json", io_notes)
     for n in io_notes:
         print(f"TASTE note input: {n}")
 
@@ -299,6 +308,45 @@ def main() -> None:
             g.fail("sound-preset", f"mix has {s_cards[0]} ({want}) but sound ran preset {got or 'unknown'}")
         else:
             g.fail("sound-preset", "mix has S5 (music under) but sound ran without --music")
+
+    # 7. overlay-fonts + 8. overlay-colors (only when --overlays was given)
+    if a.overlays and ovl is None:
+        g.note("overlay-fonts", "overlays.json not readable")
+        g.note("overlay-colors", "overlays.json not readable")
+    elif ovl is not None:
+        used = [f for f in (ovl.get("fonts") or []) if isinstance(f, dict)]
+        brand_fams = {v.strip().lower() for k, v in fonts.items()
+                      if k in ("heading", "body", "hand") and isinstance(v, str) and v.strip()}
+        if not used:
+            g.note("overlay-fonts", "overlays.json lists no fonts")
+        elif not brand_fams:
+            g.note("overlay-fonts", "profile names no brand fonts (brand.fonts heading / body)")
+        else:
+            bad = []
+            for f in used:
+                fam, src = str(f.get("family") or ""), str(f.get("source") or "")
+                if src.endswith("fallback"):
+                    bad.append(f"{f.get('role')} fell back to {fam} ({src}), wanted {f.get('wanted') or '?'}")
+                elif fam.lower() not in brand_fams:
+                    bad.append(f"{f.get('role')} in {fam}, not a brand font")
+            if bad:
+                g.fail("overlay-fonts", "; ".join(bad))
+            else:
+                fams = sorted({f"{f['family']} ({f.get('source')})" for f in used})
+                g.ok("overlay-fonts", f"{len(used)} faces, all brand: {', '.join(fams)}")
+        pal = set(colors.values()) | {norm_hex(v) for v in (brand.get("palette") or {}).values()
+                                      if isinstance(v, str) and HEX.fullmatch(v.strip())}
+        if caps_override:
+            pal.add(caps_override)
+        got = {norm_hex(k) for k in (ovl.get("colors") or {}) if isinstance(k, str) and HEX.fullmatch(k.strip())}
+        if not got:
+            g.note("overlay-colors", "overlays.json lists no colours")
+        elif not pal:
+            g.note("overlay-colors", "profile has no brand colours to check against")
+        elif got - pal:
+            g.fail("overlay-colors", f"off-palette: {', '.join(sorted(got - pal))} (brand: {', '.join(sorted(pal))})")
+        else:
+            g.ok("overlay-colors", f"{len(got)} colours, all brand: {', '.join(sorted(got))}")
 
     g.results.sort(key=lambda r: RULES.index(r[1]))
     for status, rule, why in g.results:
