@@ -8,7 +8,7 @@ Setup once: `uv venv .venv && uv pip install --python .venv/bin/python -r engine
 (or `python3 -m venv .venv && .venv/bin/pip install -r engines/requirements.txt`). Needs `ffmpeg` on PATH;
 captions also need Node (`npx`).
 
-## The nine contracts
+## The ten contracts
 
 ```bash
 # 1. Transcribe -> word timestamps
@@ -43,7 +43,11 @@ python3 engines/captions.py <video> --words draft.words.json --out captioned.mp4
 # fallback; --font-family defaults to the file stem; weight stays 800 (regular files get synthesized bold)
 # unless --font-weight pins it. Missing/unsupported file (.ttc too): one "warning: font not found" line, Inter.
 # Also writes <out stem>.captions.json: {font_family, font_source: brand|bundled-inter|system-fallback,
-# font_path, font_size, accent_color, accent_word, max_words, groups, words} (the taste gate reads it).
+# font_path, font_size, accent_color, accent_word, max_words, groups, words, emphasis} (the taste gate reads it).
+# Brand emphasis (opt-in, profile captions.emphasis "group"): --emphasis group --emphasis-font <heading italic file>
+#   --emphasis-family "<heading>" [--emphasis-words words.txt]: one word per caption group is set in that face in
+#   --accent-color (the group's longest content word, or the first word found in the list); the single accent word
+#   is off. Styling only, every word as spoken. Sidecar "emphasis": {mode, chooser, font_family, font_source, words}.
 
 # 6. Sound -> voice polish + SFX + room-tone bed (+ ducked music), -16 LUFS / -1.5 dBTP, video stream-copied
 python3 engines/sound.py <video> --out sound.mp4 [--edl edl.json] [--captions draft.words.json] \
@@ -68,7 +72,9 @@ python3 engines/story.py --edl edl.json --transcript transcript.json --order 3,0
 #    "TASTE FAIL: generic edit, <k> rule(s): a, b" (exit 0 / 1). Stdlib only; runs after qa.py, before "done".
 python3 engines/taste.py --profile <main>/.reelready/style-profile.json --plan <export_dir>/plan.md \
     [--captions captioned.captions.json] [--sound sound.sound.json] [--mix H1,C1,L2,O1,S2] [--strict] \
-    [--no-signature "<why no signature card fits>"]
+    [--no-signature "<why no signature card fits>"] [--overlays graphics.overlays.json]
+# With --overlays two more rules run: overlay-fonts (every overlay face is a brand font, none fell back) and
+# overlay-colors (every fill/text colour is in brand.colors / brand.palette / captions.accent_color).
 # Rules: brand-choices (plan.md "## Brand choices" has >= 3 bullets, each naming a brand hex, brand font,
 # "logo" or a 3-word reference_style phrase), palette-in-plan (>= 2 brand colors named there), accent-color
 # (captions accent = brand.colors.accent, never the #FFD60A default), brand-font (brand files on file ->
@@ -101,7 +107,25 @@ python3 engines/script_check.py --script <script.md> --profile <main>/.reelready
 #     posting"), banned (outside the owner's quoted words and the hashtag line), numbers-sourced (every
 #     number and price is in the reel's words or a profile value).
 python3 engines/script_check.py --post <export>/post.md --profile <profile> --words <work>/draft.words.json
+
+# 10. Branded overlays (cards H7, L5, B5, O4) -> one HyperFrames layer in the owner's brand, audio copied bit-exact.
+#     Runs after the cut/b-roll and BEFORE captions.py (captions go on top), then sound.
+python3 engines/overlays.py <video> --spec overlays.json --profile <main>/.reelready/style-profile.json \
+    --out graphics.mp4 [--home <main folder>] [--caption-band y0:y1] [--keep-project <dir>] [--no-render]
+# Spec: {"items":[{kind: hook|lower_third|polaroid|end_card, start, end (negative = from the end), text fields}]}:
+# hook {title, italic, on: card|light}, lower_third {name, detail}, polaroid {caption, bg: blur|brand, src?,
+# src_start?}, end_card {address, website, cta, name? (default business.name), on: light|dark}. Items may not
+# overlap. Text is rendered exactly as given; a line too long for its slot is an error (never clipped).
+# Colours: brand.colors + brand.palette only. Fonts: brand.fonts.faces files (rr.py fonts), else Google Fonts by
+# name (fetched into the scratch project), else bundled Inter/Caveat. Layout: 9:16 only; safe zone (top 220,
+# bottom 320, right 140 in the lower half) and the caption band (59-73% of h) are checked before rendering.
+# Writes <out stem>.overlays.json: {fonts [{role, family, source}], colors {hex: [uses]}, items [{kind, start,
+# end, box}], caption_band, checks {inside_safe_zone, clear_of_captions}} (taste.py --overlays reads it).
 ```
+
+Brand kit helpers (setup): `python3 scripts/brand_from_site.py <url>` (colours, fonts, logo candidates from the
+owner's website, nothing downloaded), `python3 scripts/rr.py fonts [--yes]` (the profile's Google Fonts into
+assets/fonts) and `python3 scripts/rr.py recommend-accent` (caption emphasis colour from the brand, with why).
 
 Loudness (target -16 LUFS, QA window -20..-12): see "Loudness, stated once" in `docs/engines.md`.
 
@@ -114,6 +138,9 @@ above, asserts the retake and filler are gone and QA passes, then sound (punchy)
 `tests/smoke/fixtures/script/` (two good scripts must PASS, eight bad ones must FAIL); exits 1 on any failure, with
 `CAPTIONS SKIPPED: <reason>` if the captions step fails, `TASTE GATE DID NOT CATCH GENERIC` if the gate passes a generic edit,
 `SCRIPT CHECK DID NOT CATCH <fixture>` if a bad script passes).
+Branded overlays: `bash tests/smoke/overlays.sh [out_dir]` (about 2 minutes, internet once for Google Fonts): the
+same clip through overlays (all four kinds) + emphasis captions + sound + QA + taste for both brand fixtures in
+`tests/fixtures/brands/`, plus brand_from_site.py on the fixture site; prints `OVERLAYS OK`.
 
 ## How Claude drives captions and overlays
 
@@ -122,7 +149,8 @@ above, asserts the retake and filler are gone and QA passes, then sound (punchy)
 3. Captions: `engines/captions.py` is the fast default (caption card C1, or no caption card). Other caption
    cards, brand-font captions, behind-the-subject hero words (matting): follow
    `.claude/skills/embedded-captions/SKILL.md`. Captions inside an overlay layout: `talking-head-recut`.
-4. Lower-thirds, stat cards, end cards, kinetic type: `.claude/skills/motion-graphics/` (categories/lower-thirds etc.).
+4. Brand hook card, note-card lower third, polaroid beat, brand end card (H7, L5, B5, O4): `engines/overlays.py`.
+   Other lower-thirds, stat cards, end cards, kinetic type: `.claude/skills/motion-graphics/` (categories/lower-thirds etc.).
 5. Talking-head with cards beside/over the speaker: `.claude/skills/talking-head-recut/`.
 6. Anything else HTML-to-video: route through `.claude/skills/hyperframes/` -> `hyperframes-core` (composition
    rules), `hyperframes-animation` (motion, transitions), `hyperframes-creative` (palettes, type).

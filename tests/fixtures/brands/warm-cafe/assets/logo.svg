@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <path id="ring" d="M200,200 m-148,0 a148,148 0 1,1 296,0 a148,148 0 1,1 -296,0"/>
+  </defs>
+  <circle cx="200" cy="200" r="196" fill="#B4502A"/>
+  <circle cx="200" cy="200" r="184" fill="none" stroke="#FCF8F3" stroke-width="3"/>
+  <circle cx="200" cy="200" r="112" fill="none" stroke="#FCF8F3" stroke-width="2"/>
+  <text font-family="Georgia, 'Times New Roman', serif" font-size="25" letter-spacing="4" fill="#FCF8F3">
+    <textPath href="#ring" startOffset="0">LINEN &amp; EMBER · SLOW COFFEE · HOUSE BAKES ·</textPath>
+  </text>
+  <path d="M200 132 C 228 166, 236 190, 214 222 C 222 196, 206 184, 200 172 C 196 192, 176 200, 186 226 C 160 198, 172 162, 200 132 Z" fill="#FCF8F3"/>
+  <text x="200" y="272" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-size="40" fill="#FCF8F3">est. 2019</text>
+</svg>

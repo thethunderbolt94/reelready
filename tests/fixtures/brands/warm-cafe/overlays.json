@@ -1,0 +1,10 @@
+{
+  "about": "Overlay spec for the smoke clip (about 7.7 s after the cut). Text is rendered exactly as written here.",
+  "items": [
+    {"kind": "hook", "start": 0.0, "end": 1.9, "title": "Hi, I'm the owner", "italic": "of a small cafe.", "on": "card"},
+    {"kind": "lower_third", "start": 2.0, "end": 3.3, "name": "Linen & Ember", "detail": "Slow coffee & bakes"},
+    {"kind": "polaroid", "start": 3.4, "end": 4.9, "caption": "come say hi", "bg": "blur"},
+    {"kind": "end_card", "start": 5.0, "address": "12 Mill Lane, Anytown", "website": "linenandember.example",
+     "cta": "Visit us", "on": "light"}
+  ]
+}
