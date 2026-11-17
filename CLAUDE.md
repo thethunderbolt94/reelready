@@ -16,18 +16,31 @@ words, short messages, one question at a time, run every command yourself.
   setup: tell the user plainly how much is free and ask them to empty the Trash / delete old videos.
   `WARN` (under 3 GB) is fine for short clips.
 
+## Session start
+The repo's SessionStart hook runs `python3 scripts/rr.py studio --start`: it sorts new clips in raw
+footage, starts the Studio page in the background and opens the browser (#library, or #review when an
+edit waits for approval). It prints one `ReelReady Studio open at <url>` line and does nothing before setup.
+If that line is not in your context and the kit is set up, run the command once yourself at the start.
+
 ## Folder contract
 Main folder (default `~/Desktop/AI Video Editor`, recorded in repo `.reelready/home.json`):
 ```
 AI Video Editor/
-  raw footage/   READ ONLY   phone clips
+  raw footage/   READ ONLY   phone clips (the sorter files them into: Talking to camera/, B-roll/,
+                             Voice notes/, Photos/, Too short/)
   references/    READ ONLY   example videos, screenshots, links.txt
   assets/        READ ONLY   logo, fonts/, music/, sfx/
   exports/       WRITE       <YYYY-MM-DD>-<slug>/final.mp4, draft.mp4, edl.json, plan.md, caption.txt?
-  .reelready/    style-profile.json, .env (keys), work/ (all scratch: transcripts, proxies, renders)
+  .reelready/    style-profile.json, .env (keys), library.json, sort-log.jsonl, work/ (all scratch)
 ```
 - Write ONLY to `exports/` and `.reelready/`. Never move, rename, re-encode in place or delete
   anything in raw footage, references or assets.
+- One exception, the sorter: `python3 scripts/rr.py sort` MOVES new files in raw footage into its
+  group folders inside raw footage (same file name, never renamed, deleted or overwritten; a name clash
+  is left where it is). Every move is logged in `.reelready/sort-log.jsonl`; `rr.py sort --undo` puts the
+  last batch back exactly. Nothing else, and no other command, ever moves, renames or edits files there.
+- Clips can sit at the top of raw footage or in any group folder: always search the whole tree
+  (`rr.py newest` does; "Too short" is skipped).
 - Exception: during setup, with the user's explicit OK, copy a file they point at INTO assets/
   (logo, fonts). Never overwrite.
 - Scratch goes in `.reelready/work/<job>/`, never in exports or the repo.
@@ -39,7 +52,10 @@ AI Video Editor/
 | "edit this", "edit the newest clip", "edit these", "make a reel" | **reelready-edit** |
 | "use styles H1+C2" / "H1 and C2" / "use the Cafe story mix" / a pasted style-guide prompt | **reelready-edit** with that mix |
 | "show me the plan first" | normal: reelready-edit always shows the plan and waits for "go" |
-| "show me the styles", "what styles are there", "style guide" | **reelready-styles** (local style guide page) |
+| "show me the styles", "what styles are there", "style guide" | **reelready-styles** (the Studio's Styles page) |
+| "show me my clips", "open the studio", "open the library" | `python3 scripts/rr.py studio --start` (Library page) |
+| "sort my clips" | `python3 scripts/rr.py sort` (moves new files into group folders inside raw footage; say what moved) |
+| "undo the sort", "put my clips back" | `python3 scripts/rr.py sort --undo` (puts the last sort back exactly; say what could not be restored) |
 | "set up", "change my colors/fonts/logo", "redo setup" | **reelready-setup** (only the changed answers) |
 | "study my references", new reference links | **reelready-study** |
 | "write me a script", "what should I say", "give me reel ideas", "what should I post this week" | **reelready-script** (`script.md`: hook, beats, shot list, facts with sources, all `[GENERATED - approve?]`; checked by `engines/script_check.py`) |
@@ -66,7 +82,9 @@ captions/overlays/motion. Reference watching: `watch`. Script check: `engines/sc
    hook first (`reelready-edit/references/story.md`). Never writes a line.
 3. **Plan and show**: pick the mix (user's IDs > `profile.default_mix` > default: hook + captions
    + lower-third + end card). Show the one-screen edit plan. Wait for "go" unless the user said
-   "just do it".
+   "just do it". The same plan goes to the Studio's Review page (`<export>/review-request.json`; wait
+   with `rr.py wait-review`, which prints `review.json`): approve / edit / reject each generated line,
+   trims, b-roll swaps, hook A/B. "go" in chat or "Approve and render" on the page: either is approval.
 4. **Render**: captions, overlays, motion graphics, transitions via the engine skills; b-roll as
    cutaways over A-roll; music ducked -18 dB under speech with fades.
 5. **Sound**: `engines/sound.py` on the captioned video, preset from the mix's S card (S1 clean, S2 punchy,

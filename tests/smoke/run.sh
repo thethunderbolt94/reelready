@@ -6,7 +6,8 @@
 # (-16 +/- 1 LUFS, true peak <= -1 dBTP, one whoosh per cut), then captions.py + QA on the result,
 # then captions.py --font (macOS Impact.ttf as a stand-in brand font; skipped if absent) + QA, then the
 # taste gate on tests/smoke/fixtures/ (on-brand plan must PASS, generic plan must FAIL with exit 1),
-# then the script check on tests/smoke/fixtures/script/ (two good scripts must PASS, eight bad ones must FAIL).
+# then the script check on tests/smoke/fixtures/script/ (two good scripts must PASS, eight bad ones must FAIL),
+# then tests/smoke/studio.sh (sort, undo, Studio server and the review round trip, no browser: STUDIO PASS).
 # Exits non-zero on any failure, including the sound step ("SOUND FAILED: <reason>"), the captions
 # step ("CAPTIONS SKIPPED: <reason>"), the taste step ("TASTE GATE DID NOT CATCH GENERIC") and the
 # script step ("SCRIPT CHECK DID NOT CATCH <fixture>").
@@ -217,6 +218,9 @@ if [ "$PC_RC" -ne 1 ] || ! grep -q 'banned' "$OUT/post_bad.txt" || ! grep -q 'FA
   echo "POST CHECK DID NOT CATCH post_bad"; echo "SMOKE FAIL: post check"; exit 1
 fi
 echo "POST CHECK PASS"
+
+echo "== studio (sorter, undo, Studio server, review round trip; no browser)"
+REELREADY_NO_BROWSER=1 bash "$ROOT/tests/smoke/studio.sh" || { echo "SMOKE FAIL: studio"; exit 1; }
 
 echo "timings: transcribe ${T_TR}s, cut ${T_CUT}s, render ${T_RENDER}s, sound ${T_SOUND}s, captions ${T_CAP}s" | tee "$OUT/timings.txt"
 echo "SMOKE OK"

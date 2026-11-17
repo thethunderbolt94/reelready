@@ -11,13 +11,16 @@ sketches in `styles/sketches/`, ready-made mixes in `styles/mixes.json`. The vis
 
 ## 1. "Show me the styles" -> open the page
 
+The style guide is the **Styles** page of the ReelReady Studio (one local app: Library, Review, Styles).
+
 ```bash
 python3 styleguide/serve.py
 ```
 
-Run it in the background (it keeps serving until stopped). It rebuilds the page from the cards,
-serves it on the port in `reelready.config.json` (`styleguide.port`, default 4810; it tries the next
-port if busy) and opens the browser. It prints `Style guide running at <url>`: use THAT url (the port
+Run it in the background (it keeps serving until stopped). It
+rebuilds the page from the cards, starts the Studio on the port in `reelready.config.json` (`studio.port`,
+default 4810; it tries the next port if busy) and opens the browser on `#styles`. If the Studio is already
+running it just opens that page and exits. It prints `Style guide running at <url>`: use THAT url (the port
 may not be 4810). Tell the user, in one or two lines:
 
 > Your style guide is open at <url>. Tap **Add** on the styles you like, then
@@ -25,7 +28,8 @@ may not be 4810). Tell the user, in one or two lines:
 
 If the browser didn't open, give them the URL. If Python can't serve, open
 `styleguide/index.html` directly (it works as a plain file; only the brand name refresh needs the server).
-Stop the server when the user is done or the session ends.
+Leave the Studio running when the user is done: it is also their Library and Review page
+(`python3 scripts/rr.py studio --stop` stops it).
 
 ## 2. "What styles do you have?" -> list in chat
 
@@ -51,7 +55,7 @@ with `Edit the newest clip in raw footage. Use styles: ...`, or `Use style: H1.`
 4. Check conflicts (section 4).
 5. Check `needs` against what exists: `matting` (local subject cut-out available), `transcript`
    (always produced by ingest), `assets:logo` / `assets:music` (files in the main folder's `assets/`),
-   `broll` (extra clips or photos in raw footage / assets). If something is missing, say what the card
+   `broll` (extra clips or photos in raw footage, its B-roll and Photos folders first, or assets). If something is missing, say what the card
    will do without it (most cards say "skip and tell the user") before rendering, not after.
 6. Build ONE instruction, exactly in this shape:
 

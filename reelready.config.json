@@ -18,5 +18,8 @@
   },
   "styleguide": {
     "port": 4810
+  },
+  "studio": {
+    "port": 4810
   }
 }

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ReelReady Studio</title>
+<meta name="description" content="Your footage, sorted. Review an edit before it renders. Browse the styles.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- fonts load without blocking: the Studio is local and must paint at once, even offline (system fallbacks) -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..800;1,9..144,300..800&family=Inter:wght@400..800&display=swap" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="studio.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23151412'/%3E%3Cpath d='M12 9v14l11-7z' fill='%23FFC83D'/%3E%3C/svg%3E">
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="#library" aria-label="Studio home">
+      <span class="mark" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M4 2.5v11l9.5-5.5z" fill="#FFC83D"/></svg></span>
+      <span class="brand-name" data-brand="name">ReelReady</span><span class="brand-sub">Studio</span>
+    </a>
+    <nav class="tabs" aria-label="Studio pages">
+      <a href="#library" data-tab="library">Library</a>
+      <a href="#review" data-tab="review">Review<span class="tab-dot" id="reviewDot" hidden></span></a>
+      <a href="#styles" data-tab="styles">Styles</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="page wrap" id="page-library" aria-labelledby="libTitle" hidden></section>
+  <section class="page wrap" id="page-review" aria-labelledby="revTitle" hidden></section>
+  <section class="page page-styles" id="page-styles" hidden>
+    <iframe id="styleFrame" title="Style guide"></iframe>
+  </section>
+</main>
+
+<div class="stage" id="stage" hidden aria-live="polite"></div>
+
+<dialog id="viewer" aria-label="Preview"></dialog>
+<dialog id="picker" aria-label="Pick a b-roll shot"></dialog>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="studio.js"></script>
+</body>
+</html>

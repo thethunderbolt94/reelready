@@ -115,6 +115,84 @@ above, asserts the retake and filler are gone and QA passes, then sound (punchy)
 `CAPTIONS SKIPPED: <reason>` if the captions step fails, `TASTE GATE DID NOT CATCH GENERIC` if the gate passes a generic edit,
 `SCRIPT CHECK DID NOT CATCH <fixture>` if a bad script passes).
 
+## Review contract (Studio Review page)
+
+Before render, the edit skill writes `<export>/review-request.json`; the owner answers on the Studio's Review
+page (`#review/<export>`), which writes `<export>/review.json`. Helpers (stdlib, `scripts/review.py`):
+
+```bash
+# write the request: talking cuts are filled from the EDL (play order, draft times, trim bounds); validated
+python3 scripts/rr.py review-request <export> --edl "$EDL" --draft "$W/draft.mp4" < partial.json
+# block until review.json exists, is newer than the request and answers it; print it
+python3 scripts/rr.py wait-review <export> [--timeout 540]   # exit 0 approved, 2 timed out, 3 incomplete
+```
+
+`review-request.json` (paths are relative to the main folder; `draft` must be inside it so the page can play it):
+```json
+{
+  "title": "Croissant fold",
+  "export": "2026-11-17-croissant-fold",
+  "requested_at": "2026-11-17T15:49:36-07:00",
+  "draft": ".reelready/work/2026-11-17-croissant-fold/draft.mp4",
+  "cuts": [
+    {"index": 0, "kind": "talking", "label": "IMG_1001.MOV · Talking to camera", "source": "<abs path>",
+     "start": 0.2, "end": 3.1, "bounds": [0.0, 3.6], "draft_start": 0.0, "draft_end": 2.9},
+    {"index": 1, "kind": "talking", "label": "IMG_1001.MOV · Talking to camera", "source": "<abs path>",
+     "start": 3.6, "end": 8.4, "bounds": [3.1, 9.0], "draft_start": 2.82, "draft_end": 7.62},
+    {"index": 2, "kind": "broll", "label": "IMG_2001.mov · B-roll", "source": "<abs path>", "start": 0.5,
+     "end": 2.5, "bounds": [0, 5.0], "draft_start": 3.2, "draft_end": 5.2, "says": "how we fold croissants"}
+  ],
+  "generated": [
+    {"id": "hook-title", "kind": "hook", "text": "Three days for one croissant", "when": "0:00-0:02", "where": "top, behind you"},
+    {"id": "lower-third", "kind": "lower_third", "text": "Corner Bakery · since 2009", "when": "0:02-0:06", "where": "bottom left"},
+    {"id": "end-card", "kind": "end_card", "text": "Open at 7 · Elm Street", "when": "last 4 s"},
+    {"id": "cta", "kind": "cta", "text": "Come say hi this weekend", "when": "end card"}
+  ],
+  "hook_options": [
+    {"id": "A", "text": "Today I want to show you how we fold croissants.", "source": "owner", "note": "Your first line"},
+    {"id": "B", "text": "Three days for one croissant", "source": "generated", "item_id": "hook-title"}
+  ],
+  "caption_corrections": [{"heard": "crossants", "said": "croissants", "at": 3.4}],
+  "brand_choices": ["Hook H1 title in Archivo Black, #FFC83D on #151412, behind you", "..."]
+}
+```
+- `cuts`: every kept range of the EDL in play order (`kind` talking) plus each b-roll cutaway laid over it
+  (`kind` broll). `start`/`end` are SOURCE seconds; `bounds` [min, max] is how far a trim may go (a talking
+  cut may grow into removed time, never into another kept range; a b-roll cut up to the shot's length);
+  `draft_start`/`draft_end` place it on the draft (render_cut's 0.08 s crossfades included). `says` optional.
+- `generated`: EVERY line of words Claude wrote, one item each (hard rule 2). `kind` is one of hook,
+  lower_third, end_card, cta, post_caption, other; `when`/`where` are shown to the owner as written.
+- `hook_options`: A/B (or one). A generated option names its generated item in `item_id`.
+- `caption_corrections` (read-only on the page) and `brand_choices` (plan.md's Brand choices bullets).
+
+`review.json` (written only by the page, after the server checks it against the request):
+```json
+{
+  "export": "2026-11-17-croissant-fold",
+  "request_hash": "801af8aa235d9641",
+  "decisions": {
+    "hook-title": {"action": "approve"},
+    "lower-third": {"action": "edit", "text": "Corner Bakery, Elm Street"},
+    "end-card": {"action": "approve"},
+    "cta": {"action": "reject"}
+  },
+  "trims": [{"cut": 1, "start": 3.8, "end": 8.4}],
+  "swaps": [{"cut": 2, "library_item": {"id": "d84bb517d1d3", "path": "raw footage/B-roll/IMG_2004.mov",
+             "name": "IMG_2004.mov", "thumb": ".reelready/work/library/thumbs/d84bb517d1d347d7.jpg", "duration": 8}}],
+  "hook": "B",
+  "approved_at": "2026-11-17T15:53:23-07:00",
+  "approved_in": "studio"
+}
+```
+- `decisions`: one per generated item, `approve` | `edit` (with the owner's new `text`, used exactly; still
+  generated copy, now approved) | `reject` (drop it). The page's "Approve and render" stays disabled until
+  every item has one; the server refuses (400) anything incomplete.
+- `trims`: only the cuts the owner changed, new SOURCE start/end inside the cut's bounds. `swaps`: b-roll
+  cuts only; the new shot (a file in raw footage) takes the same place and length (trims on that cut are ignored).
+- `hook`: the chosen option id (never a generated option whose item was rejected).
+- Fresh = `review.json` newer than `review-request.json` and `request_hash` matching it; rewriting the request
+  makes any older review stale. The chat "go" stays an equal way to approve.
+
 ## How Claude drives captions and overlays
 
 1. Engines do the deterministic part: transcribe -> cut -> render_cut -> qa. Never caption before the cut.

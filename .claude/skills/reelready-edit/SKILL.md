@@ -35,9 +35,15 @@ python3 scripts/rr.py where --json
 | User says | Clips |
 |---|---|
 | "edit this" + a dragged/pasted path | that file (copying it into raw footage is optional; never move it) |
-| "edit this" / "edit the newest clip" with no path | `python3 scripts/rr.py newest` |
+| "edit this" / "edit the newest clip" with no path | `python3 scripts/rr.py newest` (if that is a B-roll shot and they mean a talking clip: `python3 scripts/rr.py newest --group "Talking to camera"`) |
 | "edit these" / "the last 3 clips" | `python3 scripts/rr.py newest --n 3` |
-| names a file | find it under raw footage |
+| names a file | find it anywhere under raw footage (top level or a group folder) |
+
+Raw footage may be sorted into group folders (`Talking to camera/`, `B-roll/`, `Voice notes/`, `Photos/`,
+`Too short/`) by `rr.py sort`; always search the whole tree, never only the top level. Never move a file
+yourself: only the sorter moves files there. `<main folder>/.reelready/library.json` lists every file with
+its group, length, orientation and shoot day: use it as a head start for picking b-roll (the `B-roll`
+group) and A-roll (`Talking to camera`); transcription still decides.
 
 Say which file(s) you picked in one line. Probe each:
 `ffprobe -v error -show_entries format=duration:stream=codec_type,width,height,r_frame_rate,side_data_list -of json "<clip>"`
@@ -184,7 +190,7 @@ Re-edits of this reel keep its signature; don't save it again.
 the same moment (a behind-subject hook like H1 runs 0-3 s, so keep the signature move off the hook).
 `needs`: `transcript` -> done (not met for a no-speech clip); `assets:logo` -> `brand.logo` file exists;
 `assets:music` -> a track per the music rule in step 4; `broll` -> extra clips or photos besides the A-roll
-in raw footage or assets; `matting` -> met (local cut-out in the HyperFrames skills; if it fails, see
+in raw footage (its `B-roll` and `Photos` folders first) or assets; `matting` -> met (local cut-out in the HyperFrames skills; if it fails, see
 "When a layer fails"). A card whose needs aren't met is dropped with one line saying why.
 
 **Write the plan** to `<export_dir>/plan.md` and show it (one screen, this exact shape):
@@ -216,6 +222,41 @@ Reply "go", or tell me what to change.
 ```
 Every line of words you wrote (not spoken) carries `[GENERATED - approve?]`. Wait for "go"
 unless the user said "just do it" / "no need to check". Apply changes, re-show only changed lines.
+
+## 3.5 Review page (approve without typing)
+
+Right after showing the plan, offer the same plan as a page. Skip this step only for "just do it".
+
+1. Write `<export_dir>/review-request.json` (contract and example: `engines/README.md`, "Review contract"):
+   one `generated` item for EVERY `[GENERATED - approve?]` line in the plan (`kind` hook | lower_third |
+   end_card | cta | post_caption | other, the exact `text`, `when`/`where` from the plan), `hook_options`
+   (A = the owner's own first words, `source` "owner"; B = the hook card title, `source` "generated",
+   `item_id` = its generated item; one option only if there is no title card), `caption_corrections`
+   (every mis-heard word you fixed: `{heard, said, at}`), `brand_choices` (the plan's Brand choices
+   bullets), and each b-roll cutaway as a cut `{kind: "broll", label, source, start, end, bounds: [0,
+   <shot length>], draft_start, draft_end, says}`. The helper fills the talking cuts from the EDL:
+   ```bash
+   python3 scripts/rr.py review-request "<export_dir>" --edl "$EDL" --draft "$W/draft.mp4" < "$W/review-partial.json"
+   ```
+2. Open the page: `python3 scripts/rr.py studio --start` (starts the Studio if needed and opens
+   #review). Tell the owner in one line: "Your plan is also on the Review page in your browser: approve,
+   change or reject each line I wrote, then press Approve and render. Or just say go here."
+3. Wait in the background so the chat stays open: run
+   `python3 scripts/rr.py wait-review "<export_dir>" --timeout 540` with run_in_background. Exit 0 prints
+   review.json; exit 2 = still waiting (start it again while the owner is still deciding); exit 3 = the file is
+   incomplete (say so, wait again). If the owner says "go" (or asks for changes) in chat first, that is the
+   approval: stop waiting and carry on from chat as before. Either path counts; never both.
+4. Apply review.json before rendering:
+   - `decisions`: `reject` -> drop that item (no card, no text; a rejected end-card CTA leaves the logo only);
+     `edit` -> use the owner's `text` exactly (it is still generated copy, now approved; keep it out of the
+     captions); `approve` -> as planned. Update plan.md to match and note "approved on the Review page".
+   - `hook`: the chosen option. A generated hook is used only if its item was approved or edited.
+   - `trims` (source seconds, inside each cut's bounds): rewrite those `keep` ranges in `$EDL`, re-run
+     render_cut (new draft + `draft.words.json`), then every layer after it. No trims -> keep the draft.
+   - `swaps`: replace that cut's b-roll file with `library_item.path` at the same place and length in the
+     draft (trims on a swapped cut are ignored); re-render only the b-roll composite and the layers after it.
+   - Never render a generated line without a decision (hard rule 2): every generated item needs approve or
+     edit, from this file or from the chat.
 
 ## 4. Render
 
