@@ -48,6 +48,18 @@
     ]
   },
   {
+    "name": "Brand story",
+    "who": "Any owner whose website already has a look: your fonts, colours, seal and photos",
+    "ids": [
+      "H7",
+      "C1",
+      "L5",
+      "B5",
+      "O4",
+      "S4"
+    ]
+  },
+  {
     "name": "Listing tour",
     "who": "Realtor showing a home",
     "ids": [

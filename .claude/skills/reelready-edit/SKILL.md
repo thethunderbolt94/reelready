@@ -270,10 +270,26 @@ exact timings from the plan, output path in `work_dir`, target size and fps.
 | cut (B1) | `general-video` | B1 says engine `cut` but it is b-roll cutaways laid over the A-roll: composite it |
 | captions (fast default) | `engines/captions.py` | plain word-timed captions: C1, the built-in default, or "simple captions" |
 | captions (designed) | `embedded-captions` | C2-C6 looks, words behind the subject (matting), anything captions.py can't draw |
-| overlay | `talking-head-recut` | lower-thirds, callouts, background text on talking head |
+| overlay (H7, L5, B5, O4) | `engines/overlays.py` | brand hook card, note-card lower third, polaroid beat, brand end card |
+| overlay (others) | `talking-head-recut` | lower-thirds, callouts, background text on talking head |
 | motion | `motion-graphics` | hook titles, end cards, animated text, transitions + transition SFX |
 | composite | `general-video` | b-roll cutaways, subject cut-out in front of/behind cards, multi-layer builds |
 | (assets) | `media-use` | SFX/images only when assets/ has none; music only with the owner's OK; keys optional, skip if missing |
+
+**Branded overlays (H7, L5, B5, O4).** One pass, after b-roll and before captions. Write
+`$W/overlays.json` from the approved plan: `{"items":[{"kind":"hook","start":0,"end":2.2,"title":"...","italic":"..."},
+{"kind":"lower_third",...,"name":"...","detail":"..."},{"kind":"polaroid",...,"caption":"...","src":"<b-roll>",
+"src_start":0},{"kind":"end_card","start":-3.5,"address":"...","website":"...","cta":"..."}]}` with exactly the
+words the owner approved (spoken words lifted verbatim, everything else marked `[GENERATED - approve?]` in the
+plan), timings from the plan, no two items overlapping. Then:
+```bash
+python3 scripts/rr.py run -- python3 engines/overlays.py "$W/<draft or b-roll composite>.mp4" --spec "$W/overlays.json" \
+  --profile "<main folder>/.reelready/style-profile.json" --out "$W/graphics.mp4"
+```
+It uses only brand colours and the profile's fonts (run `rr.py fonts --yes` in setup first; without files it
+fetches the Google font by name, else falls back to Inter and the taste gate fails it), checks the safe zone and
+the caption band, and writes `$W/graphics.overlays.json`. "too long for one line" -> shorten that line in the
+plan with the owner (the engine never rewrites). 9:16 only; other sizes -> `motion-graphics`.
 
 **Captions, fast path.** `engines/captions.py` is deterministic and verbatim, and draws exactly what the C1
 card describes: 2-3 word groups, each word popping in on its own timestamp, white heavy text with a dark
@@ -286,6 +302,10 @@ python3 scripts/rr.py run -- python3 engines/captions.py "$W/graphics.mp4" --wor
   [--font "<main folder>/<profile.brand.fonts.files[0]>" --font-family "<profile.brand.fonts.heading>"] \
   [--accent <the one emphasis word, as spoken>] [--font-size <px, default ~90 at 1080 wide>]
 ```
+`profile.captions.emphasis` is `"group"` (the brand emphasis look) -> pass the body face as `--font` (the
+`brand.fonts.faces` entry with role body, weight 700, plus `--font-weight 400`) and add `--emphasis group
+--emphasis-font "<main folder>/<heading italic face file>" --emphasis-family "<brand.fonts.heading>"`; skip
+`--accent`. Same words, one per group restyled. No italic file -> leave emphasis off and say so in one line.
 Pass `--font`/`--font-family` only when `brand.fonts.files` has an entry (ttf, otf, woff or woff2). If the file is
 missing or unsupported it prints one `warning: font not found` line and falls back to Inter: tell the user in one
 line. Weight stays 800 (a regular-only file gets synthesized bold); add `--font-weight 400` if the brand font is
@@ -382,8 +402,11 @@ One obvious issue -> fix once, re-run QA. Still failing -> deliver with an hones
 ```bash
 python3 scripts/rr.py run -- python3 engines/taste.py --profile "<main folder>/.reelready/style-profile.json" \
   --plan "<export_dir>/plan.md" --captions "$W/captioned.captions.json" --sound "$W/sound.sound.json" \
-  --mix <IDs used, incl. the signature and S card actually rendered> [--no-signature "<reason from step 3>"]
+  --mix <IDs used, incl. the signature and S card actually rendered> [--no-signature "<reason from step 3>"] \
+  [--overlays "$W/graphics.overlays.json"]
 ```
+Add `--overlays` whenever overlays.py ran (overlay-fonts / overlay-colors: fix the profile fonts or the spec,
+re-render graphics and everything after it).
 Always pass all of `--plan`, `--captions`, `--sound` and `--mix`; a missing sidecar (designed captions, a
 no-speech reel) only prints a note. `--no-signature` only when step 3 found no card that fits. Must end
 `TASTE PASS`. On `TASTE FAIL`, fix each named rule once: brand-choices / palette-in-plan -> rewrite the Brand

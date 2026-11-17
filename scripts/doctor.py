@@ -169,6 +169,13 @@ def checks(fast=False):
         fix='say "set up reelready"')
     add("style profile", bool(p.get("profile_exists")), "found" if p.get("profile_exists") else "not yet",
         required=False, fix='say "set up reelready"')
+    if p.get("assets"):
+        fdir = Path(p["assets"]) / "fonts"
+        found = sorted(f.name for f in fdir.glob("*") if f.suffix.lower() in (".ttf", ".otf", ".woff", ".woff2"))\
+            if fdir.is_dir() else []
+        add("brand fonts", True, (f"{len(found)} in assets/fonts: " + ", ".join(found[:4])
+                                  + (" ..." if len(found) > 4 else "")) if found else "none (designed defaults)",
+            required=False)
     return res
 
 

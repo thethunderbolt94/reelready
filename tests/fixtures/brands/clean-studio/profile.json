@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "created": "2026-11-17T10:00:00",
+  "updated": "2026-11-17T10:00:00",
+  "business": {
+    "name": "North Light Studio",
+    "handle": "@northlightstudio",
+    "what_we_do": "Small pilates and movement studio, reformer classes",
+    "location": "Anytown"
+  },
+  "platforms": ["instagram-reels", "tiktok"],
+  "aspect": "9:16",
+  "resolution": "1080x1920",
+  "brand": {
+    "colors": {
+      "primary": "#14222F",
+      "secondary": "#DCE6EE",
+      "accent": "#2F5BEA",
+      "text": "#14222F",
+      "background": "#F2F5F8"
+    },
+    "palette": {
+      "ink": "#14222F",
+      "mist": "#F2F5F8",
+      "cobalt": "#2F5BEA",
+      "sky": "#8DB8F2",
+      "fog": "#DCE6EE"
+    },
+    "colors_source": "manual",
+    "logo": null,
+    "fonts": {
+      "heading": "Plus Jakarta Sans",
+      "body": "DM Sans",
+      "source": "manual",
+      "files": []
+    }
+  },
+  "captions": {
+    "look": "house",
+    "card": "C1",
+    "position": "lower-third",
+    "max_words_per_line": 3,
+    "verbatim": true,
+    "emphasis": "group"
+  },
+  "music": {"preference": "none", "file": null, "duck_db_under_speech": -18},
+  "tone": ["calm", "clear", "modern"],
+  "reference_style": {
+    "pacing": "clean cuts on the beat, short holds",
+    "caption_style": "clean sans captions with an italic accent word"
+  },
+  "copy": {"auto": false, "cta": "Book via the link in bio", "hashtags_extra": []},
+  "transcription": {"backend": "whisper-local", "key_stored": false},
+  "default_mix": ["H7", "C1", "L5", "B5", "O4", "S1"],
+  "house_style": {"preset": "fitness", "signature": ["B5", "M1", "X6"], "rotate": true, "last_signature": null},
+  "rules": {"verbatim_captions": true, "generated_copy_needs_approval": true, "one_signature_effect": true}
+}

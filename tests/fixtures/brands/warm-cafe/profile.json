@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "created": "2026-11-17T10:00:00",
+  "updated": "2026-11-17T10:00:00",
+  "business": {
+    "name": "Linen & Ember",
+    "handle": "@linenandember",
+    "what_we_do": "Small neighbourhood cafe, slow coffee and house bakes",
+    "location": "Anytown"
+  },
+  "platforms": ["instagram-reels"],
+  "aspect": "9:16",
+  "resolution": "1080x1920",
+  "brand": {
+    "colors": {
+      "primary": "#2B1A11",
+      "secondary": "#EFE4D6",
+      "accent": "#B4502A",
+      "text": "#2B1A11",
+      "background": "#FCF8F3"
+    },
+    "palette": {
+      "espresso": "#2B1A11",
+      "linen": "#FCF8F3",
+      "terracotta": "#B4502A",
+      "oat": "#EFE4D6"
+    },
+    "colors_source": "website",
+    "logo": "assets/logo.svg",
+    "fonts": {
+      "heading": "Fraunces",
+      "body": "Inter",
+      "hand": "Caveat",
+      "source": "website",
+      "files": []
+    }
+  },
+  "captions": {
+    "look": "house",
+    "card": "C1",
+    "position": "lower-third",
+    "max_words_per_line": 3,
+    "verbatim": true,
+    "emphasis": "group"
+  },
+  "music": {"preference": "none", "file": null, "duck_db_under_speech": -18},
+  "tone": ["warm", "unhurried", "local"],
+  "reference_style": {
+    "pacing": "slow and warm, one idea per shot",
+    "caption_style": "sans words with one italic serif word in terracotta"
+  },
+  "copy": {"auto": false, "cta": "Visit us", "hashtags_extra": []},
+  "transcription": {"backend": "whisper-local", "key_stored": false},
+  "default_mix": ["H7", "C1", "L5", "B5", "O4", "S4"],
+  "house_style": {"preset": "cafe", "signature": ["B5", "M1", "P2"], "rotate": true, "last_signature": null},
+  "rules": {"verbatim_captions": true, "generated_copy_needs_approval": true, "one_signature_effect": true}
+}

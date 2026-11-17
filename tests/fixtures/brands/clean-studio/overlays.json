@@ -1,0 +1,10 @@
+{
+  "about": "Overlay spec for the smoke clip (about 7.7 s after the cut). Text is rendered exactly as written here.",
+  "items": [
+    {"kind": "hook", "start": 0.0, "end": 1.9, "title": "Come say hi,", "italic": "we open at seven.", "on": "light"},
+    {"kind": "lower_third", "start": 2.0, "end": 3.3, "name": "North Light Studio", "detail": "Reformer pilates"},
+    {"kind": "polaroid", "start": 3.4, "end": 4.9, "caption": "we open at seven", "bg": "brand"},
+    {"kind": "end_card", "start": 5.0, "address": "4 Harbour Row, Anytown", "website": "northlight.example",
+     "cta": "Book a class", "on": "dark"}
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "id": "B5",
+  "category": "broll",
+  "name": "Polaroid beat",
+  "oneliner": "One moment of your video becomes a tilted polaroid with a handwritten line under it.",
+  "description": "For one beat, the shot shrinks into a polaroid photo on a soft blurred or brand-coloured background, with a few of your words written underneath. Warm, personal, and it fits a brand that already uses photos like this.",
+  "prompt": "Render with engines/overlays.py, item kind \"polaroid\", for ONE 1.5-3s beat (the best b-roll shot via \"src\" + \"src_start\", else the A-roll at that time). Copy: \"caption\" up to 18 characters, ideally the words spoken at that moment, verbatim; anything you write is flagged for approval. Look: a polaroid in the brand background colour, 692x816 (photo 640x660 cropped to fill, 130px caption strip), centred at y=270, tilted 3 degrees, deep soft shadow; background = the same shot blurred under a wash of the brand colours (\"bg\": \"blur\") or a plain brand gradient (\"brand\"). Caption in the profile's hand font (brand.fonts.hand) or else the italic of {{font.display}}, 72px, in the brand dark colour. Motion: the polaroid drops in 70px while turning from -6 to 3 degrees and scaling 0.94 to 1 over 650ms (power3 out), then drifts up 10px (sine); out: fades over 300ms. Above the caption band and off the right 140px. One per reel: it is this reel's big move when it is in the house signature list, so never stack it with an X card.",
+  "engine": "overlay",
+  "needs": [],
+  "pairs_with": [
+    "H7",
+    "C1",
+    "O4"
+  ],
+  "avoid_with": [
+    "L4",
+    "X1",
+    "X2"
+  ],
+  "sketch": "sketches/B5.svg",
+  "duration_hint": "one 1.5-3s beat"
+}

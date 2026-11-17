@@ -13,8 +13,9 @@ Your brand, written once during setup, read by every edit.
 | `business` | name, handle, `what_we_do` (one line; picks the house style), `location` (town or area, for local hashtags) |
 | `platforms`, `aspect`, `resolution` | where you post; 9:16 1080x1920 default |
 | `brand.colors` | primary, secondary, accent, text, background (hex) |
-| `brand.logo`, `brand.fonts` | paths relative to the main folder; fonts default to Archivo Black + Inter |
-| `captions` | `card`: a captions card ID the owner picked, or `null` = match the house style; `look`: that card's name, or `house`; `verbatim` always true; `accent_color` (optional hex): the emphasis-word colour when the owner wants one that is not `brand.colors.accent` (the taste gate then expects this one) |
+| `brand.palette` | optional named colours (`{"terracotta": "#B4502A", ...}`), e.g. from `scripts/brand_from_site.py`; overlays and the taste gate accept these as brand colours too |
+| `brand.logo`, `brand.fonts` | paths relative to the main folder; fonts default to Archivo Black + Inter. `brand.fonts.heading` / `body` are family names, optional `hand` a handwriting face for polaroid captions; `files` (heading face first) and `faces` (`[{role, family, style, weight, file}]`) are written by `rr.py fonts --yes`, which downloads the Google Fonts (OFL) into `assets/fonts` |
+| `captions` | `card`: a captions card ID the owner picked, or `null` = match the house style; `look`: that card's name, or `house`; `verbatim` always true; `accent_color` (optional hex): the emphasis-word colour when the owner wants one that is not `brand.colors.accent` (the taste gate then expects this one; `rr.py recommend-accent` suggests one); `emphasis` (optional): `"single"` (default, one accent word per reel) or `"group"` (one word per caption group in the heading's italic, captions.py `--emphasis group`) |
 | `music` | `preference` `none` (add a trending sound in the app) or `my-own`; `file` `assets/music/<track>` or null; ducked -18 dB under speech |
 | `tone` | three feel words |
 | `references` | links/files the user admires |

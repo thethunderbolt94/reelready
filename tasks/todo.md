@@ -79,15 +79,15 @@ and the page opens. (4) The style guide folds into the Studio app: Library, Revi
       CLAUDE.md "First run" points to it; README requirements line updated
 
 ### 2. Brand kit (setup reads the owner's brand)
-- [ ] reelready-setup: "brand from your website": read the site's CSS for colours, fonts, logo; owner confirms
-- [ ] rr.py fonts: download the profile's Google Fonts (OFL) into assets/fonts; doctor lists them
-- [ ] Caption accent: profile captions.accent_color, else a recommended one picked from brand.colors
+- [x] reelready-setup: "brand from your website": read the site's CSS for colours, fonts, logo; owner confirms
+- [x] rr.py fonts: download the profile's Google Fonts (OFL) into assets/fonts; doctor lists them
+- [x] Caption accent: profile captions.accent_color, else a recommended one picked from brand.colors
 
 ### 3. Branded overlays (needs 2)
-- [ ] captions.py: emphasis word per group in a second font style (e.g. italic display face) + accent
-- [ ] engines/overlays.py on HyperFrames, driven by profile tokens: hook card, note-card lower third,
+- [x] captions.py: emphasis word per group in a second font style (e.g. italic display face) + accent
+- [x] engines/overlays.py on HyperFrames, driven by profile tokens: hook card, note-card lower third,
       end card with logo/seal and CTA pill, polaroid frame for a b-roll beat
-- [ ] Cards H7, L5, O4, B5 + one new mix; taste.py reads the overlays sidecar
+- [x] Cards H7, L5, O4, B5 + one new mix; taste.py reads the overlays sidecar
 
 ### 4. Sorter (local app)
 - [ ] rr.py sort: probe raw footage (length, orientation, shoot day, speech yes/no, photo vs video),

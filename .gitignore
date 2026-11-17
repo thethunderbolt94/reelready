@@ -13,8 +13,7 @@ __pycache__/
 clients/
 
 # Smoke-test renders
-tests/smoke/out/*.mp4
-tests/smoke/out/studio*
+tests/smoke/out/
 
 # OS noise
 .DS_Store

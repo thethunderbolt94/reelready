@@ -1,0 +1,20 @@
+:root {
+  --espresso: #2b1a11;
+  --linen: #fcf8f3;
+  --terracotta: #b4502a;
+  --oat: #efe4d6;
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Inter", system-ui, sans-serif;
+}
+html, body { background: var(--linen); color: var(--espresso); font-family: var(--font-body); }
+h1, h2, h3, .display { font-family: var(--font-display); font-weight: 700; color: var(--espresso); }
+h1 em, .display em { font-style: italic; font-weight: 400; color: var(--terracotta); }
+.site-header { border-bottom: 1px solid var(--oat); }
+.cta { background: var(--terracotta); color: var(--linen); border-radius: 999px; }
+.cta:hover { background: #9c4322; }
+.polaroid { background: #fff; padding: 12px 12px 40px; transform: rotate(3deg); }
+.polaroid figcaption { font-family: var(--font-display); font-style: italic; }
+a { color: var(--terracotta); }
+a:hover { color: #9c4322; }
+.badge { border: 1px solid var(--terracotta); color: var(--terracotta); }
+footer { background: var(--espresso); color: var(--oat); }

@@ -68,7 +68,7 @@ AI Video Editor/
 
 Engine skills you drive from reelready-edit, by style-card `engine`:
 captions -> `engines/captions.py` (fast default: plain verbatim word captions) or `embedded-captions`
-(designed looks, words behind the subject); overlay -> `talking-head-recut`; motion -> `motion-graphics`;
+(designed looks, words behind the subject); overlay -> `engines/overlays.py` (H7 L5 B5 O4) or `talking-head-recut`; motion -> `motion-graphics`;
 composite -> `general-video`; sound -> `engines/sound.py`; cut -> `engines/cut.py` + `engines/render_cut.py`
 (+ `talking-head-recut` for punch-ins). Assets fallback: `media-use`. HyperFrames family underpins
 captions/overlays/motion. Reference watching: `watch`. Script check: `engines/script_check.py`.
