@@ -65,6 +65,11 @@ guide in the repo that Claude Code follows on the user's machine, installing wha
 Review-and-approve page, not a timeline editor. Script comes from a Q&A in the owner's own words. Caption
 colour comes from the brand profile, with a recommended one when the profile has none. Push main as parts land.
 Visual of this order: docs/roadmap-v0.5.html
+Answered 2026-11-17: (1) Mac-only spots stay in code; the Windows guide tells Claude which four spots to patch
+on the user's machine. (2) The sorter MOVES originals into labelled folders inside raw footage: never rename,
+never delete, every move logged to .reelready/sort-log.jsonl, `rr.py sort --undo` restores; the folder
+contract in CLAUDE.md changes to allow exactly this. (3) Studio opens on session start: new clips are sorted
+and the page opens. (4) The style guide folds into the Studio app: Library, Review, Styles.
 
 ### 1. Install guide for any OS (docs only, first, small)
 - [ ] INSTALL.md: per-OS table (macOS, Linux, Windows) of what Claude installs and how (brew / apt / winget),
@@ -87,9 +92,9 @@ Visual of this order: docs/roadmap-v0.5.html
 ### 4. Sorter (local app)
 - [ ] rr.py sort: probe raw footage (length, orientation, shoot day, speech yes/no, photo vs video),
       groups (Talking to camera, B-roll, Voice notes, Photos, Too short), writes .reelready/library.json
-      and thumbnails; originals untouched
-- [ ] Studio app shell (stdlib server, like the style guide): Sorter page, thumbnails fly into labelled
-      folders, then a library grid
+      and thumbnails; moves originals into group folders inside raw footage (logged, --undo restores)
+- [ ] Studio app (stdlib server, replaces styleguide/serve.py): Library page (thumbnails fly into labelled
+      folders, then a grid), Styles page (the style guide), opened on session start
 
 ### 5. Review-and-approve page (same app, needs 4's shell)
 - [ ] Plan cards for every generated line: Approve / Edit / Reject; caption corrections; brand choices

@@ -185,7 +185,7 @@ a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
         <ul>
           <li>A per-OS table in <code>INSTALL.md</code>: what Claude installs on macOS, Linux and Windows, and how, always with the user’s OK.</li>
           <li>Notes Claude reads on Windows: no <code>python3</code> command, the venv lives in <code>Scripts</code>, <code>npx.cmd</code>, Node 22 or newer, UTF-8, main folder outside OneDrive.</li>
-          <li>The setup skill points to it. No Windows code is built in this round.</li>
+          <li>It also names the four spots in the scripts that assume a Mac, so Claude patches them on that machine. No Windows code ships in the repo.</li>
         </ul>
         <p class="done"><b>Done when</b> a fresh Claude Code on each OS knows exactly what to run from the guide alone.</p>
       </article>
@@ -214,8 +214,8 @@ a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
         <div class="meta"><span class="chip">Studio app lane</span><span class="chip">Sonnet probes, Opus page</span></div>
         <ul>
           <li><code>rr.py sort</code> reads every clip: length, orientation, shoot day, speech or not, photo or video.</li>
-          <li>Groups: Talking to camera, B-roll, Voice notes, Photos, Too short. Originals are never moved or renamed.</li>
-          <li>The Studio app opens on it: thumbnails fly into labelled folders, then settle into a library grid.</li>
+          <li>Groups: Talking to camera, B-roll, Voice notes, Photos, Too short. Clips move into those folders inside raw footage; every move is logged and <code>rr.py sort --undo</code> puts them back.</li>
+          <li>The Studio app opens on it at session start: thumbnails fly into labelled folders, then settle into a library grid.</li>
         </ul>
         <p class="done"><b>Done when</b> 50 mixed clips sort in under a minute and every group looks right by eye.</p>
       </article>
@@ -253,7 +253,7 @@ a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
   <section aria-labelledby="dec-h">
     <span class="eyebrow">Decisions and open questions</span>
-    <h2 id="dec-h">Settled, and still to settle</h2>
+    <h2 id="dec-h">What the owner decided</h2>
     <div class="two">
       <div class="box">
         <h3>Settled by the owner</h3>
@@ -267,12 +267,12 @@ a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
         </ul>
       </div>
       <div class="box ask">
-        <h3>Open before building</h3>
+        <h3>Answered 17 Nov</h3>
         <ol>
-          <li><b>Small cross-platform fixes.</b> Four spots in the scripts assume a Mac path. Allowed as plain bug fixes, or guide only?</li>
-          <li><b>Sorter on disk.</b> Index and thumbnails only, or real folders the owner can see?</li>
-          <li><b>When it opens.</b> Studio page opens by itself at session start, or on “open studio”?</li>
-          <li><b>Style guide.</b> Fold it into the Studio app as a third page, or keep it separate?</li>
+          <li><b>Mac-only spots stay in code.</b> The Windows guide tells Claude which four spots to patch on the user’s machine.</li>
+          <li><b>The sorter moves originals</b> into labelled folders inside raw footage. Nothing is renamed or deleted, every move is logged, and one command puts everything back.</li>
+          <li><b>Studio opens on session start:</b> new clips are sorted and the page opens in the browser.</li>
+          <li><b>The style guide folds in.</b> One app with three pages: Library, Review, Styles.</li>
         </ol>
       </div>
     </div>
