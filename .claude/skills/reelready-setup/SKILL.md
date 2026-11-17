@@ -15,8 +15,8 @@ Brand name for messages: read `reelready.config.json` -> `brand.name` / `brand.b
 
 ## A. Check and install
 
-First `uname -s`. `MINGW*`, `MSYS*` or `CYGWIN*` = Windows: follow `references/windows.md` and stop
-here until the owner is running Claude Code inside Ubuntu.
+First `uname -s`. `MINGW*`, `MSYS*` or `CYGWIN*` = Windows: follow `references/windows.md` (it
+installs the tools, patches the Mac-only spots locally, and runs doctor), then carry on at B.
 
 ```bash
 python3 scripts/doctor.py
@@ -43,7 +43,7 @@ Run `python3 scripts/rr.py where --json` first.
   as a backup (`mv "<profile>" "<main folder>/.reelready/style-profile.backup-<YYYY-MM-DD>.json"`,
   add `-2` if taken) and run C in full.
 - Otherwise ask: "Where should your **AI Video Editor** folder live? I suggest your Desktop."
-  Default `~/Desktop/AI Video Editor` (WSL: see `references/windows.md`). Then:
+  Default `~/Desktop/AI Video Editor` (Windows: `C:\AI Video Editor`; WSL: see `references/windows.md`). Then:
   ```bash
   python3 scripts/init.py --path "<chosen path>/AI Video Editor"
   ```

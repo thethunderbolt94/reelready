@@ -100,7 +100,7 @@ See [addons/telegram/README.md](addons/telegram/README.md).
   (HyperFrames skills Apache-2.0 with the license text in each folder). Sound effects are synthesised
   by `engines/make_sfx.py`, so they are MIT like the kit: no third-party samples.
 
-Requirements: macOS (Apple Silicon or Intel) with Homebrew; Linux best-effort; Windows via WSL2.
+Requirements: macOS (Apple Silicon or Intel) with Homebrew is the tested path; Linux best-effort; Windows via a written guide Claude Code follows on your PC (untested so far). See [INSTALL.md](INSTALL.md).
 
 MIT licensed. See [LICENSE](LICENSE).
 
