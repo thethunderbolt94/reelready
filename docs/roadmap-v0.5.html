@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ReelReady Studio Roadmap</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..800;1,9..144,300..800&family=Inter:wght@400..800&display=swap">
+<style>
+/* Layout: one reading column; a lane diagram (start, three parallel lanes, finish) carries the build order. */
+:root{
+  --bg:#F5EFE3; --paper:#FCF9F3; --panel:#EEE6D6; --ink:#151412; --ink2:#3A362F; --muted:#746D61;
+  --line:#E3D9C6; --line2:#D6CAB3; --accent:#FFC83D; --accent-ink:#1B1500;
+  --look:#B8692A; --look-bg:#F6E4D2; --app:#2F6F5E; --app-bg:#DCEBE4; --words:#4B59A8; --words-bg:#E1E4F4;
+  --shadow:0 1px 0 rgba(21,20,18,.04),0 10px 30px -14px rgba(21,20,18,.2);
+  --serif:"Fraunces","Iowan Old Style",Palatino,Georgia,serif;
+  --sans:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#12110F; --paper:#1C1B18; --panel:#23211D; --ink:#F4EFE6; --ink2:#D8D1C4; --muted:#A39C8F;
+  --line:#2D2A25; --line2:#3B372F; --accent:#FFC83D; --accent-ink:#1B1500;
+  --look:#E8A065; --look-bg:#3A2716; --app:#7CC3AE; --app-bg:#17302A; --words:#A3AEEB; --words-bg:#22264A;
+  --shadow:0 1px 0 rgba(0,0,0,.2),0 12px 30px -14px rgba(0,0,0,.6); color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#12110F; --paper:#1C1B18; --panel:#23211D; --ink:#F4EFE6; --ink2:#D8D1C4; --muted:#A39C8F;
+  --line:#2D2A25; --line2:#3B372F; --accent:#FFC83D; --accent-ink:#1B1500;
+  --look:#E8A065; --look-bg:#3A2716; --app:#7CC3AE; --app-bg:#17302A; --words:#A3AEEB; --words-bg:#22264A;
+  --shadow:0 1px 0 rgba(0,0,0,.2),0 12px 30px -14px rgba(0,0,0,.6); color-scheme:dark }
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.6 var(--sans)}
+.wrap{max-width:1080px;margin:0 auto;padding-block:40px 72px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:flex;flex-direction:column;gap:56px}
+h1,h2,h3{font-family:var(--serif);font-weight:600;line-height:1.12;text-wrap:balance;margin:0}
+h1{font-size:clamp(34px,6vw,56px);letter-spacing:-.015em}
+h1 em{font-style:italic;font-weight:500}
+h2{font-size:clamp(24px,3.4vw,32px)}
+h3{font-size:19px}
+p{margin:0;max-width:66ch}
+.eyebrow{font:600 12px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.lede{font-size:18px;color:var(--ink2)}
+code{font-family:var(--mono);font-size:.88em;background:var(--panel);padding:1px 5px;border-radius:4px}
+header{display:flex;flex-direction:column;gap:16px}
+.stamp{display:flex;flex-wrap:wrap;gap:8px 18px;color:var(--muted);font-size:13px}
+.stamp b{color:var(--ink);font-weight:600}
+section{display:flex;flex-direction:column;gap:20px}
+
+/* journey */
+.journey{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;counter-reset:j}
+.journey li{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:14px 12px 16px;
+  display:flex;flex-direction:column;gap:8px;min-width:0;position:relative}
+.journey li::before{counter-increment:j;content:counter(j);font:600 12px/1 var(--mono);color:var(--muted)}
+.journey li strong{font-family:var(--serif);font-size:16px;font-weight:600;line-height:1.2}
+.journey li span{font-size:12.5px;color:var(--muted);line-height:1.45}
+.journey li.new{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.journey li.new::after{content:"new";position:absolute;top:12px;right:12px;font:700 10px/1 var(--sans);
+  letter-spacing:.08em;text-transform:uppercase;background:var(--accent);color:var(--accent-ink);padding:4px 6px;border-radius:99px}
+
+/* lane diagram */
+.diagram{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:22px;box-shadow:var(--shadow);overflow-x:auto}
+.flow{display:grid;grid-template-columns:minmax(150px,1fr) 28px minmax(0,3.2fr) 28px minmax(150px,1fr);align-items:center;min-width:760px}
+.arrow{height:2px;background:var(--line2);position:relative}
+.arrow::after{content:"";position:absolute;right:-1px;top:-4px;border:5px solid transparent;border-left:7px solid var(--line2);border-right:0}
+.node{border:1px solid var(--line2);border-radius:12px;padding:12px 14px;background:var(--bg);display:flex;flex-direction:column;gap:4px;min-width:0}
+.node .n{font:600 11px/1 var(--mono);color:var(--muted)}
+.node b{font-family:var(--serif);font-size:16px;font-weight:600;line-height:1.2}
+.node small{font-size:12px;color:var(--muted);line-height:1.4}
+.node.edge{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.node.edge .n,.node.edge small{color:var(--line2)}
+.lanes{display:flex;flex-direction:column;gap:12px;border-left:2px solid var(--line2);border-right:2px solid var(--line2);padding:0 14px}
+.lane{display:grid;grid-template-columns:96px minmax(0,1fr) 22px minmax(0,1fr);align-items:center;gap:10px;
+  border-radius:12px;padding:10px;background:var(--lane-bg)}
+.lane .tag{font:700 11px/1.2 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--lane)}
+.lane .node{background:var(--paper);border-color:color-mix(in srgb,var(--lane) 35%,var(--line2))}
+.lane .node .n{color:var(--lane)}
+.lane .lone{grid-column:2 / span 3}
+.lane.look{--lane:var(--look);--lane-bg:var(--look-bg)}
+.lane.app{--lane:var(--app);--lane-bg:var(--app-bg)}
+.lane.words{--lane:var(--words);--lane-bg:var(--words-bg)}
+.lane .arrow{background:var(--lane)}
+.lane .arrow::after{border-left-color:var(--lane)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--muted);padding-top:14px}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:99px;margin-right:6px;vertical-align:1px}
+
+/* parts */
+.parts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.part{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:12px;min-width:0;
+  border-top:4px solid var(--lane,var(--ink))}
+.part.look{--lane:var(--look)} .part.app{--lane:var(--app)} .part.words{--lane:var(--words)}
+.part .top{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.part .top .n{font:600 12px/1 var(--mono);color:var(--muted)}
+.meta{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:600 11.5px/1 var(--sans);padding:5px 8px;border-radius:99px;background:var(--panel);color:var(--ink2);white-space:nowrap}
+.chip.dep{background:transparent;border:1px dashed var(--line2);color:var(--muted)}
+.part ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;color:var(--ink2);font-size:14px}
+.done{font-size:13.5px;border-top:1px solid var(--line);padding-top:10px;color:var(--ink2)}
+.done b{font-weight:600;color:var(--ink)}
+.part.full{grid-column:1 / -1}
+
+/* decisions + questions */
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.box{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.box ol,.box ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px;font-size:14px;color:var(--ink2)}
+.box.ask{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.box.ask h3{color:var(--accent)}
+.box.ask ol{color:var(--line2)}
+.box.ask b{color:var(--bg)}
+.later{font-size:14px;color:var(--muted)}
+
+@media (max-width:860px){
+  .journey{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .parts,.two{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:420px){.journey{grid-template-columns:minmax(0,1fr)}}
+@media (prefers-reduced-motion:no-preference){
+  .journey li{animation:rise .5s both;animation-delay:calc(var(--i,0) * 60ms)}
+  @keyframes rise{from{transform:translateY(6px)}to{transform:none}}
+}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="eyebrow">ReelReady v0.5 · build plan</span>
+    <h1>Drop your clips. <em>Approve every word.</em> Get the reel.</h1>
+    <p class="lede">v0.5 turns the kit into a small studio anyone can use: setup reads your brand from your website, your clips sort themselves, the script comes from your own answers, and nothing renders until you approve it on one page.</p>
+    <div class="stamp"><span>Planned <b>17 Nov 2026</b></span><span>Repo <b>github.com/thethunderbolt94/reelready</b></span><span>Ships to <b>main</b>, part by part</span></div>
+  </header>
+
+  <section aria-labelledby="journey-h">
+    <span class="eyebrow">What a new user sees</span>
+    <h2 id="journey-h">The run, start to finish</h2>
+    <ol class="journey">
+      <li style="--i:0"><strong>Open the kit in Claude Code</strong><span>Claude checks the computer and installs what is missing, with your OK. Mac, Linux or Windows.</span></li>
+      <li class="new" style="--i:1"><strong>Setup reads your website</strong><span>Colours, fonts and logo come from your own site. You confirm them.</span></li>
+      <li class="new" style="--i:2"><strong>Drop clips, they sort</strong><span>Talking, b-roll, voice notes and photos fly into labelled folders.</span></li>
+      <li class="new" style="--i:3"><strong>Answer a few questions</strong><span>Optional script, built only from your answers, in your words.</span></li>
+      <li style="--i:4"><strong>Say “edit these”</strong><span>Cut, verbatim captions, brand overlays, sound.</span></li>
+      <li class="new" style="--i:5"><strong>Approve on one page</strong><span>Every AI-written line is a card: approve, edit or reject. Trim, swap a shot.</span></li>
+      <li style="--i:6"><strong>Render</strong><span>QA and the brand check pass, then the reel is yours. Nothing is posted.</span></li>
+    </ol>
+  </section>
+
+  <section aria-labelledby="order-h">
+    <span class="eyebrow">Build order</span>
+    <h2 id="order-h">One small first step, three lanes in parallel, one proof at the end</h2>
+    <p>The install guide goes first because it is docs only and unblocks every test machine. After it, three lanes run side by side. Inside a lane the second part needs the first. The lanes only meet at the proof.</p>
+    <div class="diagram" role="img" aria-label="Build order: 1 install guide, then three parallel lanes: Look (2 brand kit then 3 branded overlays), Studio app (4 sorter then 5 review page), Words (6 script by interview), all ending in 7 proof and push.">
+      <div class="flow">
+        <div class="node edge"><span class="n">1</span><b>Install guide</b><small>docs only · any OS</small></div>
+        <div class="arrow"></div>
+        <div class="lanes">
+          <div class="lane look"><span class="tag">Look</span>
+            <div class="node"><span class="n">2</span><b>Brand kit</b><small>site → colours, fonts, logo</small></div>
+            <div class="arrow"></div>
+            <div class="node"><span class="n">3</span><b>Branded overlays</b><small>hook, lower third, end card</small></div>
+          </div>
+          <div class="lane app"><span class="tag">Studio app</span>
+            <div class="node"><span class="n">4</span><b>Sorter</b><small>library + flying folders</small></div>
+            <div class="arrow"></div>
+            <div class="node"><span class="n">5</span><b>Review page</b><small>approve, trim, render</small></div>
+          </div>
+          <div class="lane words"><span class="tag">Words</span>
+            <div class="node lone"><span class="n">6</span><b>Script by interview</b><small>your answers, ordered, never written for you</small></div>
+          </div>
+        </div>
+        <div class="arrow"></div>
+        <div class="node edge"><span class="n">7</span><b>Proof + push</b><small>smoke test · README tour · main</small></div>
+      </div>
+      <div class="legend"><span><i style="background:var(--look)"></i>Look lane</span><span><i style="background:var(--app)"></i>Studio app lane</span><span><i style="background:var(--words)"></i>Words lane</span><span>Opus builds the design-heavy parts, Sonnet the probes and the interview</span></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="parts-h">
+    <span class="eyebrow">The seven parts</span>
+    <h2 id="parts-h">What each part does, and when it counts as done</h2>
+    <div class="parts">
+      <article class="part">
+        <div class="top"><h3>Install guide for any OS</h3><span class="n">1</span></div>
+        <div class="meta"><span class="chip">Docs only</span><span class="chip">Sonnet</span></div>
+        <ul>
+          <li>A per-OS table in <code>INSTALL.md</code>: what Claude installs on macOS, Linux and Windows, and how, always with the user’s OK.</li>
+          <li>Notes Claude reads on Windows: no <code>python3</code> command, the venv lives in <code>Scripts</code>, <code>npx.cmd</code>, Node 22 or newer, UTF-8, main folder outside OneDrive.</li>
+          <li>The setup skill points to it. No Windows code is built in this round.</li>
+        </ul>
+        <p class="done"><b>Done when</b> a fresh Claude Code on each OS knows exactly what to run from the guide alone.</p>
+      </article>
+      <article class="part look">
+        <div class="top"><h3>Brand kit</h3><span class="n">2</span></div>
+        <div class="meta"><span class="chip">Look lane</span><span class="chip">Opus</span></div>
+        <ul>
+          <li>Setup reads the business website for colours, fonts and logo; the owner confirms each.</li>
+          <li><code>rr.py fonts</code> downloads the profile’s Google Fonts into <code>assets/fonts</code>.</li>
+          <li>Caption colour comes from the profile, or a recommended one picked from the palette.</li>
+        </ul>
+        <p class="done"><b>Done when</b> setup on a real website fills the profile and the fonts in one pass.</p>
+      </article>
+      <article class="part look">
+        <div class="top"><h3>Branded overlays</h3><span class="n">3</span></div>
+        <div class="meta"><span class="chip">Look lane</span><span class="chip">Opus</span><span class="chip dep">needs 2</span></div>
+        <ul>
+          <li>Captions with one emphasis word per group in the display face and the brand accent.</li>
+          <li>Four templates driven by the profile: hook card, note-card lower third, end card with logo and call to action, polaroid frame for a b-roll beat.</li>
+          <li>New style cards H7, L5, O4 and B5 plus one mix. The brand check reads them.</li>
+        </ul>
+        <p class="done"><b>Done when</b> one clip renders in two different brands and both pass the brand check.</p>
+      </article>
+      <article class="part app">
+        <div class="top"><h3>Sorter</h3><span class="n">4</span></div>
+        <div class="meta"><span class="chip">Studio app lane</span><span class="chip">Sonnet probes, Opus page</span></div>
+        <ul>
+          <li><code>rr.py sort</code> reads every clip: length, orientation, shoot day, speech or not, photo or video.</li>
+          <li>Groups: Talking to camera, B-roll, Voice notes, Photos, Too short. Originals are never moved or renamed.</li>
+          <li>The Studio app opens on it: thumbnails fly into labelled folders, then settle into a library grid.</li>
+        </ul>
+        <p class="done"><b>Done when</b> 50 mixed clips sort in under a minute and every group looks right by eye.</p>
+      </article>
+      <article class="part app">
+        <div class="top"><h3>Review page</h3><span class="n">5</span></div>
+        <div class="meta"><span class="chip">Studio app lane</span><span class="chip">Opus</span><span class="chip dep">needs 4</span></div>
+        <ul>
+          <li>Every AI-written line as a card: approve, edit or reject. Caption fixes and brand choices listed.</li>
+          <li>Preview the draft, trim a cut, swap a b-roll shot from the library, pick hook A or B.</li>
+          <li>Render writes <code>review.json</code>; Claude waits for it and re-renders only what changed.</li>
+        </ul>
+        <p class="done"><b>Done when</b> approve, edit and render work end to end without typing in the chat.</p>
+      </article>
+      <article class="part words">
+        <div class="top"><h3>Script by interview</h3><span class="n">6</span></div>
+        <div class="meta"><span class="chip">Words lane</span><span class="chip">Sonnet</span></div>
+        <ul>
+          <li>Five to eight short questions. The script is the owner’s answers in order, never a line Claude wrote.</li>
+          <li>Every beat cites the answer it came from; the script checker fails anything else.</li>
+          <li>Voice-memo path: talk for two minutes, the kit orders your own sentences.</li>
+        </ul>
+        <p class="done"><b>Done when</b> the checker rejects any spoken line that is not in the answers.</p>
+      </article>
+      <article class="part full">
+        <div class="top"><h3>Proof and push</h3><span class="n">7</span></div>
+        <div class="meta"><span class="chip">Claude, after lanes</span><span class="chip dep">needs 3, 5 and 6</span></div>
+        <ul>
+          <li>The smoke test grows to cover sorting, overlays and the review file.</li>
+          <li>A README tour with real screenshots of the sorter and the review page.</li>
+        </ul>
+        <p class="done"><b>Done when</b> the smoke test passes and <code>main</code> on GitHub matches it.</p>
+      </article>
+    </div>
+  </section>
+
+  <section aria-labelledby="dec-h">
+    <span class="eyebrow">Decisions and open questions</span>
+    <h2 id="dec-h">Settled, and still to settle</h2>
+    <div class="two">
+      <div class="box">
+        <h3>Settled by the owner</h3>
+        <ul>
+          <li>The kit anyone can use comes first; client work later.</li>
+          <li>Windows is a written guide Claude follows on the user’s machine, not code built here.</li>
+          <li>A review-and-approve page, not a timeline editor.</li>
+          <li>Scripts come from a Q&amp;A in the owner’s own words.</li>
+          <li>Caption colour comes from the brand profile, with a recommended one as fallback.</li>
+          <li>Each part is pushed to <code>main</code> as it lands.</li>
+        </ul>
+      </div>
+      <div class="box ask">
+        <h3>Open before building</h3>
+        <ol>
+          <li><b>Small cross-platform fixes.</b> Four spots in the scripts assume a Mac path. Allowed as plain bug fixes, or guide only?</li>
+          <li><b>Sorter on disk.</b> Index and thumbnails only, or real folders the owner can see?</li>
+          <li><b>When it opens.</b> Studio page opens by itself at session start, or on “open studio”?</li>
+          <li><b>Style guide.</b> Fold it into the Studio app as a third page, or keep it separate?</li>
+        </ol>
+      </div>
+    </div>
+    <p class="later">Later, not this round: the first client’s package and re-cut demo, built on parts 2, 3 and 6.</p>
+  </section>
+</div>
+
+</body>
+</html>

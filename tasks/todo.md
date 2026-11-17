@@ -58,3 +58,50 @@ Design: docs/superpowers/specs/2026-11-01-reelready-script-design.md (the "Settl
 - [x] Commit author on main rewritten to the Thrive Labs address (backup branch kept locally, never pushed); Apache-2.0 text copied into each HyperFrames skill folder
 - [x] hyperframes-helper removed (unused, no upstream licence)
 - [x] Channel URL confirmed; nothing left to decide before a public push
+
+## v0.5 Studio (planned 2026-11-17; revised after owner feedback)
+Owner decisions: build the kit anyone can use first, client work later. No Windows code: Windows is a written
+guide in the repo that Claude Code follows on the user's machine, installing what it needs with their OK.
+Review-and-approve page, not a timeline editor. Script comes from a Q&A in the owner's own words. Caption
+colour comes from the brand profile, with a recommended one when the profile has none. Push main as parts land.
+Visual of this order: docs/roadmap-v0.5.html
+
+### 1. Install guide for any OS (docs only, first, small)
+- [ ] INSTALL.md: per-OS table (macOS, Linux, Windows) of what Claude installs and how (brew / apt / winget),
+      always with the user's OK; Windows notes: no python3 command, venv in Scripts, npx.cmd, Node 22+,
+      UTF-8, main folder outside OneDrive
+- [ ] reelready-setup/references/windows.md rewritten as instructions to Claude (native first, WSL plan B);
+      CLAUDE.md "First run" points to it; README requirements line updated
+
+### 2. Brand kit (setup reads the owner's brand)
+- [ ] reelready-setup: "brand from your website": read the site's CSS for colours, fonts, logo; owner confirms
+- [ ] rr.py fonts: download the profile's Google Fonts (OFL) into assets/fonts; doctor lists them
+- [ ] Caption accent: profile captions.accent_color, else a recommended one picked from brand.colors
+
+### 3. Branded overlays (needs 2)
+- [ ] captions.py: emphasis word per group in a second font style (e.g. italic display face) + accent
+- [ ] engines/overlays.py on HyperFrames, driven by profile tokens: hook card, note-card lower third,
+      end card with logo/seal and CTA pill, polaroid frame for a b-roll beat
+- [ ] Cards H7, L5, O4, B5 + one new mix; taste.py reads the overlays sidecar
+
+### 4. Sorter (local app)
+- [ ] rr.py sort: probe raw footage (length, orientation, shoot day, speech yes/no, photo vs video),
+      groups (Talking to camera, B-roll, Voice notes, Photos, Too short), writes .reelready/library.json
+      and thumbnails; originals untouched
+- [ ] Studio app shell (stdlib server, like the style guide): Sorter page, thumbnails fly into labelled
+      folders, then a library grid
+
+### 5. Review-and-approve page (same app, needs 4's shell)
+- [ ] Plan cards for every generated line: Approve / Edit / Reject; caption corrections; brand choices
+- [ ] Preview: draft player, trim each cut, swap a b-roll shot from the library, pick hook A/B
+- [ ] Render writes <export>/review.json; the edit skill waits for it and re-renders only changed layers
+
+### 6. Script by interview (independent)
+- [ ] reelready-script interview mode: 5 to 8 short questions; the script is the owner's answers ordered,
+      never a written line; each beat cites its answer; script_check answers-only rule
+- [ ] Voice-memo path: a 2-minute ramble -> transcript -> story pass -> script, same rule
+
+### 7. Proof
+- [ ] Smoke test covers sort, overlays, review.json; README tour with screenshots; push main
+
+Later (not this round): the first client's package and re-cut demo, using parts 2, 3 and 6.
