@@ -5,11 +5,15 @@
 ReelReady turns the videos you film on your phone into edited, captioned, on-brand reels, right
 on your own computer. It's a free kit for Claude Code: you talk to Claude, Claude does the editing.
 
+- Sorts your clips into folders the moment you open it, and shows them in a Library
 - Cuts the pauses, the "um"s and the retakes
 - Adds captions that match your words exactly
-- Adds your colors, your logo, titles, lower-thirds, an end card and music
+- Reads your brand from your website and adds your colors, fonts, logo, titles, a lower-third and an end card
+- Lets you approve every line it wrote on one Review page before anything renders
 - Hands back a 9:16 video ready for Instagram, TikTok or YouTube Shorts
-- Writes a short script before you film, using only facts you gave it, if you ask for one
+- If you want a script, it asks you a few questions and builds it only from your own answers
+
+![Sorting the raw footage folder](docs/img/studio-sort.gif)
 
 ## Get started (no tech skills needed)
 
@@ -50,6 +54,7 @@ AI Video Editor/
 | show me the styles | opens the style guide in your browser |
 | show me my clips | opens your Library: every clip sorted into folders, with thumbnails |
 | undo the sort | puts every sorted clip back where it was |
+| write me a script for Saturday | asks you 5 to 8 short questions, then orders your own answers into a script |
 | make it 16:9 for YouTube | wide version of the same edit |
 | study my references | learns the look of videos you like |
 | change my brand colors | updates your setup |
@@ -70,23 +75,35 @@ choose one of the optional cloud upgrades below. (Under the hood: Whisper, ffmpe
 Keys are saved privately in `AI Video Editor/.reelready/.env` on your computer. Never in this
 folder, never shown back to you.
 
-## Styles
-
-30+ hand-picked style cards (Hook, Captions, Layout, Proof, B-roll, Signature, Motion & pace,
-Outro), each with a sketch, a two-line description and a copyable prompt. Mix a few, copy the
-combined prompt, and say "use styles ...". Say **show me the styles** to open the
-[style guide](styleguide/) (runs locally at `http://localhost:4810/#styles`).
-
 ## The Studio (opens when you start Claude)
 
-One page on your own computer, three tabs:
+One page on your own computer, three tabs. Nothing in it goes online.
 
-- **Library**: new clips in raw footage are sorted into folders (Talking to camera, B-roll, Voice notes,
-  Photos, Too short) and shown with thumbnails, length, shape and the day you shot them. Your files are only
-  moved into those folders, never renamed or deleted, and "undo the sort" puts them back.
-- **Review**: before anything renders, see the draft, trim a cut, swap a b-roll shot, pick hook A or B, and
-  approve, edit or reject every line Claude wrote. Press **Approve and render** (or just say "go" in chat).
-- **Styles**: the style guide.
+**Library.** New clips in raw footage are sorted into folders (Talking to camera, B-roll, Voice notes,
+Photos, Too short) and shown with thumbnails, length, shape and the day you shot them. Your files are only
+moved into those folders, never renamed or deleted, and "undo the sort" puts them back.
+
+![The Library](docs/img/studio-library.jpg)
+
+**Review.** Before anything renders, watch the draft, trim a cut, swap a b-roll shot, pick hook A or B, and
+approve, edit or reject every line Claude wrote. Press **Approve and render** (or just say "go" in chat).
+
+![The Review page](docs/img/studio-review.jpg)
+
+**Styles.** The style guide: 45 style cards (Hook, Captions, Layout, Proof, B-roll, Signature, Motion & pace,
+Outro, Sound), each with a sketch, a short description and a copyable prompt. Mix a few and say
+"use styles ...", or say **show me the styles**.
+
+![The Styles page](docs/img/studio-styles.jpg)
+
+## Your brand, not a template
+
+During setup Claude can read your website for your colors, fonts and logo (you confirm each one), download
+your Google Fonts and pick a caption highlight color from your palette. The overlays (hook card, note-card
+lower-third, polaroid moment, end card) are drawn from those, so the same clip looks like two different
+businesses:
+
+![The same test clip in two brands](docs/img/overlays-two-brands.jpg)
 
 Rules every edit follows: captions are word-for-word, any text Claude writes is marked for your
 approval, and only one big effect per moment, so nothing looks "AI".
@@ -102,11 +119,17 @@ See [addons/telegram/README.md](addons/telegram/README.md).
 - How it fits together: [docs/architecture.md](docs/architecture.md)
 - Agent brief Claude reads: [CLAUDE.md](CLAUDE.md); skills in `.claude/skills/reelready-*`
 - Engines (`engines/`, contracts in [engines/README.md](engines/README.md)): `transcribe.py`, `cut.py`,
-  `render_cut.py`, `qa.py`, plus `captions.py` (fast verbatim burn-in); stdlib + a repo-local `.venv`
+  `render_cut.py`, `story.py`, `captions.py` (verbatim burn-in, optional per-group emphasis), `overlays.py`
+  (brand overlays on HyperFrames), `sound.py`, `qa.py`, `taste.py` (brand gate), `script_check.py`;
+  stdlib + a repo-local `.venv`
 - Helpers: `scripts/doctor.py` (dependency + free-disk table, exit code), `scripts/setup.sh`
-  (idempotent, no sudo), `scripts/init.py --path` (folder contract), `scripts/rr.py` (paths, jobs,
-  keys, profile, music ducking, multi-clip `join-drafts`)
-- Smoke test: `bash tests/smoke/run.sh` (needs macOS `say`; exits 1 on any failed step)
+  (idempotent, no sudo), `scripts/init.py --path` (folder contract), `scripts/brand_from_site.py`
+  (brand proposal from a website), `scripts/rr.py` (paths, jobs, keys, profile, `fonts`,
+  `recommend-accent`, `sort` / `sort --undo`, `studio --start`, `review-request`, `wait-review`)
+- Studio: `studio/serve.py` (stdlib server, local only) with `studio/index.html`; the repo's
+  `.claude/settings.json` starts it on session start
+- Smoke tests: `bash tests/smoke/run.sh` (needs macOS `say`; includes the Studio and script checks) and
+  `bash tests/smoke/overlays.sh` (two-brand overlay proof, about 2 minutes, needs the internet once for fonts)
 - Rename the brand in one place: `reelready.config.json`
 - Style profile schema: [profile/example-profile.json](profile/example-profile.json); the real one
   lives at `<main folder>/.reelready/style-profile.json`

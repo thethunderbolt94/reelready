@@ -72,10 +72,10 @@ contract in CLAUDE.md changes to allow exactly this. (3) Studio opens on session
 and the page opens. (4) The style guide folds into the Studio app: Library, Review, Styles.
 
 ### 1. Install guide for any OS (docs only, first, small)
-- [ ] INSTALL.md: per-OS table (macOS, Linux, Windows) of what Claude installs and how (brew / apt / winget),
+- [x] INSTALL.md: per-OS table (macOS, Linux, Windows) of what Claude installs and how (brew / apt / winget),
       always with the user's OK; Windows notes: no python3 command, venv in Scripts, npx.cmd, Node 22+,
       UTF-8, main folder outside OneDrive
-- [ ] reelready-setup/references/windows.md rewritten as instructions to Claude (native first, WSL plan B);
+- [x] reelready-setup/references/windows.md rewritten as instructions to Claude (native first, WSL plan B);
       CLAUDE.md "First run" points to it; README requirements line updated
 
 ### 2. Brand kit (setup reads the owner's brand)
@@ -90,16 +90,16 @@ and the page opens. (4) The style guide folds into the Studio app: Library, Revi
 - [x] Cards H7, L5, O4, B5 + one new mix; taste.py reads the overlays sidecar
 
 ### 4. Sorter (local app)
-- [ ] rr.py sort: probe raw footage (length, orientation, shoot day, speech yes/no, photo vs video),
+- [x] rr.py sort: probe raw footage (length, orientation, shoot day, speech yes/no, photo vs video),
       groups (Talking to camera, B-roll, Voice notes, Photos, Too short), writes .reelready/library.json
       and thumbnails; moves originals into group folders inside raw footage (logged, --undo restores)
-- [ ] Studio app (stdlib server, replaces styleguide/serve.py): Library page (thumbnails fly into labelled
+- [x] Studio app (stdlib server, replaces styleguide/serve.py): Library page (thumbnails fly into labelled
       folders, then a grid), Styles page (the style guide), opened on session start
 
 ### 5. Review-and-approve page (same app, needs 4's shell)
-- [ ] Plan cards for every generated line: Approve / Edit / Reject; caption corrections; brand choices
-- [ ] Preview: draft player, trim each cut, swap a b-roll shot from the library, pick hook A/B
-- [ ] Render writes <export>/review.json; the edit skill waits for it and re-renders only changed layers
+- [x] Plan cards for every generated line: Approve / Edit / Reject; caption corrections; brand choices
+- [x] Preview: draft player, trim each cut, swap a b-roll shot from the library, pick hook A/B
+- [x] Render writes <export>/review.json; the edit skill waits for it and re-renders only changed layers
 
 ### 6. Script by interview (independent)
 - [x] reelready-script interview mode: 5 to 8 short questions; the script is the owner's answers ordered,
@@ -107,6 +107,17 @@ and the page opens. (4) The style guide folds into the Studio app: Library, Revi
 - [x] Voice-memo path: a 2-minute ramble -> transcript -> story pass -> script, same rule
 
 ### 7. Proof
-- [ ] Smoke test covers sort, overlays, review.json; README tour with screenshots; push main
+- [x] Smoke test covers sort, undo and the review round trip (studio.sh inside run.sh); overlays proven by
+      tests/smoke/overlays.sh (two brands, QA + TASTE PASS); README tour with a sort GIF and screenshots in
+      docs/img; pushed to main
 
 Later (not this round): the first client's package and re-cut demo, using parts 2, 3 and 6.
+
+### v0.5 review (2026-11-17)
+- All seven parts merged to main; smoke test passes (SMOKE OK incl. STUDIO PASS and the answers-only checks).
+- Windows: docs only, never run on a Windows PC. First real install will be the test.
+- Live interview not yet run end to end in a real conversation; the checker is proven on fixtures.
+- Studio sort animation verified in a real browser; headless Chrome does not advance it (capture quirk), and
+  a safety timeout now lands on the library even if a browser stalls the animation.
+- Open, optional: 16:9 and 4:5 layouts for overlays.py (9:16 only today); fold overlays.sh into run.sh if it
+  gets faster; the emphasis chooser sometimes picks a plain word (owner can pass --emphasis-words).

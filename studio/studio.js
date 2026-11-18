@@ -337,6 +337,8 @@
             if (++finished === cards.length) setTimeout(function () { finish(false); }, 200);
           };
         });
+        /* safety: a busy or throttled browser may never fire onfinish; land on the library anyway */
+        setTimeout(function () { finish(false); }, WINDOW + FLY + 4000);
       }, DROP + HOLD);
     }
   }
